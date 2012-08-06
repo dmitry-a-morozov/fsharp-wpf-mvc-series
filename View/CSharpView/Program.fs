@@ -26,8 +26,8 @@ type SimpleView() =
         ]
 
     override this.SetBindings model = 
-        this.Window.Left.SetBinding(TextBox.TextProperty, "Left") |> ignore
-        this.Window.Right.SetBinding(TextBox.TextProperty, "Right") |> ignore
+        this.Window.LeftArg.SetBinding(TextBox.TextProperty, "Left") |> ignore
+        this.Window.RightArg.SetBinding(TextBox.TextProperty, "Right") |> ignore
         this.Window.Result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
 
 [<STAThread>] 
