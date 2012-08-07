@@ -16,8 +16,11 @@ type SimpleEvents =
     | Add
     | Clear
 
-type SimpleView() =
+type SimpleView() as this =
     inherit View<SimpleEvents, SimpleModel, SimpleWindow>()
+
+    let left : TextBox = this ? LHS
+    let right : TextBox = this ? LHS
 
     override this.EventStreams = 
         [
@@ -26,8 +29,8 @@ type SimpleView() =
         ]
 
     override this.SetBindings model = 
-        this.Window.LeftArg.SetBinding(TextBox.TextProperty, "Left") |> ignore
-        this.Window.RightArg.SetBinding(TextBox.TextProperty, "Right") |> ignore
+        left.SetBinding(TextBox.TextProperty, "Left") |> ignore
+        right.SetBinding(TextBox.TextProperty, "Right") |> ignore
         this.Window.Result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
 
 [<STAThread>] 

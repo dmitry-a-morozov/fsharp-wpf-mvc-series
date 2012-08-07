@@ -14,7 +14,7 @@ type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) =
     let window = defaultArg window (new 'W())
 
     member this.Window = window
-    static member (?) (view : View<'E, 'M, 'W>, name) = 
+    static member (?) (view : View<_, _, _>, name) = 
         match view.Window.FindName name with
         | null -> 
             match view.Window.TryFindResource name with

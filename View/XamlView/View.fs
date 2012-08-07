@@ -30,7 +30,7 @@ type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) =
 type XamlView<'E, 'M>(resourceLocator) = 
     inherit View<'E, 'M, Window>(Application.LoadComponent resourceLocator |> unbox)
 
-    static member (?) (view : View<'E, 'M, 'W>, name) = 
+    static member (?) (view : View<_, _, _>, name) = 
         match view.Window.FindName name with
         | null -> invalidArg "Name" ("Cannot find control with name: " + name)
         | control -> control |> unbox
