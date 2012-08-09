@@ -12,12 +12,12 @@ type SampleModel() =
     abstract Right : int with get, set
     abstract Result : int with get, set
 
-type SimpleEvents = 
+type SampleEvents = 
     | Add
     | Clear
 
-type SimpleView() as this =
-    inherit XamlView<SimpleEvents, SampleModel>(resourceLocator = Uri("/Window.xaml", UriKind.Relative))
+type SampleView() as this =
+    inherit XamlView<SampleEvents, SampleModel>(resourceLocator = Uri("/Window.xaml", UriKind.Relative))
 
     let addButton : Button = this ? Add
     let clearButton : Button = this ? Clear
@@ -39,7 +39,7 @@ type SimpleView() as this =
 [<STAThread>] 
 do 
     let model = Model.Create<SampleModel>()
-    let view = SimpleView()
+    let view = SampleView()
     let iview = view :> IView<_, _>
     iview.SetBindings(model)
     iview |> Observable.add(function

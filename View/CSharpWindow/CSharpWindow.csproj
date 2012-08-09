@@ -51,12 +51,12 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="SimpleWindow.xaml">
+    <Page Include="SampleWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="SimpleWindow.xaml.cs">
-      <DependentUpon>SimpleWindow.xaml</DependentUpon>
+    <Compile Include="SampleWindow.xaml.cs">
+      <DependentUpon>SampleWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

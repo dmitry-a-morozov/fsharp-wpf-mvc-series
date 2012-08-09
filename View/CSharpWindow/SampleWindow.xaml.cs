@@ -15,9 +15,9 @@ using System.Windows.Shapes;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class SimpleWindow : Window
+public partial class SampleWindow : Window
 {
-    public SimpleWindow()
+    public SampleWindow()
     {
         InitializeComponent();
     }

@@ -12,15 +12,15 @@ type SampleModel() =
     abstract Right : int with get, set
     abstract Result : int with get, set
 
-type SimpleEvents = 
+type SampleEvents = 
     | Add
     | Clear
 
-type SimpleView() as this =
-    inherit View<SimpleEvents, SampleModel, SimpleWindow>()
+type SampleView() as this =
+    inherit View<SampleEvents, SampleModel, SampleWindow>()
 
     let left : TextBox = this ? LHS
-    let right : TextBox = this ? LHS
+    let right : TextBox = this ? RHS
 
     override this.EventStreams = 
         [
@@ -36,7 +36,7 @@ type SimpleView() as this =
 [<STAThread>] 
 do 
     let model = Model.Create<SampleModel>()
-    let view = SimpleView()
+    let view = SampleView()
     let iview = view :> IView<_, _>
     iview.SetBindings(model)
     iview |> Observable.add(function
