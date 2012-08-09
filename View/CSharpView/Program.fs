@@ -8,8 +8,8 @@ open Mvc.Wpf
 type SampleModel() = 
     inherit Model()
 
-    abstract Left : int with get, set
-    abstract Right : int with get, set
+    abstract X : int with get, set
+    abstract Y : int with get, set
     abstract Result : int with get, set
 
 type SampleEvents = 
@@ -19,8 +19,8 @@ type SampleEvents =
 type SampleView() as this =
     inherit View<SampleEvents, SampleModel, SampleWindow>()
 
-    let left : TextBox = this ? LHS
-    let right : TextBox = this ? RHS
+    let x : TextBox = this ? LHS
+    let y : TextBox = this ? RHS
 
     override this.EventStreams = 
         [
@@ -29,8 +29,8 @@ type SampleView() as this =
         ]
 
     override this.SetBindings model = 
-        left.SetBinding(TextBox.TextProperty, "Left") |> ignore
-        right.SetBinding(TextBox.TextProperty, "Right") |> ignore
+        x.SetBinding(TextBox.TextProperty, "X") |> ignore
+        y.SetBinding(TextBox.TextProperty, "Y") |> ignore
         this.Window.Result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
 
 [<STAThread>] 
@@ -40,10 +40,10 @@ do
     let iview = view :> IView<_, _>
     iview.SetBindings model
     iview |> Observable.add(function
-        | Add -> model.Result <- model.Left + model.Right
+        | Add -> model.Result <- model.X + model.Y
         | Clear -> 
-            model.Left <- 0
-            model.Right <- 0
+            model.X <- 0
+            model.Y <- 0
             model.Result <- 0
     )
 

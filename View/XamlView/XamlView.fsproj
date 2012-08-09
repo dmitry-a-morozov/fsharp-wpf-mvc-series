@@ -43,6 +43,7 @@
     <Resource Include="Window.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Accessibility" />
     <Reference Include="Castle.Core">
       <HintPath>..\References\Castle.Core.dll</HintPath>
     </Reference>

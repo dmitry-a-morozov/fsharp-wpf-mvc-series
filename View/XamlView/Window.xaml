@@ -14,8 +14,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBox Name="Left" Margin="5" Height="25"/>
-            <TextBox Grid.Row="1" Name="Right" Margin="5" Height="25"/>
+            <TextBox Name="X" Margin="5" Height="25"/>
+            <TextBox Grid.Row="1" Name="Y" Margin="5" Height="25"/>
             <TextBlock Grid.Row="2" Name="Result" Margin="5" Height="25"/>
             <StackPanel Grid.Row="3" Orientation="Horizontal" Grid.ColumnSpan="2" >
                 <Button Content="Add" Name="Add" Width="120" Height="25" Margin="5"/>
