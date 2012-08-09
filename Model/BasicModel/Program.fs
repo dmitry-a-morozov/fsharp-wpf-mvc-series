@@ -22,7 +22,7 @@ type SampleModel() =
 
 [<STAThread>] 
 do 
-    let model = Model.Create<SampleModel>()
+    let model : SampleModel = Model.Create()
 
     let left = TextBox()
     left.SetBinding(TextBox.TextProperty, "Left") |> ignore
