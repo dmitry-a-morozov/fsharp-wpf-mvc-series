@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SimpleModel", "SimpleModel\SimpleModel.fsproj", "{849AFBED-E9F1-459E-AA56-0E02A5663A68}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BasicModel", "SimpleModel\BasicModel.fsproj", "{849AFBED-E9F1-459E-AA56-0E02A5663A68}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AbstractPropModel", "AbstractPropModel\AbstractPropModel.fsproj", "{E967B9DE-6D7A-4538-8351-4F3D9653E515}"
 EndProject
