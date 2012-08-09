@@ -4,7 +4,7 @@ open System.Windows.Controls
 
 open Mvc.Wpf
 
-type MyModel() = 
+type SampleModel() = 
     inherit Model()
 
     let mutable left = 0
@@ -22,7 +22,7 @@ type MyModel() =
 
 [<STAThread>] 
 do 
-    let model = Model.Create<MyModel>()
+    let model = Model.Create<SampleModel>()
 
     let left = TextBox()
     left.SetBinding(TextBox.TextProperty, "Left") |> ignore
