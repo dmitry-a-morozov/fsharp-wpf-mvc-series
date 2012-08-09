@@ -38,7 +38,6 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <ItemGroup>
     <Compile Include="Model.fs" />
-    <Resource Include="Window.xaml" />
     <Compile Include="View.fs" />
     <Compile Include="Controller.fs" />
     <Compile Include="Sample.fs" />
@@ -68,6 +67,13 @@
     <Reference Include="xunit">
       <HintPath>..\..\References\xunit.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CSharpWindow\CSharpWindow.csproj">
+      <Name>CSharpWindow</Name>
+      <Project>{fa52ee33-ecbe-4354-bcf2-caea2b9442df}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.

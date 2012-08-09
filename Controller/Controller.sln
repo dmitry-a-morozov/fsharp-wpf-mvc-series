@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BasicController", "BasicController\BasicController.fsproj", "{EA652C24-FFD3-4801-9E32-85AFCEC2D52C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpWindow", "CSharpWindow\CSharpWindow.csproj", "{FA52EE33-ECBE-4354-BCF2-CAEA2B9442DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,6 +15,10 @@ Global
 		{EA652C24-FFD3-4801-9E32-85AFCEC2D52C}.Debug|x86.Build.0 = Debug|x86
 		{EA652C24-FFD3-4801-9E32-85AFCEC2D52C}.Release|x86.ActiveCfg = Release|x86
 		{EA652C24-FFD3-4801-9E32-85AFCEC2D52C}.Release|x86.Build.0 = Release|x86
+		{FA52EE33-ECBE-4354-BCF2-CAEA2B9442DF}.Debug|x86.ActiveCfg = Debug|x86
+		{FA52EE33-ECBE-4354-BCF2-CAEA2B9442DF}.Debug|x86.Build.0 = Debug|x86
+		{FA52EE33-ECBE-4354-BCF2-CAEA2B9442DF}.Release|x86.ActiveCfg = Release|x86
+		{FA52EE33-ECBE-4354-BCF2-CAEA2B9442DF}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

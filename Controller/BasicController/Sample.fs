@@ -18,27 +18,19 @@ type SampleEvents =
     | Clear
     | Subtract of int * int
 
-type SimpleView() as this =
-    inherit XamlView<SampleEvents, SampleModel>(resourceLocator = Uri("/Window.xaml", UriKind.Relative))
-
-    let addButton : Button = this ? Add
-    let subtractButton : Button = this ? Subtract
-    let clearButton : Button = this ? Clear
-    let x : TextBox = this ? X
-    let y : TextBox = this ? Y
-    let result : TextBlock = this ? Result
+type SampleView() =
+    inherit View<SampleEvents, SampleModel, SampleWindow>()
 
     override this.EventStreams = 
         [
-            addButton.Click |> Observable.map(fun _ -> Add)
-            clearButton.Click |> Observable.map(fun _ -> Clear)
-            subtractButton.Click |> Observable.map(fun _ -> Subtract(int x.Text, int y.Text))
+            this.Window.Add.Click |> Observable.map(fun _ -> Add)
+            this.Window.Clear.Click |> Observable.map(fun _ -> Clear)
         ]
 
     override this.SetBindings model = 
-        x.SetBinding(TextBox.TextProperty, "X") |> ignore
-        y.SetBinding(TextBox.TextProperty, "Y") |> ignore
-        result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
+        this.Window.X.SetBinding(TextBox.TextProperty, "X") |> ignore
+        this.Window.Y.SetBinding(TextBox.TextProperty, "Y") |> ignore
+        this.Window.Result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
 
 type SimpleController(view : IView<_, _>) = 
     inherit Controller<SampleEvents, SampleModel>(view)
