@@ -57,6 +57,7 @@ type SampleView() =
 [<STAThread>] 
 do 
     // No need to specify type for Model.Create call. Type inference knows.
+    // Compare it with BasicModel project call where type had to be specified in Model.Create<SampleModel>
     let model = Model.Create()
     let view = SampleView()
     let iview = view :> IView<_, _>
