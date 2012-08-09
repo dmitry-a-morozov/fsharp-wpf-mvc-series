@@ -1,9 +1,9 @@
 ﻿namespace Mvc.Wpf
 
-open System
+open System.ComponentModel
 
 [<AbstractClass>]
-type Controller<'E, 'M when 'M :> Model and 'M : not struct>(view : IView<'E, 'M>) =
+type Controller<'E, 'M when 'M :> INotifyPropertyChanged>(view : IView<'E, 'M>) =
 
     abstract InitModel : 'M -> unit
     abstract EventHandler : ('E -> 'M -> unit)
