@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SimpleView", "SimpleView\SimpleView.fsproj", "{3A4EACF7-EBDE-4325-B586-3AB56DE8C7ED}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BasicView", "SimpleView\BasicView.fsproj", "{3A4EACF7-EBDE-4325-B586-3AB56DE8C7ED}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "XamlView", "XamlView\XamlView.fsproj", "{5B0D9B8C-6723-4806-9509-1113AC3F11F5}"
 EndProject
