@@ -56,11 +56,12 @@ type SampleView() =
 
 [<STAThread>] 
 do 
-    let model = Model.Create<SampleModel>()
+    // No need to specify type for Model.Create call. Type inference knows.
+    let model = Model.Create()
     let view = SampleView()
     let iview = view :> IView<_, _>
     iview.SetBindings model
-    iview |> Observable.add(function
+    iview |> Observable.add(function //pattern matching function syntax !!! EXTEND COMMENT
         | Add -> model.Result <- model.Left + model.Right
         | Clear -> 
             model.Left <- 0
