@@ -41,7 +41,7 @@ do
     let model = Model.Create()
     let view = SampleView()
     let iview = view :> IView<_, _>
-    iview.SetBindings(model)
+    iview.SetBindings model
     iview |> Observable.add(function
         | Add -> model.Result <- model.Left + model.Right
         | Clear -> 
