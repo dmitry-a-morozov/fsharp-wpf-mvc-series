@@ -58,7 +58,7 @@ type SampleView() =
 do 
     // No need to specify type for Model.Create call. Type inference knows.
     // Compare it with BasicModel project call where type had to be specified in Model.Create<SampleModel>
-    let model = Model.Create()
+    let model = SampleModel.Create()
     let view = SampleView()
     let iview = view :> IView<_, _>
     iview.SetBindings model

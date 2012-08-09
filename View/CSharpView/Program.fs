@@ -35,7 +35,7 @@ type SampleView() as this =
 
 [<STAThread>] 
 do 
-    let model = Model.Create()
+    let model = SampleModel.Create()
     let view = SampleView()
     let iview = view :> IView<_, _>
     iview.SetBindings model
