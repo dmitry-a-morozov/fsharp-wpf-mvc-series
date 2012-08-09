@@ -39,7 +39,7 @@ type SimpleView() as this =
         right.SetBinding(TextBox.TextProperty, "Right") |> ignore
         result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
 
-type SimpleController(view : SimpleView) = 
+type SimpleController(view : IView<_, _>) = 
     inherit Controller<SimpleEvents, SimpleModel>(view)
 
     override this.InitModel model = 
@@ -60,7 +60,7 @@ type SimpleController(view : SimpleView) =
         
 [<STAThread>] 
 do 
-    let model = Model.Create<SimpleModel>()
+    let model = Model.Create()
     let view = SimpleView()
     let controller = SimpleController(view)
     controller.Start model |> ignore
