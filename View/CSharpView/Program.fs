@@ -5,7 +5,7 @@ open System.Windows.Controls
 open Mvc.Wpf
 
 [<AbstractClass>]
-type SimpleModel() = 
+type SampleModel() = 
     inherit Model()
 
     abstract Left : int with get, set
@@ -17,7 +17,7 @@ type SimpleEvents =
     | Clear
 
 type SimpleView() as this =
-    inherit View<SimpleEvents, SimpleModel, SimpleWindow>()
+    inherit View<SimpleEvents, SampleModel, SimpleWindow>()
 
     let left : TextBox = this ? LHS
     let right : TextBox = this ? LHS
@@ -35,7 +35,7 @@ type SimpleView() as this =
 
 [<STAThread>] 
 do 
-    let model = Model.Create<SimpleModel>()
+    let model = Model.Create<SampleModel>()
     let view = SimpleView()
     let iview = view :> IView<_, _>
     iview.SetBindings(model)

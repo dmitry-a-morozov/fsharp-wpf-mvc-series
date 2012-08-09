@@ -5,7 +5,7 @@ open System.Windows.Controls
 open Mvc.Wpf
 
 [<AbstractClass>]
-type SimpleModel() = 
+type SampleModel() = 
     inherit Model()
 
     abstract Left : int with get, set
@@ -17,7 +17,7 @@ type SimpleEvents =
     | Clear
 
 type SimpleView() as this =
-    inherit XamlView<SimpleEvents, SimpleModel>(resourceLocator = Uri("/Window.xaml", UriKind.Relative))
+    inherit XamlView<SimpleEvents, SampleModel>(resourceLocator = Uri("/Window.xaml", UriKind.Relative))
 
     let addButton : Button = this ? Add
     let clearButton : Button = this ? Clear
@@ -38,7 +38,7 @@ type SimpleView() as this =
 
 [<STAThread>] 
 do 
-    let model = Model.Create<SimpleModel>()
+    let model = Model.Create<SampleModel>()
     let view = SimpleView()
     let iview = view :> IView<_, _>
     iview.SetBindings(model)
