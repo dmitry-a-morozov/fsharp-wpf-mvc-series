@@ -5,7 +5,7 @@ open System.Windows.Controls
 open Mvc.Wpf
 
 [<AbstractClass>]
-type SimpleModel() = 
+type MyModel() = 
     inherit Model()
 
     abstract Left : int with get, set
@@ -14,7 +14,7 @@ type SimpleModel() =
 
 [<STAThread>] 
 do 
-    let model = Model.Create<SimpleModel>()
+    let model = Model.Create<MyModel>()
 
     let left = TextBox()
     left.SetBinding(TextBox.TextProperty, "Left") |> ignore
