@@ -8,19 +8,19 @@ open Mvc.Wpf
 type SampleModel() = 
     inherit Model()
 
-    abstract Left : int with get, set
-    abstract Right : int with get, set
+    abstract X : int with get, set
+    abstract Y : int with get, set
     abstract Result : int with get, set
 
 [<STAThread>] 
 do 
     let model : SampleModel = Model.Create()
 
-    let left = TextBox()
-    left.SetBinding(TextBox.TextProperty, "Left") |> ignore
+    let x = TextBox()
+    x.SetBinding(TextBox.TextProperty, "X") |> ignore
 
-    let right = TextBox()
-    right.SetBinding(TextBox.TextProperty, "Right") |> ignore
+    let y = TextBox()
+    y.SetBinding(TextBox.TextProperty, "Y") |> ignore
 
     let result = TextBlock()
     result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
@@ -29,14 +29,14 @@ do
 
     let panel = StackPanel()
 
-    panel.Children.Add left |> ignore
-    panel.Children.Add right |> ignore
+    panel.Children.Add x |> ignore
+    panel.Children.Add y |> ignore
     panel.Children.Add result |> ignore
     panel.Children.Add calculate |> ignore
 
     let window = Window(Title = "Simple model", Content = panel, Width = 200., Height = 200.)
     window.DataContext <- model
 
-    calculate.Click.Add(fun _ -> model.Result <- model.Left + model.Right)
+    calculate.Click.Add(fun _ -> model.Result <- model.X + model.Y)
 
     Application().Run window |> ignore
