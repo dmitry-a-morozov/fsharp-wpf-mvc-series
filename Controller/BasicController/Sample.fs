@@ -24,6 +24,7 @@ type SampleView() =
     override this.EventStreams = 
         [
             this.Window.Add.Click |> Observable.map(fun _ -> Add)
+            this.Window.Subtract.Click |> Observable.map(fun _ -> Subtract(int this.Window.X.Text, int this.Window.Y.Text))
             this.Window.Clear.Click |> Observable.map(fun _ -> Clear)
         ]
 
