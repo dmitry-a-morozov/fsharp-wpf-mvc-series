@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Binding", "Binding\Binding.fsproj", "{00F430FC-F5EB-4FA0-BC22-7C480AB0FEC3}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BasicBinding", "Binding\BasicBinding.fsproj", "{00F430FC-F5EB-4FA0-BC22-7C480AB0FEC3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpWindow", "CSharpWindow\CSharpWindow.csproj", "{FA52EE33-ECBE-4354-BCF2-CAEA2B9442DF}"
 EndProject
