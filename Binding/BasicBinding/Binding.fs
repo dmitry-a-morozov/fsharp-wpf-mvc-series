@@ -1,5 +1,6 @@
 ﻿[<AutoOpen>]
-module Mvc.Wpf.BindingExtensions
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Mvc.Wpf.Binding
 
 open System.Reflection
 open System.Windows
