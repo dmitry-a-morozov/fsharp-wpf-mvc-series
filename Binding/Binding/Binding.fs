@@ -26,9 +26,9 @@ type Expr with
                 PropertyGet( Some( Value _), sourceProperty, [])
             ) ->
                 let target : FrameworkElement = (view, [||]) |> window.GetValue |> control.GetValue |> unbox
-                let binding = Binding(sourceProperty.Name, ValidatesOnDataErrors = true)
-                let bindingResult = target.SetBinding(targetProperty.DependencyProperty, binding)
-                assert not bindingResult.HasError
+                let binding = Binding(path = sourceProperty.Name, ValidatesOnDataErrors = true)
+                let bindingExpr = target.SetBinding(targetProperty.DependencyProperty, binding)
+                assert not bindingExpr.HasError
 
         | _ -> invalidArg "expr" (string this) 
 
