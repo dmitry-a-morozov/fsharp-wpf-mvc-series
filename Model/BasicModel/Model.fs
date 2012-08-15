@@ -3,6 +3,7 @@
 open System.ComponentModel
 open Castle.DynamicProxy
 
+[<AbstractClass>]
 type Model() = 
 
     static let proxyFactory = ProxyGenerator()
