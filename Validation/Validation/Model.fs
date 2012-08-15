@@ -35,6 +35,7 @@ type Model() =
                         | _ -> ()
         }
 
+    let errors = Dictionary()
     let propertyChangedEvent = Event<_,_>()
 
     interface INotifyPropertyChanged with
@@ -47,6 +48,24 @@ type Model() =
     static member Create<'M when 'M :> Model and 'M : not struct>()  : 'M = 
         let interceptors : IInterceptor[] = [| notifyPropertyChanged; AbstractProperties() |]
         proxyFactory.CreateClassProxy interceptors    
+
+    interface IDataErrorInfo with
+        member this.Error = undefined
+        member this.Item 
+            with get propertyName = 
+                match errors.TryGetValue propertyName with
+                | true, message -> message
+                | false, _ -> null
+
+    member this.SetError(propertyName, message) = 
+        errors.[propertyName] <- message
+        this.TriggerPropertyChanged propertyName
+
+    member this.ClearError propertyName = this.SetError(propertyName, null)
+    member this.ClearAllErrors() = errors.Keys |> Seq.toArray |> Array.iter this.ClearError
+    abstract HasErrors : bool
+    default this.HasErrors = errors.Values |> Seq.exists (not << String.IsNullOrEmpty)
+    member this.IsValid = not this.HasErrors
 
 and AbstractProperties() =
     let data = Dictionary()
