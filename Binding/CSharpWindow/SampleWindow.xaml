@@ -22,7 +22,7 @@
         </DockPanel>
         <TextBox Grid.Row="2" Name="Y" Margin="5" Height="25" x:FieldModifier="public"/>
         <DockPanel Grid.Row="3">
-            <Label Content="Result"/>
+            <Label Content="Result:"/>
             <TextBlock Name="Result" Margin="5" Height="25" x:FieldModifier="public"/>
         </DockPanel>
         <StackPanel Grid.Row="4" Orientation="Horizontal" Grid.ColumnSpan="2" >
