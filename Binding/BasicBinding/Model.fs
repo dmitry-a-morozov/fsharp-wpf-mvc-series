@@ -21,6 +21,7 @@ module MethodInfo =
 
 open MethodInfo
 
+[<AbstractClass>]
 type Model() = 
 
     static let proxyFactory = ProxyGenerator()
