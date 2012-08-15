@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpWindow", "CSharpWindo
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BasicBinding", "BasicBinding\BasicBinding.fsproj", "{00F430FC-F5EB-4FA0-BC22-7C480AB0FEC3}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Binding", "Binding\Binding.fsproj", "{1C5D26B9-B8B1-483A-8AF9-68F7CDF17A58}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -19,6 +21,10 @@ Global
 		{00F430FC-F5EB-4FA0-BC22-7C480AB0FEC3}.Debug|x86.Build.0 = Debug|x86
 		{00F430FC-F5EB-4FA0-BC22-7C480AB0FEC3}.Release|x86.ActiveCfg = Release|x86
 		{00F430FC-F5EB-4FA0-BC22-7C480AB0FEC3}.Release|x86.Build.0 = Release|x86
+		{1C5D26B9-B8B1-483A-8AF9-68F7CDF17A58}.Debug|x86.ActiveCfg = Debug|x86
+		{1C5D26B9-B8B1-483A-8AF9-68F7CDF17A58}.Debug|x86.Build.0 = Debug|x86
+		{1C5D26B9-B8B1-483A-8AF9-68F7CDF17A58}.Release|x86.ActiveCfg = Release|x86
+		{1C5D26B9-B8B1-483A-8AF9-68F7CDF17A58}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

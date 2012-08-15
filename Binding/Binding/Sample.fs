@@ -4,14 +4,15 @@ namespace Mvc.Wpf.Sample
 open Mvc.Wpf
 open System
 open System.Windows.Controls
+open System.Windows.Data
 
 [<AbstractClass>]
 type SampleModel() = 
     inherit Model()
 
-    abstract X : string with get, set
-    abstract Y : string with get, set
-    abstract Result : string with get, set
+    abstract X : int with get, set
+    abstract Y : int with get, set
+    abstract Result : int with get, set
 
 type SampleEvents = 
     | Add
@@ -29,17 +30,20 @@ type SampleView() =
         ]
 
     override this.SetBindings model = 
-        <@ this.Window.X.Text <- model.X @>.ToBindingExpr()
-        <@ this.Window.Y.Text <- model.Y @>.ToBindingExpr()
-        <@ this.Window.Result.Text <- model.Result @>.ToBindingExpr()
+        Binding.FromExpression 
+            <@ 
+                this.Window.X.Text <- string model.X
+                this.Window.Y.Text <- string model.Y 
+                this.Window.Result.Text <- string model.Result 
+            @>
 
 type SimpleController(view : IView<_, _>) = 
     inherit Controller<SampleEvents, SampleModel>(view)
 
     override this.InitModel model = 
-        model.X <- "0"
-        model.Y <- "0"
-        model.Result <- "0"
+        model.X <- 0
+        model.Y <- 0
+        model.Result <- 0
 
     override this.EventHandler = function
         | Add -> this.Add
@@ -47,7 +51,7 @@ type SimpleController(view : IView<_, _>) =
         | Subtract(x, y) -> this.Subtract x y
 
     member this.Add model = 
-        model.Result <- int model.X + int model.Y |> string
+        model.Result <- model.X + model.Y 
         
     member this.Subtract x y model = 
-        model.Result <- int x - int y |> string
+        model.Result <- int x - int y
