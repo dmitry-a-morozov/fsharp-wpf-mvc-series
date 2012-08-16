@@ -9,6 +9,8 @@ open Mvc.Wpf
 type Operations =
     | Add
     | Subtract
+    | Multiply
+    | Divide
 
     override this.ToString() = sprintf "%A" this
 
@@ -65,5 +67,23 @@ type SimpleController(view : IView<_, _>) =
 
     member this.Calculate model = 
         match model.SelectedOperation with
-        | Add -> model.Result <- model.X + model.Y
-        | Subtract -> model.Result <- model.X - model.Y
+        | Add -> 
+            if model.Y < 0 
+            then 
+                model |> Validation.positive <@ fun m -> m.Y @>
+            else 
+                model.Result <- model.X + model.Y
+        | Subtract -> 
+            if model.Y < 0 
+            then 
+                model |> Validation.positive <@ fun m -> m.Y @>
+            else 
+                model.Result <- model.X - model.Y
+        | Multiply -> 
+            model.Result <- model.X * model.Y
+        | Divide -> 
+            if model.Y = 0 
+            then
+                model |> Validation.setError <@ fun m -> m.Y @> "Attempted to divide by zero."
+            else
+                model.Result <- model.X / model.Y
