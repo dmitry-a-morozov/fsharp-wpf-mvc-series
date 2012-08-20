@@ -3,8 +3,10 @@
 open System
 open System.Windows.Controls
 open System.Windows.Data
+open System.Threading
 open Microsoft.FSharp.Reflection
 open Mvc.Wpf
+open CSharpWindow.TempConverter
 
 type Operations =
     | Add
@@ -24,18 +26,27 @@ type SampleModel() =
     abstract Y : int with get, set
     abstract Result : int with get, set
 
+    abstract Celsius : float with get, set
+    abstract Fahrenheit : float with get, set
+    abstract TempConverterHeader : string with get, set
+
 type SampleEvents = 
     | Calculate
     | Clear 
+    | CelsiusToFahrenheit
+    | FahrenheitToCelsius
 
 type SampleView() =
     inherit View<SampleEvents, SampleModel, SampleWindow>()
 
     override this.EventStreams = 
         [
-            this.Window.Calculate.Click |> Observable.mapTo Calculate
-            this.Window.Clear.Click |> Observable.mapTo Clear
+            this.Window.Calculate, Calculate
+            this.Window.Clear, Clear
+            this.Window.CelsiusToFahrenheit, CelsiusToFahrenheit
+            this.Window.FahrenheitToCelsius, FahrenheitToCelsius
         ]
+        |> List.map(fun(button, value) -> button.Click |> Observable.mapTo value)
 
     override this.SetBindings model = 
         Binding.FromExpression 
@@ -45,10 +56,16 @@ type SampleView() =
                 this.Window.X.Text <- string model.X
                 this.Window.Y.Text <- string model.Y 
                 this.Window.Result.Text <- string model.Result 
+
+                this.Window.TempConverterGroup.Header <- model.TempConverterHeader
+                this.Window.Celsius.Text <- string model.Celsius
+                this.Window.Fahrenheit.Text <- string model.Fahrenheit
             @>
 
 type SimpleController(view : IView<_, _>) = 
     inherit Controller<SampleEvents, SampleModel>(view)
+
+    let service = new TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
 
     override this.InitModel model = 
         model.AvailableOperations <- 
@@ -61,9 +78,13 @@ type SimpleController(view : IView<_, _>) =
         model.Y <- 0
         model.Result <- 0
 
+        model.TempConverterHeader <- "Async TempConveter"
+
     override this.EventHandler = function
-        | Calculate -> this.Calculate
-        | Clear -> this.InitModel
+        | Calculate -> Sync this.Calculate
+        | Clear -> Sync this.InitModel
+        | CelsiusToFahrenheit -> Async this.CelsiusToFahrenheit
+        | FahrenheitToCelsius -> Async this.FahrenheitToCelsius
 
     member this.Calculate model = 
         match model.SelectedOperation with
@@ -87,3 +108,25 @@ type SimpleController(view : IView<_, _>) =
                 model |> Validation.setError <@ fun m -> m.Y @> "Attempted to divide by zero."
             else
                 model.Result <- model.X / model.Y
+
+    member this.CelsiusToFahrenheit model = 
+        async {
+            model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
+            let context = SynchronizationContext.Current
+            let! fahrenheit = service.AsyncCelsiusToFahrenheit model.Celsius
+            do! Async.Sleep 3000
+            do! Async.SwitchToContext context
+            model.TempConverterHeader <- "Async TempConverter. Response received."            
+            model.Fahrenheit <- fahrenheit
+        }
+
+    member this.FahrenheitToCelsius model = 
+        async {
+            model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
+            let context = SynchronizationContext.Current
+            let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
+            do! Async.Sleep 3000
+            do! Async.SwitchToContext context
+            model.TempConverterHeader <- "Async TempConverter. Response received."            
+            model.Celsius <- celsius
+        }

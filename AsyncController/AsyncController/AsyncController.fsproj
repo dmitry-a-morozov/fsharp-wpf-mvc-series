@@ -34,25 +34,8 @@
     <PlatformTarget>x86</PlatformTarget>
     <DocumentationFile>bin\Release\Validation.XML</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
-    <!--<Reference Include="mscorlib"/>-->
-    <!--<Reference Include="FSharp.Core"/>-->
-    <!--<Reference Include="System"/>-->
-    <!--<Reference Include="System.Core"/>-->
-    <!--<Reference Include="System.Xml.Linq"/>-->
-    <!--<Reference Include="System.Data.DataSetExtensions"/>-->
-    <!--<Reference Include="System.Numerics"/>-->
-    <Reference Include="Castle.Core">
-      <HintPath>..\..\References\Castle.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <ItemGroup>
     <Compile Include="Extensions.fs" />
     <Compile Include="Binding.fs" />
@@ -60,18 +43,29 @@
     <Compile Include="Validation.fs" />
     <Compile Include="View.fs" />
     <Compile Include="Controller.fs" />
+    <Compile Include="TempConvertSoapClient.fs" />
     <Compile Include="Sample.fs" />
     <Compile Include="Program.fs" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core">
+      <HintPath>..\..\References\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <ProjectReference Include="..\CSharpWindow\CSharpWindow.csproj">
       <Name>CSharpWindow</Name>
       <Project>{fa52ee33-ecbe-4354-bcf2-caea2b9442df}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
-  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.
 	<Target Name="BeforeBuild">
