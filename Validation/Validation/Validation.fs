@@ -11,7 +11,7 @@ let (|OneStepPropertySelector|) (expr : PropertySelector<'T, 'a>) =
     match expr with 
     | Lambda(arg, PropertyGet( Some (Var selectOn), property, [])) -> 
         assert(arg.Name = selectOn.Name)
-        property.Name, fun (this : 'T) -> property.GetValue(this, [||]) |> unbox<'a>
+        property.Name, fun(this : 'T) -> property.GetValue(this, [||]) |> unbox<'a>
     | _ -> invalidArg "Property selector quotation" (string expr)
 
 let setError<'M, 'a when 'M :> Model>(OneStepPropertySelector(propertyName, _) : PropertySelector<'M, 'a>) message (model : 'M) = 
