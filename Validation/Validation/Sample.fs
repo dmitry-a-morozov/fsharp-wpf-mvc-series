@@ -33,8 +33,8 @@ type SampleView() =
 
     override this.EventStreams = 
         [
-            this.Window.Calculate.Click |> Observable.map(fun _ -> Calculate)
-            this.Window.Clear.Click |> Observable.map(fun _ -> Clear)
+            this.Window.Calculate.Click |> Observable.mapTo Calculate
+            this.Window.Clear.Click |> Observable.mapTo Clear
         ]
 
     override this.SetBindings model = 

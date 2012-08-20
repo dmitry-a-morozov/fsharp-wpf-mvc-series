@@ -24,9 +24,9 @@ let invalidIf (OneStepPropertySelector(propertyName, getValue) : PropertySelecto
 
 let assertThat expr predicate = invalidIf expr (not << predicate)
 
-let objectRequired expr = assertThat expr isNotNull "Required field."
+let objectRequired expr = invalidIf expr ((=) null) "Required field."
 let valueRequired expr = assertThat expr (fun (x : Nullable<_>) -> x.HasValue) "Required field."
 let textRequired expr = invalidIf expr String.IsNullOrWhiteSpace "Required field."
 
-let inline positive expr = assertThat expr positive "Must be positive number."
+let inline positive expr = assertThat expr positive  "Must be positive number."
 

@@ -8,8 +8,6 @@ module Extensions =
 
     let inline undefined<'T> = raise<'T> <| NotImplementedException()
 
-    let isNotNull x = x <> null
-
     let inline positive x = GenericGreaterThan x GenericZero
 
 [<RequireQualifiedAccess>]
