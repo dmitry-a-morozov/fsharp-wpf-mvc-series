@@ -6,6 +6,8 @@ type EventHandler<'M> =
     | Sync of ('M -> unit)
     | Async of ('M -> Async<unit>)
 
+exception PreserveStackTraceWrapper of exn
+
 [<AbstractClass>]
 type Controller<'E, 'M when 'M :> INotifyPropertyChanged>(view : IView<'E, 'M>) =
 
@@ -28,6 +30,6 @@ type Controller<'E, 'M when 'M :> INotifyPropertyChanged>(view : IView<'E, 'M>) 
         )
 
     abstract OnError : exn -> unit
-    default this.OnError why = raise why
+    default this.OnError why = why |> PreserveStackTraceWrapper |> raise
 
 
