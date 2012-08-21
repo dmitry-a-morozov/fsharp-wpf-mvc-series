@@ -17,7 +17,7 @@ type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) =
     
     interface IView<'E, 'M> with
         member this.Subscribe observer = 
-            let xs = this.EventStreams |> List.reduce Observable.merge 
+            let xs = List.reduce Observable.merge this.EventStreams
             xs.Subscribe observer
         member this.SetBindings model = 
             window.DataContext <- model; 
