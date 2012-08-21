@@ -33,4 +33,4 @@ type XamlView<'E, 'M>(resourceLocator) =
     static member (?) (view : View<_, _, _>, name) = 
         match view.Window.FindName name with
         | null -> invalidArg "Name" ("Cannot find control with name: " + name)
-        | control -> control |> unbox
+        | control -> unbox control 
