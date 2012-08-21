@@ -19,8 +19,8 @@ type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) =
         | null -> 
             match view.Window.TryFindResource name with
             | null -> invalidArg "Name" ("Cannot find child control or resource named: " + name)
-            | resource -> resource |> unbox
-        | control -> control |> unbox
+            | resource -> unbox resource 
+        | control -> unbox control
     
     interface IView<'E, 'M> with
         member this.Subscribe observer = 
