@@ -25,7 +25,7 @@ type Controller<'E, 'M when 'M :> INotifyPropertyChanged>(view : IView<'E, 'M>) 
                     computation = handler model, 
                     continuation = ignore, 
                     exceptionContinuation = this.OnError, 
-                    cancellationContinuation = raise
+                    cancellationContinuation = ignore
                 )
         )
 
