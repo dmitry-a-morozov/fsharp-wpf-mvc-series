@@ -7,11 +7,14 @@ type IView<'E, 'M> =
     inherit IObservable<'E>
 
     abstract SetBindings : 'M -> unit
+    abstract ShowDialog : unit -> bool
+    abstract Close : bool -> unit
 
 [<AbstractClass>]
 type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) = 
 
     let window = defaultArg window (new 'W())
+    let mutable isOK = false
 
     member this.Window = window
     static member (?) (view : View<'E, 'M, 'W>, name) = 
@@ -29,6 +32,13 @@ type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) =
         member this.SetBindings model = 
             window.DataContext <- model; 
             this.SetBindings model
+
+        member this.ShowDialog() = 
+            this.Window.ShowDialog() |> ignore
+            isOK
+        member this.Close OK = 
+            isOK <- OK
+            this.Window.Close()
 
     abstract EventStreams : IObservable<'E> list
     abstract SetBindings : 'M -> unit

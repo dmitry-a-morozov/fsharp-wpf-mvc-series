@@ -6,13 +6,15 @@ type EventHandler<'M> =
     | Sync of ('M -> unit)
     | Async of ('M -> Async<unit>)
 
+exception PreserveStackTraceWrapper of exn
+
 [<AbstractClass>]
-type Controller<'E, 'M when 'M :> INotifyPropertyChanged>(view : IView<'E, 'M>) =
+type Controller<'E, 'M when 'M :> Model and 'M : not struct>(view : IView<'E, 'M>) =
 
     abstract InitModel : 'M -> unit
     abstract EventHandler : ('E -> EventHandler<'M>)
 
-    member this.Start model =
+    member this.Activate model =
         this.InitModel model
         view.SetBindings model
         view.Subscribe(callback = fun e -> 
@@ -23,11 +25,19 @@ type Controller<'E, 'M when 'M :> INotifyPropertyChanged>(view : IView<'E, 'M>) 
                     computation = handler model, 
                     continuation = ignore, 
                     exceptionContinuation = this.OnError, 
-                    cancellationContinuation = raise
+                    cancellationContinuation = ignore
                 )
         )
 
+    member this.Start model =
+        use subcription = this.Activate model
+        view.ShowDialog()
+
+    member this.Start() = 
+        let model = Model.Create()
+        if this.Start model then Some model else None
+
     abstract OnError : exn -> unit
-    default this.OnError why = raise why
+    default this.OnError why = why |> PreserveStackTraceWrapper |> raise
 
 
