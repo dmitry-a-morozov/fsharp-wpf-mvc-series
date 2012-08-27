@@ -32,4 +32,9 @@ type Controller<'E, 'M when 'M :> INotifyPropertyChanged>(view : IView<'E, 'M>) 
     abstract OnError : exn -> unit
     default this.OnError why = why |> PreserveStackTraceWrapper |> raise
 
+[<AbstractClass>]
+type SyncController<'E, 'M when 'M :> INotifyPropertyChanged>(view) =
+    inherit Controller<'E, 'M>(view)
 
+    abstract EventHandler : ('E -> 'M -> unit)
+    override this.EventHandler = fun e -> Sync(this.EventHandler e)
