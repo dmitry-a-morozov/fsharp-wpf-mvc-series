@@ -31,6 +31,7 @@ type SampleView() as this =
     override this.SetBindings model = 
         x.SetBinding(TextBox.TextProperty, "X") |> ignore
         y.SetBinding(TextBox.TextProperty, "Y") |> ignore
+        //strong typed reference to this.Window.Result. Compare it with dynamicly looked up x and y TextBoxes
         this.Window.Result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
 
 [<STAThread>] 
