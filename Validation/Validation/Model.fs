@@ -32,7 +32,9 @@ type Model() =
                 member this.PostProceed invocation = 
                     match invocation.Method, invocation.InvocationTarget with 
                         | PropertySetter propertyName, (:? Model as model) -> 
-                            model.ClearError propertyName //will also notify as side-effect. Result of weird IDataErrorInfo semantics
+                            model.ClearError propertyName 
+                            //will also notify as side-effect. Result of weird IDataErrorInfo semantics
+                            //Should look better with INotifyDataErrorInfo 
                         | _ -> ()
         }
 
@@ -51,6 +53,7 @@ type Model() =
         proxyFactory.CreateClassProxy interceptors    
 
     interface IDataErrorInfo with
+        //using undefined - way cleaner that wide-accepted : raise(new NotImplementedException())
         member this.Error = undefined
         member this.Item 
             with get propertyName = 
