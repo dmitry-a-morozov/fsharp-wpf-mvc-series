@@ -80,7 +80,7 @@ type SimpleController(view : IView<_, _>) =
 
         model.TempConverterHeader <- "Async TempConveter"
 
-    override this.EventHandler = function
+    override this.Dispatcher = function
         | Calculate -> Sync this.Calculate
         | Clear -> Sync this.InitModel
         | CelsiusToFahrenheit -> Async this.CelsiusToFahrenheit

@@ -12,13 +12,13 @@ exception PreserveStackTraceWrapper of exn
 type Controller<'E, 'M when 'M :> INotifyPropertyChanged>(view : IView<'E, 'M>) =
 
     abstract InitModel : 'M -> unit
-    abstract EventHandler : ('E -> EventHandler<'M>)
+    abstract Dispatcher : ('E -> EventHandler<'M>)
 
     member this.Start model =
         this.InitModel model
         view.SetBindings model
         view.Subscribe(callback = fun e -> 
-            match this.EventHandler e with
+            match this.Dispatcher e with
             | Sync handler -> try handler model with e -> this.OnError e
             | Async handler -> 
                 Async.StartWithContinuations(
@@ -36,5 +36,5 @@ type Controller<'E, 'M when 'M :> INotifyPropertyChanged>(view : IView<'E, 'M>) 
 type SyncController<'E, 'M when 'M :> INotifyPropertyChanged>(view) =
     inherit Controller<'E, 'M>(view)
 
-    abstract EventHandler : ('E -> 'M -> unit)
-    override this.EventHandler = fun e -> Sync(this.EventHandler e)
+    abstract Dispatcher : ('E -> 'M -> unit)
+    override this.Dispatcher = fun e -> Sync(this.Dispatcher e)
