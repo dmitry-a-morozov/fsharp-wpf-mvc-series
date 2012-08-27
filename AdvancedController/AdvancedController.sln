@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpWindow", "CSharpWindow\CSharpWindow.csproj", "{FA52EE33-ECBE-4354-BCF2-CAEA2B9442DF}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AdvancedController", "Dialogs\AdvancedController.fsproj", "{B9C0335E-31F2-49E6-87F9-89B30CA5CB00}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AdvancedController", "AdvancedController\AdvancedController.fsproj", "{B9C0335E-31F2-49E6-87F9-89B30CA5CB00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
