@@ -87,18 +87,17 @@ type SimpleController(view : IView<_, _>) =
         | FahrenheitToCelsius -> Async this.FahrenheitToCelsius
 
     member this.Calculate model = 
+        model.ClearAllErrors()
         match model.SelectedOperation with
         | Add -> 
-            if model.Y < 0 
+            model |> Validation.positive <@ fun m -> m.Y @>
+            if not model.HasErrors
             then 
-                model |> Validation.positive <@ fun m -> m.Y @>
-            else 
                 model.Result <- model.X + model.Y
         | Subtract -> 
-            if model.Y < 0 
+            model |> Validation.positive <@ fun m -> m.Y @>
+            if not model.HasErrors
             then 
-                model |> Validation.positive <@ fun m -> m.Y @>
-            else 
                 model.Result <- model.X - model.Y
         | Multiply -> 
             model.Result <- model.X * model.Y
