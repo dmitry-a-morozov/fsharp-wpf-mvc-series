@@ -13,8 +13,9 @@
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
             <ColumnDefinition />
-            <ColumnDefinition />
+            <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -26,21 +27,23 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <TextBox Name="X" Margin="5" Height="25" x:FieldModifier="public"/>
-        <DockPanel Grid.Row="1">
+        <Button Name="Hex1" Content="H" Grid.Column="1" Margin="5" x:FieldModifier="public"/>
+        <DockPanel Grid.Row="1" Grid.ColumnSpan="2" >
             <Label Content="Operation" VerticalAlignment="Center"/>
             <ComboBox Name="Operation" Grid.Row="1" Height="25" Width="70" x:FieldModifier="public"/>
         </DockPanel>
         <TextBox Grid.Row="2" Name="Y" Margin="5" Height="25" x:FieldModifier="public"/>
+        <Button Name="Hex2" Content="H" Grid.Row="2" Grid.Column="1" Margin="5" x:FieldModifier="public"/>
         <DockPanel Grid.Row="3">
             <Label Content="Result:"/>
             <TextBlock Name="Result" Margin="5" Height="25" x:FieldModifier="public"/>
         </DockPanel>
-        <StackPanel Grid.Row="4" Orientation="Horizontal" Grid.ColumnSpan="2" >
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Grid.ColumnSpan="3" >
             <Button Content="=" Name="Calculate" Width="80" Height="25" Margin="5" x:FieldModifier="public"/>
             <Button Content="C" Name="Clear" Width="80" Height="25" Margin="5" x:FieldModifier="public"/>
         </StackPanel>
 
-        <GroupBox Grid.Row="5" Grid.ColumnSpan="2" Margin="5" Name="TempConverterGroup" x:FieldModifier="public">
+        <GroupBox Grid.Row="5" Grid.ColumnSpan="3" Margin="5" Name="TempConverterGroup" x:FieldModifier="public">
             <DockPanel Margin="5">
                 <Label Content="Celsius"/>
                 <TextBox Name="Celsius" x:FieldModifier="public" Width="50"/>

@@ -35,6 +35,8 @@ type SampleEvents =
     | Clear 
     | CelsiusToFahrenheit
     | FahrenheitToCelsius
+    | Hex1
+    | Hex2
 
 type SampleView() =
     inherit View<SampleEvents, SampleModel, SampleWindow>()
@@ -45,6 +47,8 @@ type SampleView() =
             this.Window.Clear, Clear
             this.Window.CelsiusToFahrenheit, CelsiusToFahrenheit
             this.Window.FahrenheitToCelsius, FahrenheitToCelsius
+            this.Window.Hex1, Hex1
+            this.Window.Hex2, Hex2
         ]
         |> List.map(fun(button, value) -> button.Click |> Observable.mapTo value)
 
@@ -85,6 +89,8 @@ type SimpleController(view : IView<_, _>) =
         | Clear -> Sync this.InitModel
         | CelsiusToFahrenheit -> Async this.CelsiusToFahrenheit
         | FahrenheitToCelsius -> Async this.FahrenheitToCelsius
+        | Hex1 -> Sync this.Hex1
+        | Hex2 -> Sync this.Hex2
 
     member this.Calculate model = 
         model.ClearAllErrors()
@@ -107,7 +113,7 @@ type SimpleController(view : IView<_, _>) =
                 model |> Validation.setError <@ fun m -> m.Y @> "Attempted to divide by zero."
             else
                 model.Result <- model.X / model.Y
-
+        
     member this.CelsiusToFahrenheit model = 
         async {
             model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
@@ -129,3 +135,9 @@ type SimpleController(view : IView<_, _>) =
             model.TempConverterHeader <- "Async TempConverter. Response received."            
             model.Celsius <- celsius
         }
+
+    member this.Hex1 model = 
+        ()
+
+    member this.Hex2 model = 
+        ()

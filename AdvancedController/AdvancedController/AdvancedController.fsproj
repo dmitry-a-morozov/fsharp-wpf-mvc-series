@@ -44,6 +44,7 @@
     <Compile Include="View.fs" />
     <Compile Include="Controller.fs" />
     <Compile Include="TempConvertSoapClient.fs" />
+    <Compile Include="HexConverter.fs" />
     <Compile Include="Sample.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />

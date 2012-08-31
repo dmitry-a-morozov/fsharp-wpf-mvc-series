@@ -53,12 +53,19 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HexConverterWindow.xaml.cs">
+      <DependentUpon>HexConverterWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Service References\TempConverter\Reference.cs" />
     <Compile Include="Service References\TempConverter\Reference1.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Page Include="HexConverterWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SampleWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
