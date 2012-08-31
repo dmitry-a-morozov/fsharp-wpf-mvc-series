@@ -44,6 +44,6 @@ type Controller<'E, 'M when 'M :> Model and 'M : not struct>(view : IView<'E, 'M
 type SyncController<'E, 'M when 'M :> Model and 'M : not struct>(view) =
     inherit Controller<'E, 'M>(view)
 
-    abstract Dispatcher : ('E -> 'M -> unit) with get
+    abstract Dispatcher : ('E -> 'M -> unit)
     override this.Dispatcher = fun e -> Sync(this.Dispatcher e)
 

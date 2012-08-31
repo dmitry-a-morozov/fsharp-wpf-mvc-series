@@ -33,11 +33,11 @@ type HexConverterController(view : IView<_, _>) =
     inherit SyncController<HexConverterEvents, HexConverterModel>(view)
 
     override this.InitModel _ = ()
-    override this.Dispatcher 
-        with get() : HexConverterEvents -> HexConverterModel -> unit = function
-            | OK -> this.OK
-            | Cancel -> 
-                fun _ -> view.Close false
+    override this.Dispatcher = function
+        | OK -> this.OK
+        | Cancel -> 
+            fun _ -> view.Close false
 
-    member this.OK model = 
+    member this.OK(model : HexConverterModel) = 
         ()
+
