@@ -4,8 +4,15 @@ open System
 open System.Windows.Controls
 open System.Windows.Data
 open System.Threading
+open System.Collections.Generic
+open System.Drawing
+//open System.Windows.Forms
+open System.Windows.Forms.DataVisualization.Charting
+
 open Microsoft.FSharp.Reflection
+
 open Mvc.Wpf
+
 open CSharpWindow.TempConverter
 
 type Operations =
@@ -30,6 +37,8 @@ type SampleModel() =
     abstract Fahrenheit : float with get, set
     abstract TempConverterHeader : string with get, set
 
+    abstract StockPrices : List<string * decimal> with get, set
+
 type SampleEvents = 
     | Calculate
     | Clear 
@@ -38,9 +47,18 @@ type SampleEvents =
     | Hex1
     | Hex2
 
-type SampleView() =
+type SampleView() as this =
     inherit View<SampleEvents, SampleModel, SampleWindow>()
 
+    let series = new Series(ChartType = SeriesChartType.Column, Palette = ChartColorPalette.EarthTones)
+    do 
+        let area = new ChartArea("Default") 
+        area.AxisX.MajorGrid.LineColor <- Color.LightGray
+        area.AxisY.MajorGrid.LineColor <- Color.LightGray        
+        this.Window.StockPricesChart.ChartAreas.Add area
+        this.Window.StockPricesChart.Series.Add series
+
+    
     override this.EventStreams = 
         [
             this.Window.Calculate, Calculate
@@ -66,6 +84,8 @@ type SampleView() =
                 this.Window.Fahrenheit.Text <- string model.Fahrenheit
             @>
 
+        series.Points.DataBindXY(model.StockPrices, "Item1", model.StockPrices, "Item2")
+
 type SimpleController(view : IView<_, _>) = 
     inherit Controller<SampleEvents, SampleModel>(view)
 
@@ -83,6 +103,8 @@ type SimpleController(view : IView<_, _>) =
         model.Result <- 0
 
         model.TempConverterHeader <- "Async TempConveter"
+
+        model.StockPrices <- List([ "MSFT", 20M; "AAPL", 600M ])
 
     override this.Dispatcher = function
         | Calculate -> Sync this.Calculate
