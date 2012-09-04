@@ -137,7 +137,17 @@ type SimpleController(view : IView<_, _>) =
         }
 
     member this.Hex1 model = 
-        ()
+        let controller = HexConverterController(view = HexConverterView())
+        let childModel = Model.Create(model.X)
+        if controller.Start childModel
+        then 
+            assert childModel.Value.IsSome
+            model.X <- Option.get childModel.Value 
 
     member this.Hex2 model = 
-        ()
+        let controller = HexConverterController(view = HexConverterView())
+        controller.Start()
+        |> Option.iter(fun resultModel ->
+            assert resultModel.Value.IsSome
+            model.Y <- Option.get resultModel.Value 
+        )

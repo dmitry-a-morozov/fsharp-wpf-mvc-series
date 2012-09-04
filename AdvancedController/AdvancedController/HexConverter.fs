@@ -1,13 +1,25 @@
 ﻿namespace Mvc.Wpf.Sample
 
+open System
+open System.Globalization
 open System.Windows.Data
 open Mvc.Wpf
 
 [<AbstractClass>]
-type HexConverterModel() = 
+type HexConverterModel(value) as this = 
     inherit Model()
 
-    abstract Value : int with get, set
+    do
+        this.HexValue <- sprintf "%X" value
+
+    new() = HexConverterModel(0)
+
+    abstract HexValue : string with get, set
+
+    member this.Value =
+        match Int32.TryParse(this.HexValue, NumberStyles.HexNumber, null) with 
+        | true, value -> Some(value)
+        | false, _ -> None
 
 type HexConverterEvents = 
     | OK
@@ -26,7 +38,7 @@ type HexConverterView() =
     override this.SetBindings model = 
         Binding.FromExpression 
             <@ 
-                this.Window.Value.Text <- string model.Value
+                this.Window.Value.Text <- model.HexValue
             @>
 
 type HexConverterController(view : IView<_, _>) = 
@@ -39,5 +51,7 @@ type HexConverterController(view : IView<_, _>) =
             fun _ -> view.Close false
 
     member this.OK(model : HexConverterModel) = 
-        ()
+        match model.Value with
+        | None -> model |> Validation.setError <@ fun m -> m.HexValue @> (sprintf "Cannot parse hex value %s" model.HexValue)
+        | Some _ -> view.Close true
 

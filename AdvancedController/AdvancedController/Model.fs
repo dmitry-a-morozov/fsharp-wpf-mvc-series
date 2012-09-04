@@ -46,9 +46,9 @@ type Model() =
     member internal this.TriggerPropertyChanged propertyName = 
         propertyChangedEvent.Trigger(this, PropertyChangedEventArgs propertyName)
 
-    static member Create<'M when 'M :> Model and 'M : not struct>()  : 'M = 
+    static member Create<'M when 'M :> Model>([<ParamArray>] ctorArgs : obj[])  : 'M = 
         let interceptors : IInterceptor[] = [| notifyPropertyChanged; AbstractProperties() |]
-        proxyFactory.CreateClassProxy interceptors    
+        proxyFactory.CreateClassProxy(typeof<'M>, ctorArgs, interceptors) |> unbox
 
     interface IDataErrorInfo with
         member this.Error = undefined
