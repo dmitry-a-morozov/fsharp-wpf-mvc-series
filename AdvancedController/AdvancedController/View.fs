@@ -2,12 +2,15 @@
 
 open System
 open System.Windows
+open System.Windows.Controls
 
 type IView<'E, 'M> =
     inherit IObservable<'E>
 
     abstract SetBindings : 'M -> unit
+
     abstract ShowDialog : unit -> bool
+    abstract Show : unit -> Async<bool>
     abstract Close : bool -> unit
 
 [<AbstractClass>]
@@ -26,6 +29,7 @@ type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) =
         | control -> control |> unbox
     
     interface IView<'E, 'M> with
+
         member this.Subscribe observer = 
             let xs = this.EventStreams |> List.reduce Observable.merge 
             xs.Subscribe observer
@@ -36,6 +40,9 @@ type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) =
         member this.ShowDialog() = 
             this.Window.ShowDialog() |> ignore
             isOK
+        member this.Show() = 
+            this.Window.Show()
+            this.Window.Closed |> Event.map (fun _ -> isOK) |> Async.AwaitEvent 
         member this.Close OK = 
             isOK <- OK
             this.Window.Close()
@@ -47,3 +54,17 @@ type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) =
 type XamlView<'E, 'M>(resourceLocator) = 
     inherit View<'E, 'M, Window>(Application.LoadComponent resourceLocator |> unbox)
 
+[<AutoOpen>]
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module View = 
+
+    type IView<'E, 'M> with
+
+        member this.OK() = this.Close true
+        member this.Cancel() = this.Close false
+
+        member this.CancelButton with set(value : Button) = value.Click.Add(ignore >> this.Cancel)
+        member this.OKButton 
+            with set(value : Button) = 
+                value.IsDefault <- true
+                value.Click.Add(ignore >> this.OK)

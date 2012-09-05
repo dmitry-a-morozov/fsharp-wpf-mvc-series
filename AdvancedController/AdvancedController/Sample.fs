@@ -6,8 +6,8 @@ open System.Windows.Data
 open System.Threading
 open System.Collections.Generic
 open System.Drawing
-//open System.Windows.Forms
 open System.Windows.Forms.DataVisualization.Charting
+open System.Collections.ObjectModel
 
 open Microsoft.FSharp.Reflection
 
@@ -37,7 +37,7 @@ type SampleModel() =
     abstract Fahrenheit : float with get, set
     abstract TempConverterHeader : string with get, set
 
-    abstract StockPrices : List<string * decimal> with get, set
+    abstract StockPrices : ObservableCollection<string * decimal> with get, set
 
 type SampleEvents = 
     | Calculate
@@ -46,18 +46,18 @@ type SampleEvents =
     | FahrenheitToCelsius
     | Hex1
     | Hex2
+    | AddStockToPriceChart
 
 type SampleView() as this =
     inherit View<SampleEvents, SampleModel, SampleWindow>()
 
-    let series = new Series(ChartType = SeriesChartType.Column, Palette = ChartColorPalette.EarthTones)
     do 
         let area = new ChartArea("Default") 
         area.AxisX.MajorGrid.LineColor <- Color.LightGray
         area.AxisY.MajorGrid.LineColor <- Color.LightGray        
         this.Window.StockPricesChart.ChartAreas.Add area
+        let series = new Series(ChartType = SeriesChartType.Column, Palette = ChartColorPalette.EarthTones, XValueMember = "Item1", YValueMembers = "Item2")
         this.Window.StockPricesChart.Series.Add series
-
     
     override this.EventStreams = 
         [
@@ -67,6 +67,7 @@ type SampleView() as this =
             this.Window.FahrenheitToCelsius, FahrenheitToCelsius
             this.Window.Hex1, Hex1
             this.Window.Hex2, Hex2
+            this.Window.AddStock, AddStockToPriceChart
         ]
         |> List.map(fun(button, value) -> button.Click |> Observable.mapTo value)
 
@@ -84,7 +85,8 @@ type SampleView() as this =
                 this.Window.Fahrenheit.Text <- string model.Fahrenheit
             @>
 
-        series.Points.DataBindXY(model.StockPrices, "Item1", model.StockPrices, "Item2")
+        this.Window.StockPricesChart.DataSource <- model.StockPrices
+        model.StockPrices.CollectionChanged.Add(fun _ -> this.Window.StockPricesChart.DataBind())
 
 type SimpleController(view : IView<_, _>) = 
     inherit Controller<SampleEvents, SampleModel>(view)
@@ -104,7 +106,7 @@ type SimpleController(view : IView<_, _>) =
 
         model.TempConverterHeader <- "Async TempConveter"
 
-        model.StockPrices <- List([ "MSFT", 20M; "AAPL", 600M ])
+        model.StockPrices <- ObservableCollection()
 
     override this.Dispatcher = function
         | Calculate -> Sync this.Calculate
@@ -113,6 +115,7 @@ type SimpleController(view : IView<_, _>) =
         | FahrenheitToCelsius -> Async this.FahrenheitToCelsius
         | Hex1 -> Sync this.Hex1
         | Hex2 -> Sync this.Hex2
+        | AddStockToPriceChart -> Async this.AddStockToPriceChart
 
     member this.Calculate model = 
         model.ClearAllErrors()
@@ -159,7 +162,8 @@ type SimpleController(view : IView<_, _>) =
         }
 
     member this.Hex1 model = 
-        let controller = HexConverterController(view = HexConverterView())
+        let view = HexConverterView()
+        let controller = HexConverterController view
         let childModel = Model.Create(model.X)
         if controller.Start childModel
         then 
@@ -167,9 +171,20 @@ type SimpleController(view : IView<_, _>) =
             model.X <- Option.get childModel.Value 
 
     member this.Hex2 model = 
-        let controller = HexConverterController(view = HexConverterView())
+        let view = HexConverterView()
+        let controller = HexConverterController view
         controller.Start()
         |> Option.iter(fun resultModel ->
             assert resultModel.Value.IsSome
             model.Y <- Option.get resultModel.Value 
         )
+
+    member this.AddStockToPriceChart model = 
+        async {
+            let view = StockPriceView()
+            let controller = StockPriceController view
+            let! result = controller.AsyncStart()
+            result |> Option.iter (fun stockInfo ->
+                model.StockPrices.Add(stockInfo.Symbol, stockInfo.LastPrice)
+            )
+        }

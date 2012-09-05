@@ -1,7 +1,5 @@
 ﻿namespace Mvc.Wpf
 
-open System.ComponentModel
-
 type EventHandler<'M> = 
     | Sync of ('M -> unit)
     | Async of ('M -> Async<unit>)
@@ -36,6 +34,19 @@ type Controller<'E, 'M when 'M :> Model and 'M : not struct>(view : IView<'E, 'M
     member this.Start() = 
         let model = Model.Create()
         if this.Start model then Some model else None
+
+    member this.AsyncStart model =
+        async {
+            use subcription = this.Activate model
+            return! view.Show()
+        }
+
+    member this.AsyncStart() = 
+        async {
+            let model = Model.Create()
+            let! isOk = this.AsyncStart model
+            return if isOk then Some model else None
+        }
 
     abstract OnError : exn -> unit
     default this.OnError why = why |> PreserveStackTraceWrapper |> raise

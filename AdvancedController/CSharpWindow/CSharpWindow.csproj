@@ -58,6 +58,9 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StockPriceWindow.xaml.cs">
+      <DependentUpon>StockPriceWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="HexConverterWindow.xaml.cs">
       <DependentUpon>HexConverterWindow.xaml</DependentUpon>
     </Compile>
@@ -67,6 +70,10 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Page Include="StockPriceWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="HexConverterWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
