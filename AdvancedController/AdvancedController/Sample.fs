@@ -52,11 +52,16 @@ type SampleView() as this =
     inherit View<SampleEvents, SampleModel, SampleWindow>()
 
     do 
-        let area = new ChartArea("Default") 
+        let area = new ChartArea() 
         area.AxisX.MajorGrid.LineColor <- Color.LightGray
         area.AxisY.MajorGrid.LineColor <- Color.LightGray        
         this.Window.StockPricesChart.ChartAreas.Add area
-        let series = new Series(ChartType = SeriesChartType.Column, Palette = ChartColorPalette.EarthTones, XValueMember = "Item1", YValueMembers = "Item2")
+        let series = 
+            new Series(
+                ChartType = SeriesChartType.Column, 
+                Palette = ChartColorPalette.EarthTones, 
+                XValueMember = "Item1", 
+                YValueMembers = "Item2")
         this.Window.StockPricesChart.Series.Add series
     
     override this.EventStreams = 
