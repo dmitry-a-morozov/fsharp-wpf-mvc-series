@@ -7,7 +7,7 @@ type EventHandler<'M> =
 exception PreserveStackTraceWrapper of exn
 
 [<AbstractClass>]
-type Controller<'E, 'M when 'M :> Model and 'M : not struct>(view : IView<'E, 'M>) =
+type Controller<'E, 'M when 'M :> Model>(view : IView<'E, 'M>) =
 
     abstract InitModel : 'M -> unit
     abstract Dispatcher : ('E -> EventHandler<'M>)
@@ -23,9 +23,7 @@ type Controller<'E, 'M when 'M :> Model and 'M : not struct>(view : IView<'E, 'M
                     computation = handler model, 
                     continuation = ignore, 
                     exceptionContinuation = this.OnError, 
-                    cancellationContinuation = ignore
-                )
-        )
+                    cancellationContinuation = ignore))
 
     member this.Start model =
         use subcription = this.Activate model
