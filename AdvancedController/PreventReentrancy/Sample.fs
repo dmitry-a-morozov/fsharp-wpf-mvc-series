@@ -8,6 +8,7 @@ open System.Collections.Generic
 open System.Drawing
 open System.Windows.Forms.DataVisualization.Charting
 open System.Collections.ObjectModel
+open System.Diagnostics
 
 open Microsoft.FSharp.Reflection
 
@@ -22,6 +23,12 @@ type Operations =
     | Divide
 
     override this.ToString() = sprintf "%A" this
+
+    static member Values = 
+        typeof<Operations>
+        |> FSharpType.GetUnionCases
+        |> Array.map(fun x -> FSharpValue.MakeUnion(x, [||]))
+        |> Array.map unbox<Operations>
 
 [<AbstractClass>]
 type SampleModel() = 
@@ -47,7 +54,8 @@ type SampleEvents =
     | Hex1
     | Hex2
     | AddStockToPriceChart
-    | InputChanging of string * (unit -> unit)
+    | XorYChanging of string * (unit -> unit)
+    | YChanged of string
 
 type SampleView() as this =
     inherit View<SampleEvents, SampleModel, SampleWindow>()
@@ -82,15 +90,16 @@ type SampleView() as this =
         [ 
             this.Window.X.PreviewTextInput 
                 |> Observable.merge this.Window.Y.PreviewTextInput
-                |> Observable.map (fun x -> InputChanging(x.Text, fun() -> x.Handled <- true))
-        ] 
+                |> Observable.map (fun x -> XorYChanging(x.Text, fun() -> x.Handled <- true))
 
+            this.Window.Y.TextChanged |> Observable.map(fun _ -> YChanged(this.Window.Y.Text))
+        ] 
 
     override this.SetBindings model = 
         Binding.FromExpression 
             <@ 
-                this.Window.Operation.ItemsSource <- model.AvailableOperations 
-                this.Window.Operation.SelectedItem <- model.SelectedOperation
+                this.Window.Op.ItemsSource <- model.AvailableOperations 
+                this.Window.Op.SelectedItem <- model.SelectedOperation
                 this.Window.X.Text <- string model.X
                 this.Window.Y.Text <- string model.Y 
                 this.Window.Result.Text <- string model.Result 
@@ -109,11 +118,9 @@ type SimpleController(view : IView<_, _>) =
     let service = new TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
 
     override this.InitModel model = 
-        model.AvailableOperations <- 
-            typeof<Operations>
-            |> FSharpType.GetUnionCases
-            |> Array.map(fun x -> FSharpValue.MakeUnion(x, [||]))
-            |> Array.map unbox
+        Debug.WriteLine("Start InitModel.")
+
+        model.AvailableOperations <- Operations.Values |> Array.filter(fun op -> op <> Operations.Divide)
         model.SelectedOperation <- Operations.Add
         model.X <- 0
         model.Y <- 0
@@ -123,6 +130,8 @@ type SimpleController(view : IView<_, _>) =
 
         model.StockPrices <- ObservableCollection()
 
+        Debug.WriteLine("End InitModel.")
+
     override this.Dispatcher = function
         | Calculate -> Sync this.Calculate
         | Clear -> Sync this.InitModel
@@ -131,7 +140,8 @@ type SimpleController(view : IView<_, _>) =
         | Hex1 -> Sync this.Hex1
         | Hex2 -> Sync this.Hex2
         | AddStockToPriceChart -> Async this.AddStockToPriceChart
-        | InputChanging(newValue, cancel) -> Sync(this.InputChanging(newValue, cancel))
+        | XorYChanging(newValue, cancel) -> Sync(this.InputChanging(newValue, cancel))
+        | YChanged text -> Sync(this.YChanged text)
 
     member this.Calculate model = 
         model.ClearAllErrors()
@@ -209,4 +219,13 @@ type SimpleController(view : IView<_, _>) =
         match Int32.TryParse newValue with 
         | false, _  ->  cancel()
         | _ -> ()
+
+    member this.YChanged text model = 
+        Debug.WriteLine("Start YChanged.")
+        if text <> "0"
+        then 
+            model.AvailableOperations <- Operations.Values
+        else 
+            model.AvailableOperations <- Operations.Values |> Array.filter(fun op -> op <> Operations.Divide)
+        Debug.WriteLine("End YChanged.")
 

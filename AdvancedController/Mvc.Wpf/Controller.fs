@@ -17,7 +17,8 @@ type Controller<'E, 'M when 'M :> Model>(view : IView<'E, 'M>) =
     member this.Activate model =
         this.InitModel model
         view.SetBindings model
-        view.Subscribe(callback = fun e -> 
+
+        let observer = Observer.Create(fun e -> 
             match this.Dispatcher e with
             | Sync handler -> try handler model with e -> this.OnError e
             | Async handler -> 
@@ -26,6 +27,13 @@ type Controller<'E, 'M when 'M :> Model>(view : IView<'E, 'M>) =
                     continuation = ignore, 
                     exceptionContinuation = this.OnError, 
                     cancellationContinuation = ignore))
+
+#if DEBUG
+        let observer = observer.Checked()
+#endif
+
+        let nonReentrantObserver = Observer.Synchronize(observer, preventReentrancy = true)
+        view.Subscribe nonReentrantObserver
 
     member this.Start model =
         use subcription = this.Activate model
