@@ -54,7 +54,6 @@ type SampleEvents =
     | Hex1
     | Hex2
     | AddStockToPriceChart
-    | XorYChanging of string * (unit -> unit)
     | YChanged of string
 
 type SampleView() as this =
@@ -74,8 +73,8 @@ type SampleView() as this =
         this.Window.StockPricesChart.Series.Add series
     
     override this.EventStreams = 
-        let buttonClicks = 
-            [
+        [ 
+            yield! [
                 this.Window.Calculate, Calculate
                 this.Window.Clear, Clear
                 this.Window.CelsiusToFahrenheit, CelsiusToFahrenheit
@@ -85,21 +84,15 @@ type SampleView() as this =
                 this.Window.AddStock, AddStockToPriceChart
             ]
             |> List.map(fun(button, value) -> button.Click |> Observable.mapTo value)
-
-        buttonClicks @ 
-        [ 
-            this.Window.X.PreviewTextInput 
-                |> Observable.merge this.Window.Y.PreviewTextInput
-                |> Observable.map (fun x -> XorYChanging(x.Text, fun() -> x.Handled <- true))
-
-            this.Window.Y.TextChanged |> Observable.map(fun _ -> YChanged(this.Window.Y.Text))
+                 
+            yield this.Window.Y.TextChanged |> Observable.map(fun _ -> YChanged(this.Window.Y.Text))
         ] 
 
     override this.SetBindings model = 
         Binding.FromExpression 
             <@ 
-                this.Window.Op.ItemsSource <- model.AvailableOperations 
-                this.Window.Op.SelectedItem <- model.SelectedOperation
+                this.Window.Operation.ItemsSource <- model.AvailableOperations 
+                this.Window.Operation.SelectedItem <- model.SelectedOperation
                 this.Window.X.Text <- string model.X
                 this.Window.Y.Text <- string model.Y 
                 this.Window.Result.Text <- string model.Result 
@@ -140,7 +133,6 @@ type SimpleController(view : IView<_, _>) =
         | Hex1 -> Sync this.Hex1
         | Hex2 -> Sync this.Hex2
         | AddStockToPriceChart -> Async this.AddStockToPriceChart
-        | XorYChanging(newValue, cancel) -> Sync(this.InputChanging(newValue, cancel))
         | YChanged text -> Sync(this.YChanged text)
 
     member this.Calculate model = 
@@ -214,11 +206,6 @@ type SimpleController(view : IView<_, _>) =
                 model.StockPrices.Add(stockInfo.Symbol, stockInfo.LastPrice)
             )
         }
-
-    member this.InputChanging(newValue, cancel) model =
-        match Int32.TryParse newValue with 
-        | false, _  ->  cancel()
-        | _ -> ()
 
     member this.YChanged text model = 
         Debug.WriteLine("Start YChanged.")
