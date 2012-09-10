@@ -26,7 +26,7 @@
         </DockPanel>
         <DockPanel Grid.Row="1" Grid.ColumnSpan="2" >
             <Label Content="Operation"/>
-            <ComboBox Name="Op" Grid.Row="1" Height="25" Width="70" x:FieldModifier="public" Margin="5"/>
+            <ComboBox Name="Operation" Grid.Row="1" Height="25" Width="70" x:FieldModifier="public" Margin="5"/>
             <Rectangle/>
         </DockPanel>
         <DockPanel Grid.Row="2" >
