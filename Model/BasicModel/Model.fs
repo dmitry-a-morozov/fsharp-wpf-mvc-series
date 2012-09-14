@@ -28,4 +28,3 @@ type Model() =
 
     static member Create<'M when 'M :> Model and 'M : not struct>()  : 'M = 
         proxyFactory.CreateClassProxy notifyPropertyChanged
-
