@@ -17,7 +17,7 @@ type Model() =
                         | _ -> ()
         }
 
-    let propertyChangedEvent = Event<_,_>()
+    let propertyChangedEvent = Event<_, _>()
 
     interface INotifyPropertyChanged with
         [<CLIEvent>]
