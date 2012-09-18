@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Castle.Core">
-      <HintPath>..\..\References\Castle.Core.dll</HintPath>
+      <HintPath>..\References\Castle.Core.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="PresentationUI" />
