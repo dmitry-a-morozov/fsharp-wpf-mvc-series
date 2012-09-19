@@ -33,3 +33,8 @@ type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) =
     abstract EventStreams : IObservable<'E> list
     abstract SetBindings : 'M -> unit
 
+[<AbstractClass>]
+type XamlView<'E, 'M>(resourceLocator) = 
+    inherit View<'E, 'M, Window>(resourceLocator |> Application.LoadComponent |> unbox)
+
+
