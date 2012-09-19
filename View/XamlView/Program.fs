@@ -19,16 +19,16 @@ type SampleEvents =
 type SampleView() as this =
     inherit XamlView<SampleEvents, SampleModel>(resourceLocator = Uri("/Window.xaml", UriKind.Relative))
 
-    let addButton : Button = this ? Add
-    let clearButton : Button = this ? Clear
+    let add : Button = this ? Add
+    let clear : Button = this ? Clear
     let x : TextBox = this ? X
     let y : TextBox = this ? Y
     let result : TextBlock = this ? Result
 
     override this.EventStreams = 
         [
-            addButton.Click |> Observable.map(fun _ -> Add)
-            clearButton.Click |> Observable.map(fun _ -> Clear)
+            add.Click |> Observable.map(fun _ -> Add)
+            clear.Click |> Observable.map(fun _ -> Clear)
         ]
 
     override this.SetBindings model = 

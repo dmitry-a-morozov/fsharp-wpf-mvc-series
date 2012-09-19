@@ -12,7 +12,6 @@ type IView<'E, 'M> =
 type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) = 
 
     let window = defaultArg window (new 'W())
-
     member this.Window = window
     
     interface IView<'E, 'M> with
