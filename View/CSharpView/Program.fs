@@ -40,7 +40,7 @@ do
     let view = SampleView()
     let iview = view :> IView<_, _>
     iview.SetBindings model
-    iview |> Observable.add(function
+    iview.Add(callback = function
         | Add -> model.Result <- model.X + model.Y
         | Clear -> 
             model.X <- 0

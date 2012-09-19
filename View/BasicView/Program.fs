@@ -56,13 +56,11 @@ type SampleView() =
 
 [<STAThread>] 
 do 
-    // No need to specify type for Model.Create call. Type inference knows.
-    // Compare it with BasicModel project call where type had to be specified in Model.Create<SampleModel>
     let model = SampleModel.Create()
     let view = SampleView()
     let iview = view :> IView<_, _>
     iview.SetBindings model
-    iview |> Observable.add(function //pattern matching function syntax !!! EXTEND COMMENT
+    iview.Add(callback = function 
         | Add -> model.Result <- model.X + model.Y
         | Clear -> 
             model.X <- 0
