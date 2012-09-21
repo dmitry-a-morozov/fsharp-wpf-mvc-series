@@ -35,4 +35,4 @@ type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) =
 
 [<AbstractClass>]
 type XamlView<'E, 'M>(resourceLocator) = 
-    inherit View<'E, 'M, Window>(Application.LoadComponent resourceLocator |> unbox)
+    inherit View<'E, 'M, Window>(resourceLocator |> Application.LoadComponent  |> unbox)
