@@ -3,26 +3,26 @@
 open System
 open System.Windows
 
-type IView<'E, 'M> =
-    inherit IObservable<'E>
+type IView<'Event, 'Model> =
+    inherit IObservable<'Event>
 
-    abstract SetBindings : 'M -> unit
+    abstract SetBindings : 'Model -> unit
 
 [<AbstractClass>]
-type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) = 
+type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>(?window) = 
 
-    let window = defaultArg window (new 'W())
+    let window = defaultArg window (new 'Window())
 
     member this.Window = window
-    static member (?) (view : View<'E, 'M, 'W>, name) = 
+    static member (?) (view : View<_, _, _>, name) = 
         match view.Window.FindName name with
         | null -> 
             match view.Window.TryFindResource name with
             | null -> invalidArg "Name" ("Cannot find child control or resource named: " + name)
-            | resource -> unbox resource
+            | resource -> unbox resource 
         | control -> unbox control
     
-    interface IView<'E, 'M> with
+    interface IView<'Event, 'Model> with
         member this.Subscribe observer = 
             let xs = this.EventStreams |> List.reduce Observable.merge 
             xs.Subscribe observer
@@ -30,9 +30,11 @@ type View<'E, 'M, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) =
             window.DataContext <- model; 
             this.SetBindings model
 
-    abstract EventStreams : IObservable<'E> list
-    abstract SetBindings : 'M -> unit
+    abstract EventStreams : IObservable<'Event> list
+    abstract SetBindings : 'Model -> unit
 
 [<AbstractClass>]
-type XamlView<'E, 'M>(resourceLocator) = 
-    inherit View<'E, 'M, Window>(resourceLocator |> Application.LoadComponent  |> unbox)
+type XamlView<'Event, 'Model>(resourceLocator) = 
+    inherit View<'Event, 'Model, Window>(resourceLocator |> Application.LoadComponent |> unbox)
+
+

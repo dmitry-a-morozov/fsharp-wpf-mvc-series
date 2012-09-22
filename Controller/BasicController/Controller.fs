@@ -3,14 +3,14 @@
 open System.ComponentModel
 
 [<AbstractClass>]
-type Controller<'E, 'M>(view : IView<'E, 'M>) =
+type Controller<'Event, 'Model>(view : IView<'Event, 'Model>) =
 
-    abstract InitModel : 'M -> unit
-    abstract EventHandler : ('E -> 'M -> unit)
+    abstract InitModel : 'Model -> unit
+    abstract EventHandler : ('Event -> 'Model -> unit)
 
     member this.Start model =
 
-        assert(typeof<INotifyPropertyChanged>.IsAssignableFrom(model.GetType()))
+        assert(match box model with | :? INotifyPropertyChanged -> true | _ -> false)
 
         this.InitModel model
         view.SetBindings model
