@@ -41,7 +41,7 @@ type SampleEvents =
     | Clear
 
 type SampleView() =
-    inherit View<SampleEvents, SampleModel, SampleWindow>()
+    inherit View<SampleEvents, SampleWindow>()
 
     override this.EventStreams = 
         [
@@ -56,9 +56,9 @@ type SampleView() =
 
 [<STAThread>] 
 do 
-    let model = SampleModel.Create()
+    let model : SampleModel = Model.Create()
     let view = SampleView()
-    let iview = view :> IView<_, _>
+    let iview = view :> IView<_>
     iview.SetBindings model
     iview.Add(callback = function 
         | Add -> model.Result <- model.X + model.Y

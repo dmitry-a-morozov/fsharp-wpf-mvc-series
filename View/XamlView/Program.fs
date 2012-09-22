@@ -17,7 +17,7 @@ type SampleEvents =
     | Clear
 
 type SampleView() as this =
-    inherit XamlView<SampleEvents, SampleModel>(resourceLocator = Uri("/Window.xaml", UriKind.Relative))
+    inherit XamlView<SampleEvents>(resourceLocator = Uri("/Window.xaml", UriKind.Relative))
 
     let add : Button = this ? Add
     let clear : Button = this ? Clear
@@ -38,9 +38,9 @@ type SampleView() as this =
 
 [<STAThread>] 
 do 
-    let model = SampleModel.Create()
+    let model : SampleModel = Model.Create()
     let view = SampleView()
-    let iview = view :> IView<_, _>
+    let iview = view :> IView<_>
     iview.SetBindings model
     iview.Add(callback = function
         | Add -> model.Result <- model.X + model.Y

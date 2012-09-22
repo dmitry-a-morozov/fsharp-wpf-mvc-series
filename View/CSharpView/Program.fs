@@ -17,7 +17,7 @@ type SampleEvents =
     | Clear
 
 type SampleView() as this =
-    inherit View<SampleEvents, SampleModel, SampleWindow>()
+    inherit View<SampleEvents, SampleWindow>()
 
     let x : TextBox = this ? LHS //dynamic lookup
     let y : TextBox = this ? RHS //dynamic lookup
@@ -36,9 +36,9 @@ type SampleView() as this =
 
 [<STAThread>] 
 do 
-    let model = SampleModel.Create()
+    let model : SampleModel = Model.Create()
     let view = SampleView()
-    let iview = view :> IView<_, _>
+    let iview = view :> IView<_>
     iview.SetBindings model
     iview.Add(callback = function
         | Add -> model.Result <- model.X + model.Y

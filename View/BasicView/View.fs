@@ -3,18 +3,18 @@
 open System
 open System.Windows
 
-type IView<'Event, 'Model> =
+type IView<'Event> =
     inherit IObservable<'Event>
 
-    abstract SetBindings : 'Model -> unit
+    abstract SetBindings : obj -> unit
 
 [<AbstractClass>]
-type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>() = 
+type View<'Event, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>() = 
 
     let window = new 'Window()
     member this.Window = window
     
-    interface IView<'Event, 'Model> with
+    interface IView<'Event> with
         member this.Subscribe observer = 
             let xs = this.EventStreams |> List.reduce Observable.merge 
             xs.Subscribe observer
@@ -23,5 +23,5 @@ type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : un
             this.SetBindings model
 
     abstract EventStreams : IObservable<'Event> list
-    abstract SetBindings : 'Model -> unit
+    abstract SetBindings : obj -> unit
 
