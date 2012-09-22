@@ -7,7 +7,7 @@ open Mvc.Wpf
 
 let controller = 
     SimpleController(view = {
-        new IView<SampleEvents, SampleModel> with
+        new IView<SampleEvents> with
             member __.Subscribe _ = raise <| NotImplementedException()
             member __.SetBindings _ = raise <| NotImplementedException()
     })

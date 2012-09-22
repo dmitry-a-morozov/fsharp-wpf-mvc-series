@@ -19,13 +19,13 @@ type SampleEvents =
     | Subtract of int * int
 
 type SampleView() =
-    inherit View<SampleEvents, SampleModel, SampleWindow>()
+    inherit View<SampleEvents, SampleWindow>()
 
     override this.EventStreams = 
         [
             this.Window.Add.Click |> Observable.map(fun _ -> Add)
-            this.Window.Subtract.Click |> Observable.map(fun _ -> Subtract(int this.Window.X.Text, int this.Window.Y.Text))
             this.Window.Clear.Click |> Observable.map(fun _ -> Clear)
+            this.Window.Subtract.Click |> Observable.map(fun _ -> Subtract(int this.Window.X.Text, int this.Window.Y.Text))
         ]
 
     override this.SetBindings model = 
@@ -33,7 +33,7 @@ type SampleView() =
         this.Window.Y.SetBinding(TextBox.TextProperty, "Y") |> ignore
         this.Window.Result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
 
-type SimpleController(view : IView<_, _>) = 
+type SimpleController(view) = 
     inherit Controller<SampleEvents, SampleModel>(view)
 
     override this.InitModel model = 

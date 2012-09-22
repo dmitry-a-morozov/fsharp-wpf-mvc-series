@@ -3,18 +3,18 @@
 open System
 open System.Windows
 
-type IView<'Event, 'Model> =
+type IView<'Event> =
     inherit IObservable<'Event>
 
-    abstract SetBindings : 'Model -> unit
+    abstract SetBindings : obj -> unit
 
 [<AbstractClass>]
-type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>(?window) = 
+type View<'Event, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>(?window) = 
 
     let window = defaultArg window (new 'Window())
 
     member this.Window = window
-    static member (?) (view : View<_, _, _>, name) = 
+    static member (?) (view : View<_, _>, name) = 
         match view.Window.FindName name with
         | null -> 
             match view.Window.TryFindResource name with
@@ -22,7 +22,7 @@ type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : un
             | resource -> unbox resource 
         | control -> unbox control
     
-    interface IView<'Event, 'Model> with
+    interface IView<'Event> with
         member this.Subscribe observer = 
             let xs = this.EventStreams |> List.reduce Observable.merge 
             xs.Subscribe observer
@@ -31,10 +31,10 @@ type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : un
             this.SetBindings model
 
     abstract EventStreams : IObservable<'Event> list
-    abstract SetBindings : 'Model -> unit
+    abstract SetBindings : obj -> unit
 
 [<AbstractClass>]
-type XamlView<'Event, 'Model>(resourceLocator) = 
-    inherit View<'Event, 'Model, Window>(resourceLocator |> Application.LoadComponent |> unbox)
+type XamlView<'Event>(resourceLocator) = 
+    inherit View<'Event, Window>(resourceLocator |> Application.LoadComponent |> unbox)
 
 
