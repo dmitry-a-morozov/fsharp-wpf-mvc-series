@@ -59,13 +59,13 @@
     <Reference Include="UIAutomationProvider" />
     <Reference Include="UIAutomationTypes" />
     <Reference Include="Unquote">
-      <HintPath>..\..\References\Unquote.dll</HintPath>
+      <HintPath>..\References\Unquote.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="xunit">
-      <HintPath>..\..\References\xunit.dll</HintPath>
+      <HintPath>..\References\xunit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
