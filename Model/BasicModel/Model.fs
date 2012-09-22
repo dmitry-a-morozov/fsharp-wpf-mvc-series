@@ -26,5 +26,5 @@ type Model() =
     member internal this.TriggerPropertyChanged propertyName = 
         propertyChangedEvent.Trigger(this, PropertyChangedEventArgs propertyName)
 
-    static member Create<'M when 'M :> Model and 'M : not struct>()  : 'M = 
+    static member Create<'T when 'T :> Model and 'T : not struct>()  : 'T = 
         proxyFactory.CreateClassProxy notifyPropertyChanged
