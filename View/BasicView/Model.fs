@@ -44,7 +44,7 @@ type Model() =
     member internal this.TriggerPropertyChanged propertyName = 
         propertyChangedEvent.Trigger(this, PropertyChangedEventArgs propertyName)
 
-    static member Create<'T when 'T :> Model and 'T : not struct>()  : 'T = 
+    static member Create<'T when 'T :> Model and 'T : not struct>() : 'T = 
         let interceptors : IInterceptor[] = [| notifyPropertyChanged; AbstractProperties() |]
         proxyFactory.CreateClassProxy interceptors    
 
