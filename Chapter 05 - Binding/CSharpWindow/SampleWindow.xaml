@@ -1,7 +1,7 @@
 ﻿<Window x:Class="SampleWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Calculator" Height="200" Width="300">
+        Title="F# MVC WPF. Binding." Height="200" Width="300">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
