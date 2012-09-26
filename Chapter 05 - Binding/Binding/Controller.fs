@@ -3,10 +3,10 @@
 open System.ComponentModel
 
 [<AbstractClass>]
-type Controller<'E, 'M when 'M :> INotifyPropertyChanged>(view : IView<'E, 'M>) =
+type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view : IView<'Event, 'Model>) =
 
-    abstract InitModel : 'M -> unit
-    abstract EventHandler : ('E -> 'M -> unit)
+    abstract InitModel : 'Model -> unit
+    abstract EventHandler : ('Event -> 'Model -> unit)
 
     member this.Start model =
         this.InitModel model
