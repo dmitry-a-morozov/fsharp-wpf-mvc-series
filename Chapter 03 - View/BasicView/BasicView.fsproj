@@ -8,7 +8,7 @@
     <ProjectGuid>{3a4eacf7-ebde-4325-b586-3ab56de8c7ed}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>View</RootNamespace>
-    <AssemblyName>View</AssemblyName>
+    <AssemblyName>BasicView</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <Name>BasicView</Name>
