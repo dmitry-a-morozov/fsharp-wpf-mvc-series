@@ -8,7 +8,7 @@
     <ProjectGuid>{ea652c24-ffd3-4801-9e32-85afcec2d52c}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Controller</RootNamespace>
-    <AssemblyName>Controller</AssemblyName>
+    <AssemblyName>BasicController</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <Name>BasicController</Name>

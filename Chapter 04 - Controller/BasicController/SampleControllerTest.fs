@@ -1,6 +1,7 @@
 ﻿module Mvc.Wpf.Sample.Test
 
 open System 
+open System.Diagnostics
 open Xunit
 open Swensen.Unquote.Assertions
 open Mvc.Wpf
@@ -16,9 +17,10 @@ let controller =
 let InitModel() = 
     let model = SampleModel.Create()
     controller.InitModel model
-    test <@ model.X = 0 @>
-    test <@ model.Y = 0 @>
-    test <@ model.Result = 0 @>
+    model.X =? 0
+    model.Y =? 0
+    model.Result =? 0 
+    model.Title =? ("Process name: " + Process.GetCurrentProcess().ProcessName)
 
 [<Fact>]
 let Add() = 

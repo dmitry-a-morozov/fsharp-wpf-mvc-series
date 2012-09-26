@@ -1,9 +1,11 @@
 ﻿
 namespace Mvc.Wpf.Sample
 
-open Mvc.Wpf
 open System
 open System.Windows.Controls
+open System.Windows
+
+open Mvc.Wpf
 
 [<AbstractClass>]
 type SampleModel() = 
@@ -12,6 +14,8 @@ type SampleModel() =
     abstract X : int with get, set
     abstract Y : int with get, set
     abstract Result : int with get, set
+
+    abstract Title : string with get, set
 
 type SampleEvents = 
     | Add
@@ -32,6 +36,7 @@ type SampleView() =
         this.Window.X.SetBinding(TextBox.TextProperty, "X") |> ignore
         this.Window.Y.SetBinding(TextBox.TextProperty, "Y") |> ignore
         this.Window.Result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
+        this.Window.SetBinding(Window.TitleProperty, "Title") |> ignore
 
 type SimpleController(view) = 
     inherit Controller<SampleEvents, SampleModel>(view)
@@ -40,6 +45,9 @@ type SimpleController(view) =
         model.X <- 0
         model.Y <- 0
         model.Result <- 0
+
+        model.Title <- 
+            sprintf "Process name: %s" <| System.Diagnostics.Process.GetCurrentProcess().ProcessName
 
     override this.EventHandler = function
         | Add -> this.Add
