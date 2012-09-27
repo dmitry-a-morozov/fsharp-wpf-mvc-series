@@ -9,12 +9,12 @@ type IView<'Event, 'Model> =
     abstract SetBindings : 'Model -> unit
 
 [<AbstractClass>]
-type View<'Event, 'Model, 'W when 'W :> Window and 'W : (new : unit -> 'W)>(?window) = 
+type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>(?window) = 
 
-    let window = defaultArg window (new 'W())
+    let window = defaultArg window (new 'Window())
 
     member this.Window = window
-    static member (?) (view : View<'Event, 'Model, 'W>, name) = 
+    static member (?) (view : View<'Event, 'Model, 'Window>, name) = 
         match view.Window.FindName name with
         | null -> 
             match view.Window.TryFindResource name with
