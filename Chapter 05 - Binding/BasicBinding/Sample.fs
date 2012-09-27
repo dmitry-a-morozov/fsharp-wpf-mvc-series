@@ -35,14 +35,14 @@ type SampleView() =
         ]
 
     override this.SetBindings model = 
-
-        <@ this.Window.Operation.ItemsSource <- model.AvailableOperations @>.ToBindingExpr()
-        <@ this.Window.Operation.SelectedItem <- model.SelectedOperation @>.ToBindingExpr()
-
+        //Binding to property of type string
         <@ this.Window.X.Text <- model.X @>.ToBindingExpr()
         <@ this.Window.Y.Text <- model.Y @>.ToBindingExpr()
-
         <@ this.Window.Result.Text <- model.Result @>.ToBindingExpr()
+        //Binding to property of type IEnumerable
+        <@ this.Window.Operation.ItemsSource <- model.AvailableOperations @>.ToBindingExpr()
+        //Binding to property of type obj
+        <@ this.Window.Operation.SelectedItem <- model.SelectedOperation @>.ToBindingExpr()
 
 type SimpleController(view : IView<_, _>) = 
     inherit Controller<SampleEvents, SampleModel>(view)

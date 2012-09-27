@@ -14,7 +14,7 @@ type PropertyInfo with
         let dpInfo = 
             this.DeclaringType.GetField(this.Name + "Property", BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.FlattenHierarchy)
         assert (dpInfo <> null)
-        dpInfo.GetValue(null, [||]) :?> DependencyProperty
+        dpInfo.GetValue(null, [||]) |> unbox<DependencyProperty> 
 
 let rec (|PropertyPath|_|) = function 
     | PropertyGet( Some( Value _), sourceProperty, []) -> Some sourceProperty.Name

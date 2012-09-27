@@ -9,12 +9,11 @@ open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 
 type PropertyInfo with
-    // extension property - missing in C#
     member this.DependencyProperty = 
         let dpInfo = 
             this.DeclaringType.GetField(this.Name + "Property", BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.FlattenHierarchy)
         assert (dpInfo <> null)
-        dpInfo.GetValue(null, [||]) :?> DependencyProperty
+        dpInfo.GetValue(null, [||]) |> unbox<DependencyProperty> 
 
 type Expr with
     member this.ToBindingExpr() = 
