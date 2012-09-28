@@ -33,13 +33,11 @@ type Expr with
                 PropertyPath path
             ) ->
                 let target : FrameworkElement = (view, [||]) |> window.GetValue |> control.GetValue |> unbox
-                let binding = Binding(path, ValidatesOnDataErrors = true)
-                target.SetBinding(targetProperty.DependencyProperty, binding)
-
+                target.SetBinding(targetProperty.DependencyProperty, path)
         | _ -> invalidArg "expr" (string this) 
 
 type Binding with
-    static member FromExpression(expr : Expr) = 
+    static member FromExpression expr = 
         let rec split = function 
             | Sequential(head, tail) -> head :: split tail
             | tail -> [ tail ]

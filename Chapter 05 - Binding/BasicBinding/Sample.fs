@@ -44,7 +44,7 @@ type SampleView() =
         //Binding to property of type obj
         <@ this.Window.Operation.SelectedItem <- model.SelectedOperation @>.ToBindingExpr()
 
-type SimpleController(view : IView<_, _>) = 
+type SimpleController(view) = 
     inherit Controller<SampleEvents, SampleModel>(view)
 
     override this.InitModel model = 
