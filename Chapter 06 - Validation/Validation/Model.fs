@@ -48,12 +48,12 @@ type Model() =
     member internal this.TriggerPropertyChanged propertyName = 
         propertyChangedEvent.Trigger(this, PropertyChangedEventArgs propertyName)
 
-    static member Create<'M when 'M :> Model and 'M : not struct>()  : 'M = 
+    static member Create<'T when 'T :> Model and 'T : not struct>()  : 'T = 
         let interceptors : IInterceptor[] = [| notifyPropertyChanged; AbstractProperties() |]
         proxyFactory.CreateClassProxy interceptors    
 
     interface IDataErrorInfo with
-        //using undefined - way cleaner that wide-accepted : raise(new NotImplementedException())
+        //using undefined - way cleaner that widely-accepted : raise(new NotImplementedException())
         member this.Error = undefined
         member this.Item 
             with get propertyName = 
