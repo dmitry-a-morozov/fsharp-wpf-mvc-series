@@ -35,4 +35,4 @@ type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : un
 
 [<AbstractClass>]
 type XamlView<'Event, 'Model>(resourceLocator) = 
-    inherit View<'Event, 'Model, Window>(Application.LoadComponent resourceLocator |> unbox)
+    inherit View<'Event, 'Model, Window>(resourceLocator |> Application.LoadComponent |> unbox)
