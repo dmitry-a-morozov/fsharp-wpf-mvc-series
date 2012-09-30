@@ -112,8 +112,8 @@ type SimpleController(view : IView<_, _>) =
         async {
             model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
             let context = SynchronizationContext.Current
-            let! fahrenheit = service.AsyncCelsiusToFahrenheit model.Celsius
             do! Async.Sleep 3000
+            let! fahrenheit = service.AsyncCelsiusToFahrenheit model.Celsius
             do! Async.SwitchToContext context
             model.TempConverterHeader <- "Async TempConverter. Response received."            
             model.Fahrenheit <- fahrenheit
@@ -123,8 +123,8 @@ type SimpleController(view : IView<_, _>) =
         async {
             model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
             let context = SynchronizationContext.Current
-            let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
             do! Async.Sleep 3000
+            let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
             do! Async.SwitchToContext context
             model.TempConverterHeader <- "Async TempConverter. Response received."            
             model.Celsius <- celsius
