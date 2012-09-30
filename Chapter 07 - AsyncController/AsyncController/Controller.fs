@@ -2,17 +2,17 @@
 
 open System.ComponentModel
 
-type EventHandler<'M> = 
-    | Sync of ('M -> unit)
-    | Async of ('M -> Async<unit>)
+type EventHandler<'Model> = 
+    | Sync of ('Model -> unit)
+    | Async of ('Model -> Async<unit>)
 
 exception PreserveStackTraceWrapper of exn
 
 [<AbstractClass>]
-type Controller<'E, 'M when 'M :> INotifyPropertyChanged>(view : IView<'E, 'M>) =
+type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view : IView<'Event, 'Model>) =
 
-    abstract InitModel : 'M -> unit
-    abstract Dispatcher : ('E -> EventHandler<'M>)
+    abstract InitModel : 'Model -> unit
+    abstract Dispatcher : ('Event -> EventHandler<'Model>)
 
     member this.Start model =
         this.InitModel model
@@ -33,8 +33,8 @@ type Controller<'E, 'M when 'M :> INotifyPropertyChanged>(view : IView<'E, 'M>) 
     default this.OnError why = why |> PreserveStackTraceWrapper |> raise
 
 [<AbstractClass>]
-type SyncController<'E, 'M when 'M :> INotifyPropertyChanged>(view) =
-    inherit Controller<'E, 'M>(view)
+type SyncController<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view) =
+    inherit Controller<'Event, 'Model>(view)
 
-    abstract Dispatcher : ('E -> 'M -> unit)
+    abstract Dispatcher : ('Event -> 'Model -> unit)
     override this.Dispatcher = fun e -> Sync(this.Dispatcher e)

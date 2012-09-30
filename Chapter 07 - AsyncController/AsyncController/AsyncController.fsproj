@@ -8,7 +8,7 @@
     <ProjectGuid>{b9c0335e-31f2-49e6-87f9-89b30ca5cb00}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Validation</RootNamespace>
-    <AssemblyName>Validation</AssemblyName>
+    <AssemblyName>AsyncController</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <Name>AsyncController</Name>
