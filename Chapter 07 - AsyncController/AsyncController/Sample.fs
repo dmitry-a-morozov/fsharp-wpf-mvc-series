@@ -116,9 +116,9 @@ type SimpleController(view : IView<_, _>) =
 
     member this.CelsiusToFahrenheit model = 
         async {
+            let context = SynchronizationContext.Current
             use! cancelHandler = Async.OnCancel(fun () -> model.TempConverterHeader <- "Async TempConverter. Request cancelled.") 
             model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
-            let context = SynchronizationContext.Current
             do! Async.Sleep(model.Delay * 1000)
             let! fahrenheit = service.AsyncCelsiusToFahrenheit model.Celsius
             do! Async.SwitchToContext context
@@ -128,9 +128,9 @@ type SimpleController(view : IView<_, _>) =
 
     member this.FahrenheitToCelsius model = 
         async {
+            let context = SynchronizationContext.Current
             use! cancelHandler = Async.OnCancel(fun () -> model.TempConverterHeader <- "Async TempConverter. Request cancelled.") 
             model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
-            let context = SynchronizationContext.Current
             do! Async.Sleep(model.Delay * 1000)
             let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
             do! Async.SwitchToContext context
