@@ -1,0 +1,31 @@
+﻿<Window x:Class="StockPriceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Stock price" Height="200" Width="400">
+    <Window.Resources>
+        <ResourceDictionary Source="Styles.xaml"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.2*" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+        <Label Content="Symbol"/>
+        <TextBox Name="Symbol" Grid.Column="1" x:FieldModifier="public"/>
+        <Label Grid.Row="1" Content="Company Name"/>
+        <TextBlock Grid.Row="1" Name="CompanyName" Grid.Column="1" x:FieldModifier="public" Margin="5"/>
+        <Label Grid.Row="2" Content="Last Price"/>
+        <TextBlock Grid.Row="2" Name="LastPrice" Grid.Column="1" x:FieldModifier="public" Margin="5"/>
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal">
+            <Button Name="Retrieve" Content="Retrieve" Width="110" Height="25" x:FieldModifier="public" Margin="5"/>
+            <Button Name="AddToChart" Content="Add To Chart" Width="110" Height="25" x:FieldModifier="public" Margin="5"/>
+            <Button Name="CloseButton" Content="Close" Width="110" Height="25" x:FieldModifier="public" Margin="5"/>
+        </StackPanel>
+    </Grid>
+</Window>
