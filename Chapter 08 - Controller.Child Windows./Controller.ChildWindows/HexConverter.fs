@@ -6,16 +6,12 @@ open System.Windows.Data
 open Mvc.Wpf
 
 [<AbstractClass>]
-type HexConverterModel(value) as this = 
+type HexConverterModel() = 
     inherit Model()
-
-    do
-        this.HexValue <- sprintf "%X" value
-
-    new() = HexConverterModel(0)
 
     abstract HexValue : string with get, set
 
+    member this.SetValue value = this.HexValue <- sprintf "%X" value
     member this.Value =
         match Int32.TryParse(this.HexValue, NumberStyles.HexNumber, null) with 
         | true, value -> Some(value)

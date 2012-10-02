@@ -169,7 +169,9 @@ type SimpleController(view : IView<_, _>) =
     member this.Hex1 model = 
         let view = HexConverterView()
         let controller = HexConverterController view
-        let childModel = Model.Create(model.X)
+        let childModel : HexConverterModel = Model.Create() 
+        childModel.SetValue(model.X)
+
         if controller.Start childModel
         then 
             assert childModel.Value.IsSome

@@ -7,10 +7,10 @@ type EventHandler<'M> =
 exception PreserveStackTraceWrapper of exn
 
 [<AbstractClass>]
-type Controller<'E, 'M when 'M :> Model>(view : IView<'E, 'M>) =
+type Controller<'Event, 'Model when 'Model :> Model and 'Model : not struct>(view : IView<'Event, 'Model>) =
 
-    abstract InitModel : 'M -> unit
-    abstract Dispatcher : ('E -> EventHandler<'M>)
+    abstract InitModel : 'Model -> unit
+    abstract Dispatcher : ('Event -> EventHandler<'Model>)
 
     member this.Activate model =
         this.InitModel model
@@ -50,9 +50,8 @@ type Controller<'E, 'M when 'M :> Model>(view : IView<'E, 'M>) =
     default this.OnError why = why |> PreserveStackTraceWrapper |> raise
 
 [<AbstractClass>]
-type SyncController<'E, 'M when 'M :> Model and 'M : not struct>(view) =
-    inherit Controller<'E, 'M>(view)
+type SyncController<'Event, 'Model when 'Model :> Model and 'Model : not struct>(view) =
+    inherit Controller<'Event, 'Model>(view)
 
-    abstract Dispatcher : ('E -> 'M -> unit)
+    abstract Dispatcher : ('Event -> 'Model -> unit)
     override this.Dispatcher = fun e -> Sync(this.Dispatcher e)
-
