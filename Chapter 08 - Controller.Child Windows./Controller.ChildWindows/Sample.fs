@@ -170,7 +170,7 @@ type SimpleController(view : IView<_, _>) =
         let view = HexConverterView()
         let controller = HexConverterController view
         let childModel : HexConverterModel = Model.Create() 
-        childModel.SetValue(model.X)
+        childModel.Value <- Some(model.X)
 
         if controller.Start childModel
         then 
@@ -179,8 +179,8 @@ type SimpleController(view : IView<_, _>) =
 
     member this.Hex2 model = 
         let view = HexConverterView()
-        let controller = HexConverterController view
-        controller.Start()
+        HexConverterController view
+        |> Controller.Start
         |> Option.iter(fun resultModel ->
             assert resultModel.Value.IsSome
             model.Y <- Option.get resultModel.Value 
@@ -189,8 +189,7 @@ type SimpleController(view : IView<_, _>) =
     member this.AddStockToPriceChart model = 
         async {
             let view = StockPriceView()
-            let controller = StockPriceController view
-            let! result = controller.AsyncStart()
+            let! result = Controller.AsyncStart(controller = StockPriceController view)
             result |> Option.iter (fun stockInfo ->
                 model.StockPrices.Add(stockInfo.Symbol, stockInfo.LastPrice)
             )

@@ -1,5 +1,7 @@
 ﻿namespace Mvc.Wpf
 
+open System.ComponentModel
+
 type EventHandler<'M> = 
     | Sync of ('M -> unit)
     | Async of ('M -> Async<unit>)
@@ -7,7 +9,7 @@ type EventHandler<'M> =
 exception PreserveStackTraceWrapper of exn
 
 [<AbstractClass>]
-type Controller<'Event, 'Model when 'Model :> Model and 'Model : not struct>(view : IView<'Event, 'Model>) =
+type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view : IView<'Event, 'Model>) =
 
     abstract InitModel : 'Model -> unit
     abstract Dispatcher : ('Event -> EventHandler<'Model>)
@@ -29,29 +31,19 @@ type Controller<'Event, 'Model when 'Model :> Model and 'Model : not struct>(vie
         use subcription = this.Activate model
         view.ShowDialog()
 
-    member this.Start() = 
-        let model = Model.Create()
-        if this.Start model then Some model else None
-
     member this.AsyncStart model =
         async {
             use subcription = this.Activate model
             return! view.Show()
         }
 
-    member this.AsyncStart() = 
-        async {
-            let model = Model.Create()
-            let! isOk = this.AsyncStart model
-            return if isOk then Some model else None
-        }
-
     abstract OnError : exn -> unit
     default this.OnError why = why |> PreserveStackTraceWrapper |> raise
 
 [<AbstractClass>]
-type SyncController<'Event, 'Model when 'Model :> Model and 'Model : not struct>(view) =
+type SyncController<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view) =
     inherit Controller<'Event, 'Model>(view)
 
     abstract Dispatcher : ('Event -> 'Model -> unit)
     override this.Dispatcher = fun e -> Sync(this.Dispatcher e)
+

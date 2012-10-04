@@ -83,3 +83,15 @@ and AbstractProperties() =
 
                 | _ -> invocation.Proceed()
 
+type Controller = 
+
+    static member inline Start(controller : #Controller<_, ^Model>) = 
+        let model = (^Model : (static member Create : unit -> ^Model) ())
+        if controller.Start model then Some model else None
+
+    static member inline AsyncStart(controller : #Controller<_, ^Model>) = 
+        async {
+            let model = (^Model : (static member Create : unit -> ^Model) ())
+            let! isOk = controller.AsyncStart model
+            return if isOk then Some model else None
+        }

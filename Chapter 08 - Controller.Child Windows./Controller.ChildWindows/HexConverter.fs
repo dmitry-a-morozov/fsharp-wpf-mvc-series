@@ -11,11 +11,12 @@ type HexConverterModel() =
 
     abstract HexValue : string with get, set
 
-    member this.SetValue value = this.HexValue <- sprintf "%X" value
-    member this.Value =
-        match Int32.TryParse(this.HexValue, NumberStyles.HexNumber, null) with 
-        | true, value -> Some(value)
-        | false, _ -> None
+    member this.Value 
+        with get() = 
+            match Int32.TryParse(this.HexValue, NumberStyles.HexNumber, null) with 
+            | true, value -> Some(value)
+            | false, _ -> None
+        and set(value : int option)= this.HexValue <- value |> Option.get |> sprintf "%X"
 
 type HexConverterEvents = 
     | OK
