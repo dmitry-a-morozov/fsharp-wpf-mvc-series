@@ -12,14 +12,8 @@ type HexConverterModel() =
     abstract HexValue : string with get, set
 
     member this.Value 
-        with get() = 
-            match Int32.TryParse(this.HexValue, NumberStyles.HexNumber, null) with 
-            | true, value -> Some(value)
-            | false, _ -> None
-        and set value = 
-            match value with 
-            | Some x -> this.HexValue <- sprintf "%X" x
-            | None -> invalidArg "value" "Value is None."
+        with get() = Int32.Parse(this.HexValue, NumberStyles.HexNumber)
+        and set value = this.HexValue <- sprintf "%X" value
 
 type HexConverterEvents = 
     | OK
@@ -50,7 +44,10 @@ type HexConverterController(view) =
         | OK -> this.OK
 
     member this.OK(model : HexConverterModel) = 
-        match model.Value with
-        | None -> model |> Validation.setError <@ fun m -> m.HexValue @> (sprintf "Cannot parse hex value %s" model.HexValue)
-        | Some _ -> view.OK()
+        try 
+            let _ = model.Value
+            view.OK()
+        with :? FormatException as why ->  
+            let errorMessage = sprintf "Cannot parse hex value %s because %s" model.HexValue why.Message
+            model |> Validation.setError <@ fun m -> m.HexValue @> errorMessage
 
