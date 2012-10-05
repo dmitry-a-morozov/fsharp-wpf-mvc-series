@@ -66,7 +66,7 @@ type SampleView() =
                 this.Window.Delay.Text <- string model.Delay
             @>
 
-type SimpleController(view : IView<_, _>) = 
+type SimpleController(view) = 
     inherit Controller<SampleEvents, SampleModel>(view)
 
     let service = new TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
