@@ -43,8 +43,8 @@ type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : un
         member this.Show() = 
             this.Window.Show()
             this.Window.Closed |> Event.map (fun _ -> isOK) |> Async.AwaitEvent 
-        member this.Close OK = 
-            isOK <- OK
+        member this.Close isOK' = 
+            isOK <- isOK'
             this.Window.Close()
 
     abstract EventStreams : IObservable<'Event> list
