@@ -93,7 +93,7 @@ type SampleView() as this =
         this.Window.StockPricesChart.DataSource <- model.StockPrices
         model.StockPrices.CollectionChanged.Add(fun _ -> this.Window.StockPricesChart.DataBind())
 
-type SimpleController(view : IView<_, _>) = 
+type SimpleController(view) = 
     inherit Controller<SampleEvents, SampleModel>(view)
 
     let service = new TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
