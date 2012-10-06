@@ -4,7 +4,6 @@ open System
 open System.Windows.Controls
 open System.Windows.Data
 open System.Threading
-open System.Collections.Generic
 open System.Drawing
 open System.Windows.Forms.DataVisualization.Charting
 open System.Collections.ObjectModel
