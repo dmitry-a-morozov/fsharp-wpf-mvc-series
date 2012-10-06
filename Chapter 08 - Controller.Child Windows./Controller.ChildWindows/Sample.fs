@@ -177,9 +177,9 @@ type SimpleController(view) =
         }
 
     member this.Hex1 model = 
-        let view = HexConverterView()
-        let controller = HexConverterController view
-        let childModel : HexConverterModel = Model.Create() 
+        let view = HexConverter.view()
+        let controller = HexConverter.controller view
+        let childModel : HexConverter.Model = Model.Create() 
         childModel.Value <- model.X
 
         if controller.Start childModel
@@ -187,8 +187,8 @@ type SimpleController(view) =
             model.X <- childModel.Value 
 
     member this.Hex2 model = 
-        let view = HexConverterView()
-        HexConverterController view
+        HexConverter.view()
+        |> HexConverter.controller 
         |> Controller.start
         |> Option.iter(fun resultModel ->
             model.Y <- resultModel.Value 

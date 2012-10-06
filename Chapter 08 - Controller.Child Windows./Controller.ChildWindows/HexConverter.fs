@@ -5,48 +5,44 @@ open System.Globalization
 open System.Windows.Data
 open Mvc.Wpf
 
-[<AbstractClass>]
-type HexConverterModel() = 
-    inherit Model()
+module HexConverter =  
 
-    abstract HexValue : string with get, set
+    [<AbstractClass>]
+    type Model() = 
+        inherit Mvc.Wpf.Model()
 
-    member this.Value 
-        with get() = Int32.Parse(this.HexValue, NumberStyles.HexNumber)
-        and set value = this.HexValue <- sprintf "%X" value
+        abstract HexValue : string with get, set
+        member this.Value 
+            with get() = Int32.Parse(this.HexValue, NumberStyles.HexNumber)
+            and set value = this.HexValue <- sprintf "%X" value
 
-type HexConverterEvents = 
-    | OK
+    let view() = 
+        let result = {
+            new View<unit, Model, HexConverterWindow>() with 
+                member this.EventStreams = 
+                    [
+                        this.Window.OK.Click |> Observable.mapTo()
+                    ]
 
-type HexConverterView() as this =
-    inherit View<HexConverterEvents, HexConverterModel, HexConverterWindow>()
+                member this.SetBindings model = 
+                    Binding.FromExpression 
+                        <@ 
+                            this.Window.Value.Text <- model.HexValue
+                        @>
+        }
+        result.CancelButton <- result.Window.Cancel
+        result
 
-    do
-        this.CancelButton <- this.Window.Cancel
-
-    override this.EventStreams = 
-        [
-            this.Window.OK.Click |> Observable.mapTo OK
-        ]
-
-    override this.SetBindings model = 
-        Binding.FromExpression 
-            <@ 
-                this.Window.Value.Text <- model.HexValue
-            @>
-
-type HexConverterController(view) = 
-    inherit SyncController<HexConverterEvents, HexConverterModel>(view)
-
-    override this.InitModel _ = ()
-    override this.Dispatcher = function
-        | OK -> this.OK
-
-    member this.OK(model : HexConverterModel) = 
-        try 
-            let _ = model.Value
-            view.OK()
-        with :? FormatException as why ->  
-            let errorMessage = sprintf "Cannot parse hex value %s because %s" model.HexValue why.Message
-            model |> Validation.setError <@ fun m -> m.HexValue @> errorMessage
+    let controller view = {
+        new SyncController<unit, Model>(view) with
+            member this.InitModel _ = ()
+            member this.Dispatcher = fun() -> 
+                fun(model : Model) ->
+                    try 
+                        let _ = model.Value
+                        view.OK()
+                    with :? FormatException as why ->  
+                        let errorMessage = sprintf "Cannot parse hex value %s because %s" model.HexValue why.Message
+                        model |> Validation.setError <@ fun m -> m.HexValue @> errorMessage
+    }
 
