@@ -6,4 +6,4 @@ open Mvc.Wpf
 
 [<STAThread>] 
 do 
-    SimpleController(view = SampleView()) |> Controller.Start |> ignore
+    SimpleController(view = SampleView()) |> Controller.start |> ignore

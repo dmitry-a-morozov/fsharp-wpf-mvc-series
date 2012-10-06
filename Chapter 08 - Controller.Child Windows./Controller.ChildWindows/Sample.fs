@@ -36,6 +36,7 @@ type SampleModel() =
     abstract Celsius : float with get, set
     abstract Fahrenheit : float with get, set
     abstract TempConverterHeader : string with get, set
+    abstract Delay : int with get, set
 
     abstract StockPrices : ObservableCollection<string * decimal> with get, set
 
@@ -44,6 +45,7 @@ type SampleEvents =
     | Clear 
     | CelsiusToFahrenheit
     | FahrenheitToCelsius
+    | CancelAsync
     | Hex1
     | Hex2
     | AddStockToPriceChart
@@ -70,6 +72,7 @@ type SampleView() as this =
             this.Window.Clear, Clear
             this.Window.CelsiusToFahrenheit, CelsiusToFahrenheit
             this.Window.FahrenheitToCelsius, FahrenheitToCelsius
+            this.Window.CancelAsync, CancelAsync
             this.Window.Hex1, Hex1
             this.Window.Hex2, Hex2
             this.Window.AddStock, AddStockToPriceChart
@@ -88,6 +91,7 @@ type SampleView() as this =
                 this.Window.TempConverterGroup.Header <- model.TempConverterHeader
                 this.Window.Celsius.Text <- string model.Celsius
                 this.Window.Fahrenheit.Text <- string model.Fahrenheit
+                this.Window.Delay.Text <- string model.Delay
             @>
 
         this.Window.StockPricesChart.DataSource <- model.StockPrices
@@ -110,6 +114,7 @@ type SimpleController(view) =
         model.Result <- 0
 
         model.TempConverterHeader <- "Async TempConveter"
+        model.Delay <- 3
 
         model.StockPrices <- ObservableCollection()
 
@@ -118,6 +123,7 @@ type SimpleController(view) =
         | Clear -> Sync this.InitModel
         | CelsiusToFahrenheit -> Async this.CelsiusToFahrenheit
         | FahrenheitToCelsius -> Async this.FahrenheitToCelsius
+        | CancelAsync -> Sync(ignore >> Async.CancelDefaultToken)
         | Hex1 -> Sync this.Hex1
         | Hex2 -> Sync this.Hex2
         | AddStockToPriceChart -> Async this.AddStockToPriceChart
@@ -146,10 +152,12 @@ type SimpleController(view) =
         
     member this.CelsiusToFahrenheit model = 
         async {
-            model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
             let context = SynchronizationContext.Current
+            use! cancelHandler = Async.OnCancel(fun() -> 
+                context.Post((fun _ -> model.TempConverterHeader <- "Async TempConverter. Request cancelled."), null)) 
+            model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
+            do! Async.Sleep(model.Delay * 1000)
             let! fahrenheit = service.AsyncCelsiusToFahrenheit model.Celsius
-            do! Async.Sleep 5000
             do! Async.SwitchToContext context
             model.TempConverterHeader <- "Async TempConverter. Response received."            
             model.Fahrenheit <- fahrenheit
@@ -157,10 +165,12 @@ type SimpleController(view) =
 
     member this.FahrenheitToCelsius model = 
         async {
-            model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
             let context = SynchronizationContext.Current
+            use! cancelHandler = Async.OnCancel(fun() -> 
+                context.Post((fun _ -> model.TempConverterHeader <- "Async TempConverter. Request cancelled."), null)) 
+            model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
+            do! Async.Sleep(model.Delay * 1000)
             let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
-            do! Async.Sleep 5000
             do! Async.SwitchToContext context
             model.TempConverterHeader <- "Async TempConverter. Response received."            
             model.Celsius <- celsius
@@ -179,7 +189,7 @@ type SimpleController(view) =
     member this.Hex2 model = 
         let view = HexConverterView()
         HexConverterController view
-        |> Controller.Start
+        |> Controller.start
         |> Option.iter(fun resultModel ->
             model.Y <- resultModel.Value 
         )
@@ -187,7 +197,7 @@ type SimpleController(view) =
     member this.AddStockToPriceChart model = 
         async {
             let view = StockPriceView()
-            let! result = Controller.AsyncStart(controller = StockPriceController view)
+            let! result = StockPriceController view |> Controller.asyncStart  
             result |> Option.iter (fun stockInfo ->
                 model.StockPrices.Add(stockInfo.Symbol, stockInfo.LastPrice)
             )
