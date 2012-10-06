@@ -67,4 +67,4 @@ module View =
         member this.OKButton 
             with set(value : Button) = 
                 value.IsDefault <- true
-                value.Click.Add(ignore >> this.OK)
+                value.Click.Add(fun _ -> this.OK())
