@@ -17,11 +17,8 @@ type StockPriceModel() =
     abstract LastPrice : decimal with get, set
     abstract AddToChartEnabled : bool with get, set
 
-type StockPriceEvents = 
-    | Retrieve
-
 type StockPriceView() as this =
-    inherit View<StockPriceEvents, StockPriceModel, StockPriceWindow>()
+    inherit View<unit, StockPriceModel, StockPriceWindow>()
 
     do
         this.Window.Symbol.CharacterCasing <- CharacterCasing.Upper
@@ -30,7 +27,7 @@ type StockPriceView() as this =
 
     override this.EventStreams = 
         [
-            this.Window.Retrieve.Click |> Observable.mapTo Retrieve
+            this.Window.Retrieve.Click |> Observable.mapTo()
         ]
 
     override this.SetBindings model = 
@@ -43,11 +40,11 @@ type StockPriceView() as this =
             @>
 
 type StockPriceController(view) = 
-    inherit Controller<StockPriceEvents, StockPriceModel>(view)
+    inherit Controller<unit, StockPriceModel>(view)
 
     override this.InitModel _ = ()
-    override this.Dispatcher = function
-        | Retrieve -> Async(fun model ->
+    override this.Dispatcher = fun() ->
+        Async(fun model ->
             async {
                 model |> Validation.textRequired <@ fun m -> m.Symbol @>
                 if not model.HasErrors 
