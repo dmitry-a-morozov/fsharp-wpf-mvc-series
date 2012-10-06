@@ -18,6 +18,7 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <DockPanel>
             <Label Content="X"/>
@@ -54,7 +55,12 @@
                 <Rectangle/>
             </DockPanel>
         </GroupBox>
-        <DockPanel Grid.Column="1" Grid.RowSpan="6" >
+        <StackPanel Grid.Row="6" Orientation="Horizontal" Grid.ColumnSpan="2" >
+            <Label Content="Delay, sec:"/>
+            <TextBox Name="Delay" Width="50" Margin="5" x:FieldModifier="public"/>
+            <Button Content="Cancel Async" Width="100" Name="CancelAsync" x:FieldModifier="public" Margin="5"/>
+        </StackPanel>
+        <DockPanel Grid.Column="1" Grid.RowSpan="7" >
             <Button Content="Add Stock..." Name="AddStock" x:FieldModifier="public" Grid.Row="5" Grid.Column="1" Margin="5" Width="100" DockPanel.Dock="Bottom"/>
             <WindowsFormsHost VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                 <WinFormsChart:Chart x:Name="StockPricesChart" x:FieldModifier="public" Dock="Fill"/>
