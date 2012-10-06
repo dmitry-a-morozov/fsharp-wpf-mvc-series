@@ -26,9 +26,8 @@ type HexConverterView() as this =
 
     override this.EventStreams = 
         [
-            this.Window.OK, OK
+            this.Window.OK.Click |> Observable.mapTo OK
         ]
-        |> List.map(fun(button, value) -> button.Click |> Observable.mapTo value)
 
     override this.SetBindings model = 
         Binding.FromExpression 
