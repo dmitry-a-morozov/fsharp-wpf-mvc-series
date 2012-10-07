@@ -5,13 +5,13 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{fc53e577-bb90-44b9-847f-81ad097cf38e}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Mvc.Wpf</RootNamespace>
-    <AssemblyName>Mvc.Wpf</AssemblyName>
+    <ProjectGuid>{625b5c05-5fa8-4706-a3c0-28032be65a04}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ProblemDemo</RootNamespace>
+    <AssemblyName>ProblemDemo</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
-    <Name>Mvc.Wpf</Name>
+    <Name>ProblemDemo</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <DocumentationFile>bin\Debug\Mvc.Wpf.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\ProblemDemo.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -32,7 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <DocumentationFile>bin\Release\Mvc.Wpf.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\ProblemDemo.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <!--<Reference Include="mscorlib"/>-->
@@ -42,22 +42,8 @@
     <!--<Reference Include="System.Xml.Linq"/>-->
     <!--<Reference Include="System.Data.DataSetExtensions"/>-->
     <!--<Reference Include="System.Numerics"/>-->
-    <Reference Include="Castle.Core">
-      <HintPath>..\References\Castle.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Reactive.Core">
-      <HintPath>..\References\System.Reactive.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Interfaces">
-      <HintPath>..\References\System.Reactive.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Linq">
-      <HintPath>..\References\System.Reactive.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.PlatformServices">
-      <HintPath>..\References\System.Reactive.PlatformServices.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Core" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -66,12 +52,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions.fs" />
-    <Compile Include="Binding.fs" />
-    <Compile Include="Model.fs" />
-    <Compile Include="Validation.fs" />
-    <Compile Include="View.fs" />
-    <Compile Include="Controller.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
