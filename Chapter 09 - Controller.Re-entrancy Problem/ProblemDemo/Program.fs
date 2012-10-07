@@ -24,7 +24,7 @@ do
     let model = Model()
     let textBox = TextBox(DataContext = model)
     textBox.SetBinding(TextBox.TextProperty, "Text") |> ignore
-    textBox.TextChanged.Add(fun _ ->
+    textBox.TextChanged |> Observable.add(fun _ ->
         printfn "Begin event handler. TextBox.Text value: %s. Reverting ..." textBox.Text
         textBox.Text <- String(textBox.Text.Reverse().ToArray())
         printfn "End event handler."
