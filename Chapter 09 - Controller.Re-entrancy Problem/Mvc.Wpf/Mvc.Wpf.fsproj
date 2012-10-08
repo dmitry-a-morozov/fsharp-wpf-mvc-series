@@ -68,10 +68,10 @@
   <ItemGroup>
     <Compile Include="Extensions.fs" />
     <Compile Include="Binding.fs" />
-    <Compile Include="Model.fs" />
-    <Compile Include="Validation.fs" />
     <Compile Include="View.fs" />
     <Compile Include="Controller.fs" />
+    <Compile Include="Model.fs" />
+    <Compile Include="Validation.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />

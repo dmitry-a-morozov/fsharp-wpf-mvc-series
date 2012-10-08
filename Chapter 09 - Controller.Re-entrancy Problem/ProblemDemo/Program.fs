@@ -3,7 +3,6 @@ open System
 open System.Windows
 open System.Windows.Controls
 open System.ComponentModel
-open System.Linq
 
 type Model() =
     let mutable text = ""
@@ -25,8 +24,8 @@ do
     let textBox = TextBox(DataContext = model)
     textBox.SetBinding(TextBox.TextProperty, "Text") |> ignore
     textBox.TextChanged |> Observable.add(fun _ ->
-        printfn "Begin event handler. TextBox.Text value: %s. Reverting ..." textBox.Text
-        textBox.Text <- String(textBox.Text.Reverse().ToArray())
+        printfn "Begin event handler. TextBox.Text value: %s. Reverting ..." model.Text
+        model.Text <- String(model.Text.ToCharArray() |> Array.rev)
         printfn "End event handler."
     )
     model.Text <- "Hello"

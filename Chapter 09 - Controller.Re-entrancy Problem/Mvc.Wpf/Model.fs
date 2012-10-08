@@ -31,8 +31,7 @@ type Model() =
             new StandardInterceptor() with
                 member this.PostProceed invocation = 
                     match invocation.Method, invocation.InvocationTarget with 
-                        | PropertySetter propertyName, (:? Model as model) -> 
-                            model.ClearError propertyName //will also notify as side-effect. Result of weird IDataErrorInfo semantics
+                        | PropertySetter propertyName, (:? Model as model) -> model.ClearError propertyName 
                         | _ -> ()
         }
 
@@ -46,9 +45,9 @@ type Model() =
     member internal this.TriggerPropertyChanged propertyName = 
         propertyChangedEvent.Trigger(this, PropertyChangedEventArgs propertyName)
 
-    static member Create<'M when 'M :> Model>([<ParamArray>] ctorArgs : obj[])  : 'M = 
+    static member Create<'T when 'T :> Model and 'T : not struct>()  : 'T = 
         let interceptors : IInterceptor[] = [| notifyPropertyChanged; AbstractProperties() |]
-        proxyFactory.CreateClassProxy(typeof<'M>, ctorArgs, interceptors) |> unbox
+        proxyFactory.CreateClassProxy interceptors    
 
     interface IDataErrorInfo with
         member this.Error = undefined
@@ -84,3 +83,16 @@ and AbstractProperties() =
 
                 | _ -> invocation.Proceed()
 
+[<RequireQualifiedAccess>]
+module Controller = 
+
+    let inline start(controller : Controller<_, ^Model>) = 
+        let model = (^Model : (static member Create : unit -> ^Model) ())
+        if controller.Start model then Some model else None
+
+    let inline asyncStart(controller : Controller<_, ^Model>) = 
+        async {
+            let model = (^Model : (static member Create : unit -> ^Model) ())
+            let! isOk = controller.AsyncStart model
+            return if isOk then Some model else None
+        }

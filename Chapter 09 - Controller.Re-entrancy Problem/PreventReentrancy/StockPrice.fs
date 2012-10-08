@@ -17,23 +17,18 @@ type StockPriceModel() =
     abstract LastPrice : decimal with get, set
     abstract AddToChartEnabled : bool with get, set
 
-type StockPriceEvents = 
-    | Retrieve
-    | AddToChart 
-
 type StockPriceView() as this =
-    inherit View<StockPriceEvents, StockPriceModel, StockPriceWindow>()
+    inherit View<unit, StockPriceModel, StockPriceWindow>()
 
     do
         this.Window.Symbol.CharacterCasing <- CharacterCasing.Upper
         this.CancelButton <- this.Window.CloseButton
+        this.OKButton <- this.Window.AddToChart
 
     override this.EventStreams = 
         [
-            this.Window.Retrieve, Retrieve
-            this.Window.AddToChart, AddToChart
+            this.Window.Retrieve.Click |> Observable.mapTo()
         ]
-        |> List.map(fun(button, value) -> button.Click |> Observable.mapTo value)
 
     override this.SetBindings model = 
         Binding.FromExpression 
@@ -44,29 +39,26 @@ type StockPriceView() as this =
                 this.Window.AddToChart.IsEnabled <- model.AddToChartEnabled
             @>
 
-type StockPriceController(view : IView<_, _>) = 
-    inherit Controller<StockPriceEvents, StockPriceModel>(view)
+type StockPriceController(view) = 
+    inherit Controller<unit, StockPriceModel>(view)
 
     override this.InitModel _ = ()
-    override this.Dispatcher = function
-        | Retrieve -> Async this.Retrieve
-        | AddToChart-> Sync(ignore >> view.OK)
-
-    member this.Retrieve(model : StockPriceModel) = 
-        async {
-            model |> Validation.textRequired <@ fun m -> m.Symbol @>
-            if not model.HasErrors 
-            then 
-                use wc = new WebClient()
-                let url = Uri(sprintf "http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=nl1" model.Symbol)
-                let! data = wc.AsyncDownloadString url
-                match data.Split([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries).Single().Split(',') with
-                | [| n; "0.00" |] when n = sprintf "\"%s\"" model.Symbol -> 
-                    model |> Validation.setError <@ fun m -> m.Symbol @> "Invalid security symbol."
-                | [| n; l1 |] -> 
-                    model.CompanyName <- n
-                    model.LastPrice <- decimal l1
-                    model.AddToChartEnabled <- true
-                | _ -> failwithf "Unexpected result service call result.\nRequest: %O.\nResponse: %s" url data
-        }
+    override this.Dispatcher = fun() ->
+        Async(fun model ->
+            async {
+                model |> Validation.textRequired <@ fun m -> m.Symbol @>
+                if not model.HasErrors 
+                then 
+                    use wc = new WebClient()
+                    let url = Uri(sprintf "http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=nl1" model.Symbol)
+                    let! data = wc.AsyncDownloadString url
+                    match data.Split([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries).Single().Split(',') with
+                    | [| n; "0.00" |] when n = sprintf "\"%s\"" model.Symbol -> 
+                        model |> Validation.setError <@ fun m -> m.Symbol @> "Invalid security symbol."
+                    | [| n; l1 |] -> 
+                        model.CompanyName <- n
+                        model.LastPrice <- decimal l1
+                        model.AddToChartEnabled <- true
+                    | _ -> failwithf "Unexpected result service call result.\nRequest: %O.\nResponse: %s" url data
+            })
 

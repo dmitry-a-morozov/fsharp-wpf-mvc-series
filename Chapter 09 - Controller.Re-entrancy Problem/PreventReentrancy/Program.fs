@@ -2,9 +2,8 @@
 open System
 open System.Windows
 open Mvc.Wpf.Sample
+open Mvc.Wpf
 
 [<STAThread>] 
 do 
-    let view = SampleView()
-    let controller = SimpleController(view)
-    controller.Start() |> ignore
+    SimpleController(view = SampleView()) |> Controller.start |> ignore

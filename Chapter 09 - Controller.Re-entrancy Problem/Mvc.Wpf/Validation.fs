@@ -14,19 +14,21 @@ let (|SingleStepPropertySelector|) (expr : PropertySelector<'T, 'a>) =
         property.Name, fun(this : 'T) -> property.GetValue(this, [||]) |> unbox<'a>
     | _ -> invalidArg "Property selector quotation" (string expr)
 
-let setError<'M, 'a when 'M :> Model>(SingleStepPropertySelector(propertyName, _) : PropertySelector<'M, 'a>) message (model : 'M) = 
-    model.SetError(propertyName, message)
+let inline setError( SingleStepPropertySelector(propertyName, _) : PropertySelector< ^Model, _>) message model = 
+    (^Model : (member SetError : string * string -> unit) (model, propertyName, message))
 
-let clearError expr = setError expr null
+let inline clearError expr = setError expr null
 
-let invalidIf (SingleStepPropertySelector(propertyName, getValue) : PropertySelector<_, _>) predicate message (model : #Model) = 
-    if model |> getValue |> predicate then model.SetError(propertyName, message)
+let inline invalidIf( SingleStepPropertySelector(propertyName, getValue : ^Model -> _)) predicate message model = 
+    if model |> getValue |> predicate 
+    then 
+        (^Model : (member SetError : string * string -> unit) (model, propertyName, message))
 
-let assertThat expr predicate = invalidIf expr (not << predicate)
+let inline assertThat expr predicate = invalidIf expr (not << predicate)
 
-let objectRequired expr = invalidIf expr ((=) null) "Required field."
-let valueRequired expr = assertThat expr (fun (x : Nullable<_>) -> x.HasValue) "Required field."
-let textRequired expr = invalidIf expr String.IsNullOrWhiteSpace "Required field."
+let inline objectRequired expr = invalidIf expr ((=) null) "Required field."
+let inline valueRequired expr = assertThat expr (fun(x : Nullable<_>) -> x.HasValue) "Required field."
+let inline textRequired expr = invalidIf expr String.IsNullOrWhiteSpace "Required field."
 
 let inline positive expr = assertThat expr positive "Must be positive number."
 

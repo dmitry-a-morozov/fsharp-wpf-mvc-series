@@ -1,5 +1,6 @@
 ﻿namespace Mvc.Wpf
 
+open System.ComponentModel
 open System.Reactive
 
 type EventHandler<'M> = 
@@ -9,10 +10,10 @@ type EventHandler<'M> =
 exception PreserveStackTraceWrapper of exn
 
 [<AbstractClass>]
-type Controller<'E, 'M when 'M :> Model>(view : IView<'E, 'M>) =
+type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view : IView<'Event, 'Model>) =
 
-    abstract InitModel : 'M -> unit
-    abstract Dispatcher : ('E -> EventHandler<'M>)
+    abstract InitModel : 'Model -> unit
+    abstract Dispatcher : ('Event -> EventHandler<'Model>)
 
     member this.Activate model =
         this.InitModel model
@@ -27,21 +28,15 @@ type Controller<'E, 'M when 'M :> Model>(view : IView<'E, 'M>) =
                     continuation = ignore, 
                     exceptionContinuation = this.OnError, 
                     cancellationContinuation = ignore))
-
 #if DEBUG
         let observer = observer.Checked()
 #endif
-
-        let nonReentrantObserver = Observer.Synchronize(observer, preventReentrancy = true)
-        view.Subscribe nonReentrantObserver
+        let observer = Observer.Synchronize(observer, preventReentrancy = true)
+        view.Subscribe observer
 
     member this.Start model =
         use subcription = this.Activate model
         view.ShowDialog()
-
-    member this.Start() = 
-        let model = Model.Create()
-        if this.Start model then Some model else None
 
     member this.AsyncStart model =
         async {
@@ -49,20 +44,13 @@ type Controller<'E, 'M when 'M :> Model>(view : IView<'E, 'M>) =
             return! view.Show()
         }
 
-    member this.AsyncStart() = 
-        async {
-            let model = Model.Create()
-            let! isOk = this.AsyncStart model
-            return if isOk then Some model else None
-        }
-
     abstract OnError : exn -> unit
     default this.OnError why = why |> PreserveStackTraceWrapper |> raise
 
 [<AbstractClass>]
-type SyncController<'E, 'M when 'M :> Model and 'M : not struct>(view) =
-    inherit Controller<'E, 'M>(view)
+type SyncController<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view) =
+    inherit Controller<'Event, 'Model>(view)
 
-    abstract Dispatcher : ('E -> 'M -> unit)
+    abstract Dispatcher : ('Event -> 'Model -> unit)
     override this.Dispatcher = fun e -> Sync(this.Dispatcher e)
 
