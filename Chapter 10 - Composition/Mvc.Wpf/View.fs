@@ -75,6 +75,28 @@ module View =
                 value.IsDefault <- true
                 value.Click.Add(ignore >> this.OK)
 
+        member view.Compose extension =
+            {
+                new IView<_, _> with
+                    member this.Subscribe observer = view.Unify(extension).Subscribe(observer)
+                    member this.SetBindings model = view.SetBindings model  
+                    member this.Show() = view.Show()
+                    member this.ShowDialog() = view.ShowDialog()
+                    member this.Close ok = view.Close ok
+            }
+
+        member parent.Compose(child : IPartialView<_, 'MX>, selector : 'Model -> 'MX ) =
+            {
+                new IView<Choice<'Event, _>, 'Model> with
+                    member this.Subscribe observer = parent.Unify(child).Subscribe(observer)
+                    member this.SetBindings model =
+                        child.SetBindings(selector model)
+                        parent.SetBindings model  
+                    member this.Show() = parent.Show()
+                    member this.ShowDialog() = parent.ShowDialog()
+                    member this.Close ok = parent.Close ok
+            }
+
 [<RequireQualifiedAccess>]
 module List =
     open System.Windows.Controls

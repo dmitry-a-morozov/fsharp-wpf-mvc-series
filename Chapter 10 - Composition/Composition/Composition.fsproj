@@ -37,17 +37,31 @@
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <ItemGroup>
-    <Compile Include="TempConvertSoapClient.fs" />
     <Compile Include="HexConverter.fs" />
-    <Compile Include="StockPrice.fs" />
     <Compile Include="Calculator.fs" />
+    <Compile Include="TempConvertSoapClient.fs" />
+    <Compile Include="TempConveter.fs" />
+    <Compile Include="StockPicker.fs" />
+    <Compile Include="StockPricesChart.fs" />
+    <Compile Include="StopWatchObservable.fs" />
     <Compile Include="Main.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\UIElements\UIElements.csproj">
+      <Name>UIElements</Name>
+      <Project>{fa52ee33-ecbe-4354-bcf2-caea2b9442df}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\References\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\References\System.Reactive.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
@@ -57,11 +71,6 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <ProjectReference Include="..\CSharpWindow\UIElements.csproj">
-      <Name>UIElements</Name>
-      <Project>{fa52ee33-ecbe-4354-bcf2-caea2b9442df}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\Mvc.Wpf\Mvc.Wpf.fsproj">
       <Name>Mvc.Wpf</Name>
       <Project>{fc53e577-bb90-44b9-847f-81ad097cf38e}</Project>

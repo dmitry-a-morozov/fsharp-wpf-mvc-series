@@ -6,4 +6,7 @@ open Mvc.Wpf
 
 [<STAThread>] 
 do 
-    SimpleController(view = SampleView()) |> Controller.start |> ignore
+    let view = MainView()
+    let stopWatch = StopWatchObservable(TimeSpan.FromSeconds(1.))
+    let controller = MainController(view, stopWatch)
+    controller |> Controller.start |> ignore

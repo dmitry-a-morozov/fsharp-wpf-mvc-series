@@ -58,8 +58,13 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="StopWatch.xaml.cs">
-      <DependentUpon>StopWatch.xaml</DependentUpon>
+    <Compile Include="Service References\Sample\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="StopWatchControl.xaml.cs">
+      <DependentUpon>StopWatchControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="TempConveterControl.xaml.cs">
       <DependentUpon>TempConveterControl.xaml</DependentUpon>
@@ -76,13 +81,7 @@
     <Compile Include="HexConverterWindow.xaml.cs">
       <DependentUpon>HexConverterWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Service References\TempConverter\Reference.cs" />
-    <Compile Include="Service References\TempConverter\Reference1.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Page Include="StopWatch.xaml">
+    <Page Include="StopWatchControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -137,20 +136,31 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <None Include="Service References\TempConverter\tempconvert.wsdl" />
+    <None Include="Service References\Sample\tempconvert.wsdl" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Service References\TempConverter\configuration.svcinfo" />
-    <Content Include="Service References\TempConverter\configuration91.svcinfo" />
-    <Content Include="Service References\TempConverter\Reference.svcmap">
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\Sample\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\Sample\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\Sample\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\Sample\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference1.cs</LastGenOutput>
-    </Content>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

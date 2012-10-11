@@ -10,11 +10,13 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <DockPanel Margin="5">
+        <Label Name="ResponseStatus" x:FieldModifier="public"/>
+        <DockPanel Margin="5" Grid.Row="1">
             <Label Content="C⁰"/>
             <TextBox Name="Celsius" x:FieldModifier="public" Width="50"/>
             <Button Content="&lt;-" Name="FahrenheitToCelsius" Width="30" x:FieldModifier="public" Margin="5"/>
@@ -23,7 +25,7 @@
             <TextBox Name="Fahrenheit" x:FieldModifier="public" Width="50"/>
             <Rectangle/>
         </DockPanel>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5">
             <Label Content="Delay, sec:"/>
             <TextBox Name="Delay" Width="50" x:FieldModifier="public"/>
             <Button Content="Cancel Async" Width="100" Name="CancelAsync" x:FieldModifier="public" Margin="5"/>

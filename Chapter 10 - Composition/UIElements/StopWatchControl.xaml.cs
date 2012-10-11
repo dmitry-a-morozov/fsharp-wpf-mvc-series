@@ -17,9 +17,9 @@ namespace Mvc.Wpf.UIElements
     /// <summary>
     /// Interaction logic for StopWatch.xaml
     /// </summary>
-    public partial class StopWatch : UserControl
+    public partial class StopWatchControl : UserControl
     {
-        public StopWatch()
+        public StopWatchControl()
         {
             InitializeComponent();
         }

@@ -22,7 +22,7 @@
         <DockPanel>
             <Label Content="X"/>
             <TextBox Name="X" Margin="5" Height="25" Width="200" x:FieldModifier="public"/>
-            <Button Name="Hex1" Content="H..." Grid.Column="1" Margin="5" x:FieldModifier="public"/>
+            <Button Name="Hex1" Content="H..." Grid.Column="1" Height="30" Width="30" Margin="5" x:FieldModifier="public"/>
         </DockPanel>
         <DockPanel Grid.Row="1" Grid.ColumnSpan="2" >
             <Label Content="Operation"/>
@@ -32,7 +32,7 @@
         <DockPanel Grid.Row="2" >
             <Label Content="Y"/>
             <TextBox Name="Y" Width="200" Height="25" x:FieldModifier="public"/>
-            <Button Name="Hex2" Content="H..." Margin="5" x:FieldModifier="public"/>
+            <Button Name="Hex2" Content="H..." Height="30" Width="30" Margin="5" x:FieldModifier="public"/>
         </DockPanel>
         <DockPanel Grid.Row="3">
             <Label Content="Result:"/>

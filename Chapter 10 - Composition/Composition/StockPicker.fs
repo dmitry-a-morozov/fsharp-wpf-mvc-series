@@ -10,7 +10,7 @@ open Mvc.Wpf
 open Mvc.Wpf.UIElements
 
 [<AbstractClass>]
-type StockPriceModel() = 
+type StockPickerModel() = 
     inherit Model()
 
     abstract Symbol : string with get, set
@@ -18,8 +18,8 @@ type StockPriceModel() =
     abstract LastPrice : decimal with get, set
     abstract AddToChartEnabled : bool with get, set
 
-type StockPriceView() as this =
-    inherit View<unit, StockPriceModel, StockPickerWindow>()
+type StockPickerView() as this =
+    inherit View<unit, StockPickerModel, StockPickerWindow>()
 
     do
         this.Control.Symbol.CharacterCasing <- CharacterCasing.Upper
@@ -40,8 +40,8 @@ type StockPriceView() as this =
                 this.Control.AddToChart.IsEnabled <- model.AddToChartEnabled
             @>
 
-type StockPriceController(view) = 
-    inherit Controller<unit, StockPriceModel>(view)
+type StockPickerController(view) = 
+    inherit SupervisingController<unit, StockPickerModel>(view)
 
     override this.InitModel _ = ()
     override this.Dispatcher = fun() ->

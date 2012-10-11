@@ -1,19 +1,26 @@
 ﻿namespace Mvc.Wpf
 
-open System.ComponentModel
+open System
+open System.Reactive.Linq
+open System.Reactive.Concurrency
 open System.Reactive
+open System.Threading
+open System.ComponentModel
 
 type EventHandler<'M> = 
     | Sync of ('M -> unit)
     | Async of ('M -> Async<unit>)
 
+[<AbstractClass>]
+type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>() =
+    abstract InitModel : 'Model -> unit
+    abstract Dispatcher : ('Event -> EventHandler<'Model>)
+
 exception PreserveStackTraceWrapper of exn
 
 [<AbstractClass>]
-type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view : IView<'Event, 'Model>) =
-
-    abstract InitModel : 'Model -> unit
-    abstract Dispatcher : ('Event -> EventHandler<'Model>)
+type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view : IView<'Event, 'Model>) =
+    inherit Controller<'Event, 'Model>()
 
     member this.Activate model =
         this.InitModel model
@@ -32,7 +39,10 @@ type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view : IVi
         let observer = observer.Checked()
 #endif
         let observer = Observer.Synchronize(observer, preventReentrancy = true)
-        view.Subscribe observer
+
+        let scheduler = SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false)
+        view.ObserveOn(scheduler)
+            .Subscribe(observer)
 
     member this.Start model =
         use subcription = this.Activate model
@@ -47,10 +57,36 @@ type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view : IVi
     abstract OnError : exn -> unit
     default this.OnError why = why |> PreserveStackTraceWrapper |> raise
 
-[<AbstractClass>]
-type SyncController<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view) =
-    inherit Controller<'Event, 'Model>(view)
+    member this.Compose(childController : Controller<'EX, 'MX>, childView : PartialView<'EX, 'MX, _>, selector : 'Model -> 'MX ) = 
+        let compositeView = view.Compose(childView, selector)
+        { 
+            new SupervisingController<_, _>(compositeView) with
+                member __.InitModel model = 
+                    this.InitModel model
+                    childController.InitModel (selector model)
+                member __.Dispatcher = function 
+                    | Choice1Of2 e -> this.Dispatcher e
+                    | Choice2Of2 e -> 
+                        match childController.Dispatcher e with
+                        | Sync handler -> Sync(selector >> handler)  
+                        | Async handler -> Async(selector >> handler) 
+        }
 
-    abstract Dispatcher : ('Event -> 'Model -> unit)
-    override this.Dispatcher = fun e -> Sync(this.Dispatcher e)
+    member this.Compose(childController : Controller<_, _>, childView : PartialView<_, _, _>) = 
+        this.Compose(childController, childView, id)
+
+    static member (<+>) (parent : SupervisingController<_, _>,  (childController, childView, selector)) = 
+        parent.Compose(childController, childView, selector)
+
+    //Non-UI sources
+    member this.Compose<'EX>(extension : 'EX -> EventHandler<_>, events : IObservable<'EX>) = 
+        let compositeView = view.Compose(events)
+        { 
+            new SupervisingController<_, _>(compositeView) with
+                member __.InitModel model = 
+                    this.InitModel model
+                member __.Dispatcher = function 
+                    | Choice1Of2 e -> this.Dispatcher e
+                    | Choice2Of2 e -> extension e 
+        }
 

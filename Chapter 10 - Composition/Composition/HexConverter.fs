@@ -35,10 +35,10 @@ module HexConverter =
         result
 
     let controller view = {
-        new SyncController<unit, Model>(view) with
+        new SupervisingController<unit, Model>(view) with
             member this.InitModel _ = ()
             member this.Dispatcher = fun() -> 
-                fun(model : Model) ->
+                Sync <| fun(model : Model) ->
                     try 
                         let _ = model.Value
                         view.OK()

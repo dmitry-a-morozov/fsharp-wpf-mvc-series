@@ -2,9 +2,7 @@
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Mvc.Wpf.Sample.TempConvertSoapClient
 
-open CSharpWindow.TempConverter
-
-type TempConvertSoapClient with
+type Mvc.Wpf.UIElements.Sample.TempConvertSoapClient with
     
     member this.AsyncCelsiusToFahrenheit(celsius : float) = 
         async {

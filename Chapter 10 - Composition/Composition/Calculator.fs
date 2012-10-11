@@ -1,19 +1,8 @@
 ﻿namespace Mvc.Wpf.Sample
 
-open System
-open System.Windows.Controls
 open System.Windows.Data
-open System.Threading
-open System.Collections.Generic
-open System.Drawing
-open System.Windows.Forms.DataVisualization.Charting
-open System.Collections.ObjectModel
-
 open Microsoft.FSharp.Reflection
-
 open Mvc.Wpf
-
-open CSharpWindow.TempConverter
 open Mvc.Wpf.UIElements
 
 type Operations =
@@ -31,7 +20,7 @@ type Operations =
         |> Array.map unbox<Operations>
 
 [<AbstractClass>]
-type SampleModel() = 
+type CalculatorModel() = 
     inherit Model()
 
     abstract AvailableOperations : Operations[] with get, set
@@ -40,51 +29,23 @@ type SampleModel() =
     abstract Y : int with get, set
     abstract Result : int with get, set
 
-    abstract Celsius : float with get, set
-    abstract Fahrenheit : float with get, set
-    abstract TempConverterHeader : string with get, set
-    abstract Delay : int with get, set
-
-    abstract StockPrices : ObservableCollection<string * decimal> with get, set
-
-type SampleEvents = 
+type CalculatorEvents = 
     | Calculate
     | Clear 
-    | CelsiusToFahrenheit
-    | FahrenheitToCelsius
-    | CancelAsync
     | Hex1
     | Hex2
-    | AddStockToPriceChart
     | YChanged of string
 
-type SampleView() as this =
-    inherit View<SampleEvents, SampleModel, MainWindow>()
+type CalculatorView(control) =
+    inherit PartialView<CalculatorEvents, CalculatorModel, CalculatorControl>(control)
 
-    do 
-        let area = new ChartArea() 
-        area.AxisX.MajorGrid.LineColor <- Color.LightGray
-        area.AxisY.MajorGrid.LineColor <- Color.LightGray        
-        this.Control.StockPricesChart.ChartAreas.Add area
-        let series = 
-            new Series(
-                ChartType = SeriesChartType.Column, 
-                Palette = ChartColorPalette.EarthTones, 
-                XValueMember = "Item1", 
-                YValueMembers = "Item2")
-        this.Control.StockPricesChart.Series.Add series
-    
     override this.EventStreams = 
         [ 
             yield! [
                 this.Control.Calculate, Calculate
                 this.Control.Clear, Clear
-                this.Control.CelsiusToFahrenheit, CelsiusToFahrenheit
-                this.Control.FahrenheitToCelsius, FahrenheitToCelsius
-                this.Control.CancelAsync, CancelAsync
                 this.Control.Hex1, Hex1
                 this.Control.Hex2, Hex2
-                this.Control.AddStock, AddStockToPriceChart
             ]
             |> List.ofButtonClicks
                  
@@ -99,20 +60,10 @@ type SampleView() as this =
                 this.Control.X.Text <- string model.X
                 this.Control.Y.Text <- string model.Y 
                 this.Control.Result.Text <- string model.Result 
-
-                this.Control.TempConverterGroup.Header <- model.TempConverterHeader
-                this.Control.Celsius.Text <- string model.Celsius
-                this.Control.Fahrenheit.Text <- string model.Fahrenheit
-                this.Control.Delay.Text <- string model.Delay
             @>
 
-        this.Control.StockPricesChart.DataSource <- model.StockPrices
-        model.StockPrices.CollectionChanged.Add(fun _ -> this.Control.StockPricesChart.DataBind())
-
-type SimpleController(view) = 
-    inherit Controller<SampleEvents, SampleModel>(view)
-
-    let service = new TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
+type CalculatorController(view) = 
+    inherit Controller<CalculatorEvents, CalculatorModel>()
 
     override this.InitModel model = 
         model.AvailableOperations <- Operations.Values |> Array.filter(fun op -> op <> Operations.Divide)
@@ -121,20 +72,11 @@ type SimpleController(view) =
         model.Y <- 0
         model.Result <- 0
 
-        model.TempConverterHeader <- "Async TempConveter"
-        model.Delay <- 3
-
-        model.StockPrices <- ObservableCollection()
-
     override this.Dispatcher = function
         | Calculate -> Sync this.Calculate
         | Clear -> Sync this.InitModel
-        | CelsiusToFahrenheit -> Async this.CelsiusToFahrenheit
-        | FahrenheitToCelsius -> Async this.FahrenheitToCelsius
-        | CancelAsync -> Sync(ignore >> Async.CancelDefaultToken)
         | Hex1 -> Sync this.Hex1
         | Hex2 -> Sync this.Hex2
-        | AddStockToPriceChart -> Async this.AddStockToPriceChart
         | YChanged text -> Sync(this.YChanged text)
 
     member this.Calculate model = 
@@ -159,32 +101,6 @@ type SimpleController(view) =
             else
                 model.Result <- model.X / model.Y
         
-    member this.CelsiusToFahrenheit model = 
-        async {
-            let context = SynchronizationContext.Current
-            use! cancelHandler = Async.OnCancel(fun() -> 
-                context.Post((fun _ -> model.TempConverterHeader <- "Async TempConverter. Request cancelled."), null)) 
-            model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
-            do! Async.Sleep(model.Delay * 1000)
-            let! fahrenheit = service.AsyncCelsiusToFahrenheit model.Celsius
-            do! Async.SwitchToContext context
-            model.TempConverterHeader <- "Async TempConverter. Response received."            
-            model.Fahrenheit <- fahrenheit
-        }
-
-    member this.FahrenheitToCelsius model = 
-        async {
-            let context = SynchronizationContext.Current
-            use! cancelHandler = Async.OnCancel(fun() -> 
-                context.Post((fun _ -> model.TempConverterHeader <- "Async TempConverter. Request cancelled."), null)) 
-            model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
-            do! Async.Sleep(model.Delay * 1000)
-            let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
-            do! Async.SwitchToContext context
-            model.TempConverterHeader <- "Async TempConverter. Response received."            
-            model.Celsius <- celsius
-        }
-
     member this.Hex1 model = 
         let view = HexConverter.view()
         let controller = HexConverter.controller view
@@ -202,15 +118,6 @@ type SimpleController(view) =
         |> Option.iter(fun resultModel ->
             model.Y <- resultModel.Value 
         )
-
-    member this.AddStockToPriceChart model = 
-        async {
-            let view = StockPriceView()
-            let! result = StockPriceController view |> Controller.asyncStart  
-            result |> Option.iter (fun stockInfo ->
-                model.StockPrices.Add(stockInfo.Symbol, stockInfo.LastPrice)
-            )
-        }
 
     member this.YChanged text model = 
         if text <> "0"

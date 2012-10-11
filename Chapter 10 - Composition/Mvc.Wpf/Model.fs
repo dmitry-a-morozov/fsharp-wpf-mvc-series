@@ -86,11 +86,11 @@ and AbstractProperties() =
 [<RequireQualifiedAccess>]
 module Controller = 
 
-    let inline start(controller : Controller<_, ^Model>) = 
+    let inline start(controller : SupervisingController<_, ^Model>) = 
         let model = (^Model : (static member Create : unit -> ^Model) ())
         if controller.Start model then Some model else None
 
-    let inline asyncStart(controller : Controller<_, ^Model>) = 
+    let inline asyncStart(controller : SupervisingController<_, ^Model>) = 
         async {
             let model = (^Model : (static member Create : unit -> ^Model) ())
             let! isOk = controller.AsyncStart model
