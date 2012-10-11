@@ -23,7 +23,7 @@ type StockPriceView() as this =
     do
         this.Window.Symbol.CharacterCasing <- CharacterCasing.Upper
         this.CancelButton <- this.Window.CloseButton
-        this.OKButton <- this.Window.AddToChart
+        this.DefaultOKButton <- this.Window.AddToChart
 
     override this.EventStreams = 
         [
