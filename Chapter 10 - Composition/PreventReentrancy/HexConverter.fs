@@ -21,16 +21,16 @@ module HexConverter =
             new View<unit, Model, HexConverterWindow>() with 
                 member this.EventStreams = 
                     [
-                        this.Window.OK.Click |> Observable.mapTo()
+                        this.Control.OK.Click |> Observable.mapTo()
                     ]
 
                 member this.SetBindings model = 
                     Binding.FromExpression 
                         <@ 
-                            this.Window.Value.Text <- model.HexValue
+                            this.Control.Value.Text <- model.HexValue
                         @>
         }
-        result.CancelButton <- result.Window.Cancel
+        result.CancelButton <- result.Control.Cancel
         result
 
     let controller view = {

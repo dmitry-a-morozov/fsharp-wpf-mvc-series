@@ -64,49 +64,49 @@ type SampleView() as this =
         let area = new ChartArea() 
         area.AxisX.MajorGrid.LineColor <- Color.LightGray
         area.AxisY.MajorGrid.LineColor <- Color.LightGray        
-        this.Window.StockPricesChart.ChartAreas.Add area
+        this.Control.StockPricesChart.ChartAreas.Add area
         let series = 
             new Series(
                 ChartType = SeriesChartType.Column, 
                 Palette = ChartColorPalette.EarthTones, 
                 XValueMember = "Item1", 
                 YValueMembers = "Item2")
-        this.Window.StockPricesChart.Series.Add series
+        this.Control.StockPricesChart.Series.Add series
     
     override this.EventStreams = 
         [ 
             yield! [
-                this.Window.Calculate, Calculate
-                this.Window.Clear, Clear
-                this.Window.CelsiusToFahrenheit, CelsiusToFahrenheit
-                this.Window.FahrenheitToCelsius, FahrenheitToCelsius
-                this.Window.CancelAsync, CancelAsync
-                this.Window.Hex1, Hex1
-                this.Window.Hex2, Hex2
-                this.Window.AddStock, AddStockToPriceChart
+                this.Control.Calculate, Calculate
+                this.Control.Clear, Clear
+                this.Control.CelsiusToFahrenheit, CelsiusToFahrenheit
+                this.Control.FahrenheitToCelsius, FahrenheitToCelsius
+                this.Control.CancelAsync, CancelAsync
+                this.Control.Hex1, Hex1
+                this.Control.Hex2, Hex2
+                this.Control.AddStock, AddStockToPriceChart
             ]
             |> List.ofButtonClicks
                  
-            yield this.Window.Y.TextChanged |> Observable.map(fun _ -> YChanged(this.Window.Y.Text))
+            yield this.Control.Y.TextChanged |> Observable.map(fun _ -> YChanged(this.Control.Y.Text))
         ] 
 
     override this.SetBindings model = 
         Binding.FromExpression 
             <@ 
-                this.Window.Operation.ItemsSource <- model.AvailableOperations 
-                this.Window.Operation.SelectedItem <- model.SelectedOperation
-                this.Window.X.Text <- string model.X
-                this.Window.Y.Text <- string model.Y 
-                this.Window.Result.Text <- string model.Result 
+                this.Control.Operation.ItemsSource <- model.AvailableOperations 
+                this.Control.Operation.SelectedItem <- model.SelectedOperation
+                this.Control.X.Text <- string model.X
+                this.Control.Y.Text <- string model.Y 
+                this.Control.Result.Text <- string model.Result 
 
-                this.Window.TempConverterGroup.Header <- model.TempConverterHeader
-                this.Window.Celsius.Text <- string model.Celsius
-                this.Window.Fahrenheit.Text <- string model.Fahrenheit
-                this.Window.Delay.Text <- string model.Delay
+                this.Control.TempConverterGroup.Header <- model.TempConverterHeader
+                this.Control.Celsius.Text <- string model.Celsius
+                this.Control.Fahrenheit.Text <- string model.Fahrenheit
+                this.Control.Delay.Text <- string model.Delay
             @>
 
-        this.Window.StockPricesChart.DataSource <- model.StockPrices
-        model.StockPrices.CollectionChanged.Add(fun _ -> this.Window.StockPricesChart.DataBind())
+        this.Control.StockPricesChart.DataSource <- model.StockPrices
+        model.StockPrices.CollectionChanged.Add(fun _ -> this.Control.StockPricesChart.DataBind())
 
 type SimpleController(view) = 
     inherit Controller<SampleEvents, SampleModel>(view)

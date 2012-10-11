@@ -21,22 +21,22 @@ type StockPriceView() as this =
     inherit View<unit, StockPriceModel, StockPriceWindow>()
 
     do
-        this.Window.Symbol.CharacterCasing <- CharacterCasing.Upper
-        this.CancelButton <- this.Window.CloseButton
-        this.OKButton <- this.Window.AddToChart
+        this.Control.Symbol.CharacterCasing <- CharacterCasing.Upper
+        this.CancelButton <- this.Control.CloseButton
+        this.DefaultOKButton <- this.Control.AddToChart
 
     override this.EventStreams = 
         [
-            this.Window.Retrieve.Click |> Observable.mapTo()
+            this.Control.Retrieve.Click |> Observable.mapTo()
         ]
 
     override this.SetBindings model = 
         Binding.FromExpression 
             <@ 
-                this.Window.Symbol.Text <- model.Symbol
-                this.Window.CompanyName.Text <- model.CompanyName
-                this.Window.LastPrice.Text <- string model.LastPrice 
-                this.Window.AddToChart.IsEnabled <- model.AddToChartEnabled
+                this.Control.Symbol.Text <- model.Symbol
+                this.Control.CompanyName.Text <- model.CompanyName
+                this.Control.LastPrice.Text <- string model.LastPrice 
+                this.Control.AddToChart.IsEnabled <- model.AddToChartEnabled
             @>
 
 type StockPriceController(view) = 
