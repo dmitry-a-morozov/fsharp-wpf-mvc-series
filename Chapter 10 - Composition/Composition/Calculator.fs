@@ -62,7 +62,7 @@ type CalculatorView(control) =
                 this.Control.Result.Text <- string model.Result 
             @>
 
-type CalculatorController(view) = 
+type CalculatorController() = 
     inherit Controller<CalculatorEvents, CalculatorModel>()
 
     override this.InitModel model = 

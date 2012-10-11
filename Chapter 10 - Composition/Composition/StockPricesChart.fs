@@ -41,7 +41,7 @@ type StockPricesChartView(control) as this =
         this.Control.StockPricesChart.DataSource <- model.StockPrices
         model.StockPrices.CollectionChanged.Add(fun _ -> this.Control.StockPricesChart.DataBind())
 
-type StockPricesController(view) = 
+type StockPricesController() = 
     inherit Controller<StockPricesChartEvents, StockPricesChartModel>()
 
     override this.InitModel model = 

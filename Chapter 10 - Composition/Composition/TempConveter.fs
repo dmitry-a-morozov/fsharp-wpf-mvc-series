@@ -39,7 +39,7 @@ type TempConveterView(control) =
                 this.Control.Delay.Text <- string model.Delay
             @>
 
-type TempConveterController(view) = 
+type TempConveterController() = 
     inherit Controller<TempConveterEvents, TempConveterModel>()
 
     let service = new Sample.TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
