@@ -4,6 +4,7 @@ open System
 open System.Globalization
 open System.Windows.Data
 open Mvc.Wpf
+open Mvc.Wpf.UIElements
 
 module HexConverter =  
 

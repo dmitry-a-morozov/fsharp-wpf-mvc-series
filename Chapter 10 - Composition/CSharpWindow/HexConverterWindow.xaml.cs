@@ -11,10 +11,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-public partial class HexConverterWindow : Window
+namespace Mvc.Wpf.UIElements
 {
-    public HexConverterWindow()
+    public partial class HexConverterWindow : Window
     {
-        InitializeComponent();
+        public HexConverterWindow()
+        {
+            InitializeComponent();
+        }
     }
 }

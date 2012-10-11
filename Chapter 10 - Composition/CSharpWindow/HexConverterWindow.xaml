@@ -1,4 +1,4 @@
-﻿<Window x:Class="HexConverterWindow"
+﻿<Window x:Class="Mvc.Wpf.UIElements.HexConverterWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="HexConverterWindow" Height="150" Width="300">

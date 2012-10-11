@@ -7,6 +7,7 @@ open System.Windows.Controls
 open System.Net
 open System.Linq
 open Mvc.Wpf
+open Mvc.Wpf.UIElements
 
 [<AbstractClass>]
 type StockPriceModel() = 

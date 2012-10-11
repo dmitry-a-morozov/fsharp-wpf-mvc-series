@@ -9,13 +9,14 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace Mvc.Wpf.UIElements
 {
-    public partial class StockPriceWindow : Window
+    public partial class CalculatorControl : UserControl
     {
-        public StockPriceWindow()
+        public CalculatorControl()
         {
             InitializeComponent();
         }

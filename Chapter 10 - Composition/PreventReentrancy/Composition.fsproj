@@ -40,7 +40,8 @@
     <Compile Include="TempConvertSoapClient.fs" />
     <Compile Include="HexConverter.fs" />
     <Compile Include="StockPrice.fs" />
-    <Compile Include="Sample.fs" />
+    <Compile Include="Calculator.fs" />
+    <Compile Include="Main.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
   </ItemGroup>
@@ -56,8 +57,8 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <ProjectReference Include="..\CSharpWindow\CSharpWindow.csproj">
-      <Name>CSharpWindow</Name>
+    <ProjectReference Include="..\CSharpWindow\UIElements.csproj">
+      <Name>UIElements</Name>
       <Project>{fa52ee33-ecbe-4354-bcf2-caea2b9442df}</Project>
       <Private>True</Private>
     </ProjectReference>

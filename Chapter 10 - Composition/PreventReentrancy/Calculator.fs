@@ -14,6 +14,7 @@ open Microsoft.FSharp.Reflection
 open Mvc.Wpf
 
 open CSharpWindow.TempConverter
+open Mvc.Wpf.UIElements
 
 type Operations =
     | Add
@@ -58,7 +59,7 @@ type SampleEvents =
     | YChanged of string
 
 type SampleView() as this =
-    inherit View<SampleEvents, SampleModel, SampleWindow>()
+    inherit View<SampleEvents, SampleModel, MainWindow>()
 
     do 
         let area = new ChartArea() 
