@@ -64,7 +64,7 @@ module View =
         member this.Cancel() = this.Close false
 
         member this.CancelButton with set(value : Button) = value.Click.Add(ignore >> this.Cancel)
-        member this.OKButton 
+        member this.DefaultOKButton  
             with set(value : Button) = 
                 value.IsDefault <- true
                 value.Click.Add(ignore >> this.OK)
