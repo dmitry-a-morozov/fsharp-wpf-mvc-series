@@ -58,11 +58,20 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StopWatch.xaml.cs">
+      <DependentUpon>StopWatch.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TempConveterControl.xaml.cs">
+      <DependentUpon>TempConveterControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CalculatorControl.xaml.cs">
       <DependentUpon>CalculatorControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="StockPriceWindow.xaml.cs">
-      <DependentUpon>StockPriceWindow.xaml</DependentUpon>
+    <Compile Include="StockPricesChartControl.xaml.cs">
+      <DependentUpon>StockPricesChartControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="StockPickerWindow.xaml.cs">
+      <DependentUpon>StockPickerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="HexConverterWindow.xaml.cs">
       <DependentUpon>HexConverterWindow.xaml</DependentUpon>
@@ -73,11 +82,23 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Page Include="StopWatch.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TempConveterControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CalculatorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="StockPriceWindow.xaml">
+    <Page Include="StockPricesChartControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StockPickerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

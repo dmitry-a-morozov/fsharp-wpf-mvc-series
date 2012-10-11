@@ -19,7 +19,7 @@ type StockPriceModel() =
     abstract AddToChartEnabled : bool with get, set
 
 type StockPriceView() as this =
-    inherit View<unit, StockPriceModel, StockPriceWindow>()
+    inherit View<unit, StockPriceModel, StockPickerWindow>()
 
     do
         this.Control.Symbol.CharacterCasing <- CharacterCasing.Upper

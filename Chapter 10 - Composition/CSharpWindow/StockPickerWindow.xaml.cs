@@ -13,9 +13,9 @@ using System.Windows.Shapes;
 
 namespace Mvc.Wpf.UIElements
 {
-    public partial class StockPriceWindow : Window
+    public partial class StockPickerWindow : Window
     {
-        public StockPriceWindow()
+        public StockPickerWindow()
         {
             InitializeComponent();
         }
