@@ -8,8 +8,11 @@ open Mvc.Wpf
 do 
     let view = MainView()
     let stopWatch = StopWatchObservable(TimeSpan.FromSeconds(1.))
+    let stopWatchController(runningTime : TimeSpan) = Sync <| fun(model : MainModel) -> model.RunningTime <- runningTime
+
     let controller = 
-        MainController(view, stopWatch) 
+        MainController(view, stopWatch)
+            .Compose(stopWatchController, stopWatch)
             <+> (CalculatorController(), CalculatorView(view.Control.Calculator), fun m -> m.Calculator)
             <+> (TempConveterController(), TempConveterView(view.Control.TempConveterControl), fun m -> m.TempConveter)
             <+> (StockPricesChartController(), StockPricesChartView(view.Control.StockPricesChart), fun m -> m.StockPricesChart)
