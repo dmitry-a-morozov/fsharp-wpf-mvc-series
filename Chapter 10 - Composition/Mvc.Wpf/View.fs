@@ -56,10 +56,6 @@ type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : un
             isOK <- isOK'
             this.Control.Close()
 
-[<AbstractClass>]
-type XamlView<'Event, 'Model>(resourceLocator) = 
-    inherit View<'Event, 'Model, Window>(resourceLocator |> Application.LoadComponent |> unbox)
-
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module View = 
@@ -75,16 +71,6 @@ module View =
                 value.IsDefault <- true
                 value.Click.Add(ignore >> this.OK)
 
-        member view.Compose extension =
-            {
-                new IView<_, _> with
-                    member this.Subscribe observer = view.Unify(extension).Subscribe(observer)
-                    member this.SetBindings model = view.SetBindings model  
-                    member this.Show() = view.Show()
-                    member this.ShowDialog() = view.ShowDialog()
-                    member this.Close ok = view.Close ok
-            }
-
         member parent.Compose(child : IPartialView<_, 'MX>, selector : 'Model -> 'MX ) =
             {
                 new IView<Choice<'Event, _>, 'Model> with
@@ -95,6 +81,16 @@ module View =
                     member this.Show() = parent.Show()
                     member this.ShowDialog() = parent.ShowDialog()
                     member this.Close ok = parent.Close ok
+            }
+
+        member view.Compose extension =
+            {
+                new IView<_, _> with
+                    member this.Subscribe observer = view.Unify(extension).Subscribe(observer)
+                    member this.SetBindings model = view.SetBindings model  
+                    member this.Show() = view.Show()
+                    member this.ShowDialog() = view.ShowDialog()
+                    member this.Close ok = view.Close ok
             }
 
 [<RequireQualifiedAccess>]
