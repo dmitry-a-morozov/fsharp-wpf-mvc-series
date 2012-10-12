@@ -17,7 +17,7 @@ type IView<'Event, 'Model> =
     abstract Close : bool -> unit
 
 [<AbstractClass>]
-type PartialView<'Event, 'Model, 'Control when 'Control :> Control>(control : 'Control) =
+type PartialView<'Event, 'Model, 'Control when 'Control :> FrameworkElement>(control : 'Control) =
 
     member this.Control = control
     static member (?) (view : PartialView<'Event, 'Model, 'Window>, name) = 
@@ -41,7 +41,7 @@ type PartialView<'Event, 'Model, 'Control when 'Control :> Control>(control : 'C
 
 [<AbstractClass>]
 type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>(?window) = 
-    inherit PartialView<'Event, 'Model, 'Window>( control = defaultArg window (new 'Window()) )
+    inherit PartialView<'Event, 'Model, 'Window>(control = defaultArg window (new 'Window()))
 
     let mutable isOK = false
 
