@@ -9,9 +9,9 @@ open System.Windows
 module Application = 
 
     [<Extension>] //for C#
-    let AttachController(app : Application, window : Window, controller : SupervisingController<_, _>) =
-        app.Startup.Add <| fun _ ->
-            app.MainWindow <- window 
+    let AttachController(this : Application, window : Window, controller : SupervisingController<_, _>) =
+        this.Startup.Add <| fun _ ->
+            this.MainWindow <- window 
             Model.Create() |> controller.AsyncStart |> Async.Ignore |> Async.StartImmediate
 
     type Application with 
