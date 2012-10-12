@@ -45,6 +45,10 @@ type MainController(view, stopWatch : StopWatchObservable) =
         model.RunningTime <- TimeSpan.Zero
         model.Paused <- Nullable false
 
+        model.Calculator <- Model.Create()
+        model.TempConveter <- Model.Create()
+        model.StockPricesChart <- Model.Create()
+
     override this.Dispatcher = function
         | StopWatch -> Sync(ignore >> stopWatch.Pause)
         | StartWatch -> Sync(ignore >> stopWatch.Start)

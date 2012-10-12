@@ -10,12 +10,12 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <Label Name="ResponseStatus" x:FieldModifier="public"/>
+        <Label Name="ResponseStatus" x:FieldModifier="public" Height="30"/>
         <DockPanel Margin="5" Grid.Row="1">
             <Label Content="C⁰"/>
             <TextBox Name="Celsius" x:FieldModifier="public" Width="50"/>
