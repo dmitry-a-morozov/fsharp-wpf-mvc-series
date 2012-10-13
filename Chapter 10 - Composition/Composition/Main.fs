@@ -49,10 +49,10 @@ type MainController(view, stopWatch : StopWatchObservable) =
         model.TempConveter <- Model.Create()
         model.StockPricesChart <- Model.Create()
 
-    override this.Dispatcher = function
-        | StopWatch -> Sync(ignore >> stopWatch.Pause)
-        | StartWatch -> Sync(ignore >> stopWatch.Start)
-        | RestartWatch -> Sync(this.RestartWatch)
+    override this.Dispatcher = Sync << function
+        | StopWatch -> ignore >> stopWatch.Pause
+        | StartWatch -> ignore >> stopWatch.Start
+        | RestartWatch -> this.RestartWatch
 
     member this.RestartWatch model =
         stopWatch.Restart()
