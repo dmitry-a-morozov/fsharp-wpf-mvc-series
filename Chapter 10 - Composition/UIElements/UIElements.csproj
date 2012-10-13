@@ -63,9 +63,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="StopWatchControl.xaml.cs">
-      <DependentUpon>StopWatchControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="TempConveterControl.xaml.cs">
       <DependentUpon>TempConveterControl.xaml</DependentUpon>
     </Compile>
@@ -81,10 +78,6 @@
     <Compile Include="HexConverterWindow.xaml.cs">
       <DependentUpon>HexConverterWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="StopWatchControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="TempConveterControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
