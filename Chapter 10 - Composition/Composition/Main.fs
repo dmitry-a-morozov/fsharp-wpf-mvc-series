@@ -35,7 +35,7 @@ type MainView() as this =
         ]
 
     override this.SetBindings model = 
-        pause.SetBinding(CheckBox.IsCheckedProperty, "Paused") |> ignore
+        Binding.FromExpression <@ this.Control.PauseWatch.IsChecked <- model.Paused @>
         this.Control.RunningTime.SetBinding(TextBlock.TextProperty, Binding(path = "RunningTime", StringFormat = "Running time: {0:hh\:mm\:ss}")) |> ignore
 
 type MainController(view, stopWatch : StopWatchObservable) = 
