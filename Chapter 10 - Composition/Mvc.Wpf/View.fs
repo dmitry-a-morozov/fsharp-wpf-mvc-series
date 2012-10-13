@@ -76,8 +76,8 @@ module View =
                 new IView<Choice<'Event, _>, 'Model> with
                     member this.Subscribe observer = parent.Unify(child).Subscribe(observer)
                     member this.SetBindings model =
-                        child.SetBindings(selector model)
                         parent.SetBindings model  
+                        child.SetBindings(selector model)
                     member this.Show() = parent.Show()
                     member this.ShowDialog() = parent.ShowDialog()
                     member this.Close ok = parent.Close ok

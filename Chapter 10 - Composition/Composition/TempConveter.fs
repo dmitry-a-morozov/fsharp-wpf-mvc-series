@@ -51,7 +51,7 @@ type TempConveterController() =
     override this.Dispatcher = function
         | CelsiusToFahrenheit -> Async this.CelsiusToFahrenheit
         | FahrenheitToCelsius -> Async this.FahrenheitToCelsius
-        | CancelAsync -> Sync(ignore >> Async.CancelDefaultToken)
+        | CancelAsync -> Sync <| fun _ -> Async.CancelDefaultToken()
 
     member this.CelsiusToFahrenheit model = 
         async {

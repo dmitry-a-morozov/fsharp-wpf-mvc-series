@@ -45,7 +45,7 @@ type StockPickerController(view) =
 
     override this.InitModel _ = ()
     override this.Dispatcher = fun() ->
-        Async(fun model ->
+        Async <| fun model ->
             async {
                 model |> Validation.textRequired <@ fun m -> m.Symbol @>
                 if not model.HasErrors 
@@ -61,5 +61,5 @@ type StockPickerController(view) =
                         model.LastPrice <- decimal l1
                         model.AddToChartEnabled <- true
                     | _ -> failwithf "Unexpected result service call result.\nRequest: %O.\nResponse: %s" url data
-            })
+            }
 

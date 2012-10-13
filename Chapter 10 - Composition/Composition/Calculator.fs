@@ -72,12 +72,14 @@ type CalculatorController() =
         model.Y <- 0
         model.Result <- 0
 
-    override this.Dispatcher = function
-        | Calculate -> Sync this.Calculate
-        | Clear -> Sync this.InitModel
-        | Hex1 -> Sync this.Hex1
-        | Hex2 -> Sync this.Hex2
-        | YChanged text -> Sync(this.YChanged text)
+    override this.Dispatcher = fun e ->
+        match e with
+        | Calculate -> this.Calculate
+        | Clear -> this.InitModel
+        | Hex1 -> this.Hex1
+        | Hex2 -> this.Hex2
+        | YChanged text -> this.YChanged text
+        |> Sync
 
     member this.Calculate model = 
         model.ClearAllErrors()
