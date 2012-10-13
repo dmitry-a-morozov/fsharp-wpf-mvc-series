@@ -83,16 +83,6 @@ module View =
                     member this.Close ok = parent.Close ok
             }
 
-        member view.Compose extension =
-            {
-                new IView<_, _> with
-                    member this.Subscribe observer = view.Unify(extension).Subscribe(observer)
-                    member this.SetBindings model = view.SetBindings model  
-                    member this.Show() = view.Show()
-                    member this.ShowDialog() = view.ShowDialog()
-                    member this.Close ok = view.Close ok
-            }
-
 [<RequireQualifiedAccess>]
 module List =
     open System.Windows.Controls

@@ -77,16 +77,3 @@ type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>
 
     static member (<+>) (parent : SupervisingController<_, _>,  (childController, childView, selector)) = 
         parent.Compose(childController, childView, selector)
-
-    //Non-UI sources
-    member this.Compose<'EX>(extension : 'EX -> EventHandler<_>, events : IObservable<'EX>) = 
-        let compositeView = view.Compose(events)
-        { 
-            new SupervisingController<_, _>(compositeView) with
-                member __.InitModel model = 
-                    this.InitModel model
-                member __.Dispatcher = function 
-                    | Choice1Of2 e -> this.Dispatcher e
-                    | Choice2Of2 e -> extension e 
-        }
-
