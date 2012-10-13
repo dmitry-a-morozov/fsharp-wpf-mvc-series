@@ -14,10 +14,8 @@ type StockPricesChartModel() =
 
     abstract StockPrices : ObservableCollection<string * decimal> with get, set
 
-type StockPricesChartEvents = AddStockToPriceChart
-
 type StockPricesChartView(control) as this =
-    inherit PartialView<StockPricesChartEvents, StockPricesChartModel, StockPricesChartControl>(control)
+    inherit PartialView<unit, StockPricesChartModel, StockPricesChartControl>(control)
 
     do 
         let area = new ChartArea() 
@@ -34,7 +32,7 @@ type StockPricesChartView(control) as this =
     
     override this.EventStreams = 
         [
-            this.Control.AddStock.Click |> Observable.mapTo AddStockToPriceChart
+            this.Control.AddStock.Click |> Observable.mapTo()
         ]
 
     override this.SetBindings model = 
@@ -42,13 +40,13 @@ type StockPricesChartView(control) as this =
         model.StockPrices.CollectionChanged.Add(fun _ -> this.Control.StockPricesChart.DataBind())
 
 type StockPricesChartController() = 
-    inherit Controller<StockPricesChartEvents, StockPricesChartModel>()
+    inherit Controller<unit, StockPricesChartModel>()
 
     override this.InitModel model = 
         model.StockPrices <- ObservableCollection()
 
-    override this.Dispatcher = function 
-        AddStockToPriceChart -> Async <| fun model ->
+    override this.Dispatcher = fun() -> 
+        Async <| fun model ->
             async {
                 let view = StockPickerView()
                 let! result = StockPickerController view |> Controller.asyncStart  
