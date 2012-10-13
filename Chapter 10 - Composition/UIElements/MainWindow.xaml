@@ -10,9 +10,8 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <TabControl>
+        <TabControl x:Name="Tabs" x:FieldModifier="public">
             <TabItem Header="Calculator">
                 <local:CalculatorControl x:Name="Calculator" x:FieldModifier="public"/>
             </TabItem>
@@ -23,10 +22,5 @@
                 <local:StockPricesChartControl x:Name="StockPricesChart" x:FieldModifier="public"/>
             </TabItem>
         </TabControl>
-        <StatusBar Grid.Row="1">
-            <TextBlock Name="RunningTime" x:FieldModifier="public" Text="00:00:00" Margin="5,0"/>
-            <CheckBox Name="PauseWatch" x:FieldModifier="public" Content="Pause" Margin="5,0"/>
-            <Button Content="Restart" Name="RestartWatch" x:FieldModifier="public" Width="80" />
-        </StatusBar>
     </Grid>
 </Window>
