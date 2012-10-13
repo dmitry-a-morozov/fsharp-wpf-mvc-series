@@ -8,7 +8,7 @@
     <ProjectGuid>{5330e15a-94aa-4891-bee3-ad8a53bd048e}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>PreventReentrancy</RootNamespace>
-    <AssemblyName>Composition</AssemblyName>
+    <AssemblyName>CompositionNonUISources</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <Name>Composition - Non-UI source</Name>
