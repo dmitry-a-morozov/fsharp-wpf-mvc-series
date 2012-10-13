@@ -49,8 +49,8 @@ type MainController(view) =
         model.TempConveter <- Model.Create()
         model.StockPricesChart <- Model.Create()
 
-    override this.Dispatcher = Sync << function
-        | ActiveTabChanged header -> this.ActiveTabChanged header
+    override this.Dispatcher = function
+        | ActiveTabChanged header -> Sync <| this.ActiveTabChanged header
 
     member this.ActiveTabChanged header model =
         model.ActiveTab <- header
