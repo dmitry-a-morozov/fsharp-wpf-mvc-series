@@ -71,13 +71,13 @@ module View =
                 value.IsDefault <- true
                 value.Click.Add(ignore >> this.OK)
 
-        member parent.Compose(child : IPartialView<_, 'MX>, selector : 'Model -> 'MX ) =
+        member parent.Compose(child : IPartialView<_, 'MX>, childModelSelector : 'Model -> 'MX ) =
             {
                 new IView<Choice<'Event, _>, 'Model> with
                     member this.Subscribe observer = parent.Unify(child).Subscribe(observer)
                     member this.SetBindings model =
                         parent.SetBindings model  
-                        child.SetBindings(selector model)
+                        child.SetBindings(childModelSelector model)
                     member this.Show() = parent.Show()
                     member this.ShowDialog() = parent.ShowDialog()
                     member this.Close ok = parent.Close ok
