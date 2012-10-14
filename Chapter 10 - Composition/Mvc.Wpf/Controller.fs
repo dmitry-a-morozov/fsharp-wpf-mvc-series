@@ -57,23 +57,23 @@ type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>
     abstract OnError : exn -> unit
     default this.OnError why = why |> PreserveStackTraceWrapper |> raise
 
-    member this.Compose(childController : Controller<'EX, 'MX>, childView : PartialView<'EX, 'MX, _>, selector : 'Model -> 'MX ) = 
-        let compositeView = view.Compose(childView, selector)
+    member parent.Compose(childController : Controller<'EX, 'MX>, childView : PartialView<'EX, 'MX, _>, modelSelector : 'Model -> 'MX ) = 
+        let compositeView = view.Compose(childView, modelSelector)
         { 
             new SupervisingController<_, _>(compositeView) with
                 member __.InitModel model = 
-                    this.InitModel model
-                    childController.InitModel (selector model)
+                    parent.InitModel model
+                    childController.InitModel (modelSelector model)
                 member __.Dispatcher = function 
-                    | Choice1Of2 e -> this.Dispatcher e
+                    | Choice1Of2 e -> parent.Dispatcher e
                     | Choice2Of2 e -> 
                         match childController.Dispatcher e with
-                        | Sync handler -> Sync(selector >> handler)  
-                        | Async handler -> Async(selector >> handler) 
+                        | Sync handler -> Sync(modelSelector >> handler)  
+                        | Async handler -> Async(modelSelector >> handler) 
         }
 
-    member this.Compose(childController : Controller<_, _>, childView : PartialView<_, _, _>) = 
-        this.Compose(childController, childView, id)
+    member parent.Compose(childController : Controller<_, _>, childView : PartialView<_, _, _>) = 
+        parent.Compose(childController, childView, id)
 
-    static member (<+>) (parent : SupervisingController<_, _>,  (childController, childView, selector)) = 
-        parent.Compose(childController, childView, selector)
+    static member (<+>) (parent : SupervisingController<_, _>,  (childController, childView, modelSelector)) = 
+        parent.Compose(childController, childView, modelSelector)
