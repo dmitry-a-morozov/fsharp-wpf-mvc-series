@@ -39,10 +39,7 @@ type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>
         let observer = observer.Checked()
 #endif
         let observer = Observer.Synchronize(observer, preventReentrancy = true)
-
-        let scheduler = SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false)
-        view.ObserveOn(scheduler)
-            .Subscribe(observer)
+        view.Subscribe observer
 
     member this.Start model =
         use subcription = this.Activate model
