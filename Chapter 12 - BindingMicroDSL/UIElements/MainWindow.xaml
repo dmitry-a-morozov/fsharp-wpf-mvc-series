@@ -1,0 +1,32 @@
+﻿<Window x:Class="Mvc.Wpf.UIElements.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:WinFormsChart = "clr-namespace:System.Windows.Forms.DataVisualization.Charting;assembly=System.Windows.Forms.DataVisualization"       
+        xmlns:local="clr-namespace:Mvc.Wpf.UIElements"
+        Title="Mvc.Wpf.Composition" Height="370" Width="370">
+    <Window.Resources>
+        <ResourceDictionary Source="Styles.xaml"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TabControl x:Name="Tabs" x:FieldModifier="public">
+            <TabItem Header="Calculator">
+                <local:CalculatorControl x:Name="Calculator" x:FieldModifier="public"/>
+            </TabItem>
+            <TabItem Header="Async Temperature Converter">
+                <local:TempConveterControl x:Name="TempConveterControl" x:FieldModifier="public"/>
+            </TabItem>
+            <TabItem Header="Stock Prices">
+                <local:StockPricesChartControl x:Name="StockPricesChart" x:FieldModifier="public"/>
+            </TabItem>
+        </TabControl>
+        <StatusBar Grid.Row="1">
+            <TextBlock Name="RunningTime" x:FieldModifier="public" Text="00:00:00" Margin="5,0"/>
+            <CheckBox Name="PauseWatch" x:FieldModifier="public" Content="Pause" Margin="5,0"/>
+            <Button Content="Restart" Name="RestartWatch" x:FieldModifier="public" Width="80" />
+        </StatusBar>
+    </Grid>
+</Window>
