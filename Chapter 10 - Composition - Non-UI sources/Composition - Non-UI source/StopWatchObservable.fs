@@ -4,7 +4,7 @@ open System
 open System.Diagnostics
 open System.Reactive.Linq
 
-type StopWatchObservable(period) =
+type StopWatchObservable(frequency) =
     let watch = Stopwatch.StartNew()
     let paused = ref false
 
@@ -20,7 +20,7 @@ type StopWatchObservable(period) =
 
     interface IObservable<TimeSpan> with
         member this.Subscribe observer = 
-            Observable.Interval(period)
+            Observable.Interval(period = frequency)
                 .Where(fun _ -> not !paused)
                 .Select(fun _ -> watch.Elapsed)
                 .Subscribe(observer)
