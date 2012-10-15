@@ -7,6 +7,7 @@ open Mvc.Wpf
 [<STAThread>] 
 do
     let view = MainView()
+
     let stopWatch = StopWatchObservable(frequency = TimeSpan.FromSeconds(1.))
     let stopWatchController(runningTime : TimeSpan) = Sync <| fun(model : MainModel) -> model.RunningTime <- runningTime
 
