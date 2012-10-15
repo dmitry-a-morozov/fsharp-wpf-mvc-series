@@ -34,14 +34,14 @@ type MainView() as this =
 
     override this.EventStreams = 
         [   
-            yield this.Control.RestartWatch.Click |> Observable.mapTo RestartWatch
-            yield pause.Checked |> Observable.mapTo StopWatch
-            yield pause.Unchecked |> Observable.mapTo StartWatch
-
             yield this.Control.Tabs.SelectionChanged |> Observable.map(fun _ -> 
                 let activeTab : TabItem = unbox this.Control.Tabs.SelectedItem
                 let header = string activeTab.Header
                 ActiveTabChanged header)
+
+            yield this.Control.RestartWatch.Click |> Observable.mapTo RestartWatch
+            yield pause.Checked |> Observable.mapTo StopWatch
+            yield pause.Unchecked |> Observable.mapTo StartWatch
         ]
 
     override this.SetBindings model = 
