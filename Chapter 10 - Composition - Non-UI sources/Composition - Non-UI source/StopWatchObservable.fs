@@ -1,8 +1,8 @@
 ﻿namespace Mvc.Wpf.Sample
 
 open System
-open System.Reactive.Linq
 open System.Diagnostics
+open System.Reactive.Linq
 
 type StopWatchObservable(period : TimeSpan) =
     let watch = Stopwatch.StartNew()
