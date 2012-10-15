@@ -56,6 +56,10 @@ type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : un
             isOK <- isOK'
             this.Control.Close()
 
+[<AbstractClass>]
+type XamlView<'Event, 'Model>(resourceLocator) = 
+    inherit View<'Event, 'Model, Window>(resourceLocator |> Application.LoadComponent |> unbox)
+
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module View = 
