@@ -78,7 +78,7 @@ module View =
         member parent.Compose(child : IPartialView<_, 'MX>, childModelSelector : 'Model -> 'MX ) =
             {
                 new IView<Choice<'Event, _>, 'Model> with
-                    member this.Subscribe observer =  (Observable.unify parent child).Subscribe(observer)
+                    member this.Subscribe observer = (Observable.unify parent child).Subscribe(observer)
                     member this.SetBindings model =
                         parent.SetBindings model  
                         model |> childModelSelector |> child.SetBindings
@@ -90,7 +90,7 @@ module View =
         member view.Compose extension =
             {
                 new IView<_, _> with
-                    member this.Subscribe observer =  (Observable.unify view extension).Subscribe(observer)
+                    member this.Subscribe observer = (Observable.unify view extension).Subscribe(observer)
                     member this.SetBindings model = view.SetBindings model  
                     member this.Show() = view.Show()
                     member this.ShowDialog() = view.ShowDialog()
