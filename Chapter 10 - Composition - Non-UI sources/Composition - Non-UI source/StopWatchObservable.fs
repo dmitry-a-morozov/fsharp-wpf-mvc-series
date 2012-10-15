@@ -4,7 +4,7 @@ open System
 open System.Diagnostics
 open System.Reactive.Linq
 
-type StopWatchObservable(period : TimeSpan) =
+type StopWatchObservable(period) =
     let watch = Stopwatch.StartNew()
     let paused = ref false
 
