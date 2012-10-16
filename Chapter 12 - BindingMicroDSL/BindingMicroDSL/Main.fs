@@ -50,10 +50,7 @@ type MainView() as this =
         titleBinding.Bindings.Add <| Binding("ActiveTab")
 
         this.Control.SetBinding(Window.TitleProperty, titleBinding) |> ignore
-        Binding.FromExpression 
-            <@ 
-                this.Control.PauseWatch.IsChecked <- model.Paused 
-            @>
+        Binding.FromExpression <@ this.Control.PauseWatch.IsChecked <- model.Paused @>
         this.Control.RunningTime.SetBinding(TextBlock.TextProperty, Binding(path = "RunningTime", StringFormat = "Running time: {0:hh\:mm\:ss}")) |> ignore
 
 type MainController(view, stopWatch : StopWatchObservable) = 

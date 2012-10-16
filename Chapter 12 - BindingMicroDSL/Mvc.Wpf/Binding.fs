@@ -9,6 +9,24 @@ open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 open Microsoft.FSharp.Quotations.DerivedPatterns
 
+module BindingPatterns = 
+
+    let (|Target|_|) expr = 
+        let rec loop = function
+            | Some( Value(obj, viewType) ) -> obj
+            | Some( FieldGet(tail, field) ) ->  field.GetValue(loop tail)
+            | Some( PropertyGet(tail, prop, []) ) -> prop.GetValue(loop tail, [||])
+            | _ -> null
+        match loop expr with
+        | :? DependencyObject as dp -> Some dp
+        | _ -> None
+
+    let rec (|PropertyPath|_|) = function 
+        | PropertyGet( Some( Value _), sourceProperty, []) -> Some sourceProperty.Name
+        | Coerce( PropertyPath path, _) 
+        | SpecificCall <@ string @> (None, _, [ PropertyPath path ]) -> Some path
+        | _ -> None
+
 type PropertyInfo with
     member this.DependencyProperty = 
         let dpInfo = 
@@ -16,14 +34,10 @@ type PropertyInfo with
         assert (dpInfo <> null)
         dpInfo.GetValue(null, [||]) |> unbox<DependencyProperty> 
 
-let rec (|PropertyPath|_|) = function 
-    | PropertyGet( Some( Value _), sourceProperty, []) -> Some sourceProperty.Name
-    | Coerce( PropertyPath path, _) 
-    | SpecificCall <@ string @> (None, _, [ PropertyPath path ]) -> Some path
-    | _ -> None
+open BindingPatterns
 
 type Expr with
-    member this.ToBindingExpr(?mode, ?updateSourceTrigger, ?fallbackValue, ?targetNullValue, ?validatesOnDataErrors) = 
+    member this.ToBindingExpr() = 
         match this with
         | PropertySet
             (
@@ -33,28 +47,18 @@ type Expr with
                 PropertyPath path
             ) ->
                 let target : FrameworkElement = (view, [||]) |> window.GetValue |> control.GetValue |> unbox
-
-                let binding = Binding(path, ValidatesOnDataErrors = defaultArg validatesOnDataErrors true) 
-                if mode.IsSome then binding.Mode <- mode.Value
-                if updateSourceTrigger.IsSome then binding.UpdateSourceTrigger <- updateSourceTrigger.Value
-                if fallbackValue.IsSome then binding.FallbackValue <- fallbackValue.Value
-                if targetNullValue.IsSome then binding.TargetNullValue <- targetNullValue.Value
-
+                let binding = Binding(path, ValidatesOnDataErrors = true)
                 target.SetBinding(targetProperty.DependencyProperty, binding)
         | _ -> invalidArg "expr" (string this) 
 
 type Binding with
-    static member FromExpression(expr : Expr, ?mode, ?updateSourceTrigger, ?fallbackValue, ?targetNullValue, ?validatesOnDataErrors) =
+    static member FromExpression expr = 
         let rec split = function 
             | Sequential(head, tail) -> head :: split tail
             | tail -> [ tail ]
 
         for e in split expr do
-            let be = e.ToBindingExpr(?mode = mode, ?updateSourceTrigger = updateSourceTrigger, ?fallbackValue = fallbackValue, ?targetNullValue = targetNullValue, ?validatesOnDataErrors = validatesOnDataErrors)
+            let be = e.ToBindingExpr()
             assert not be.HasError
     
-    static member TwoWay(expr : Expr) = Binding.FromExpression(expr, BindingMode.TwoWay)
-    static member OneWay(expr : Expr) = Binding.FromExpression(expr, BindingMode.OneWay)
-    static member OneWayToSource(expr : Expr) = Binding.FromExpression(expr, BindingMode.OneWayToSource)
-    static member UpdateSourceOnChange(expr : Expr) = Binding.FromExpression(expr, updateSourceTrigger = UpdateSourceTrigger.PropertyChanged)
 
