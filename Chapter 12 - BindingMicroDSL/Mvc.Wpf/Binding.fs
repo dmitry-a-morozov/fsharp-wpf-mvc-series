@@ -34,8 +34,7 @@ type Expr with
             ) ->
                 let target : FrameworkElement = (view, [||]) |> window.GetValue |> control.GetValue |> unbox
 
-                let binding = Binding(path)
-                binding.ValidatesOnDataErrors <- defaultArg validatesOnDataErrors true
+                let binding = Binding(path, ValidatesOnDataErrors = defaultArg validatesOnDataErrors true) 
                 if mode.IsSome then binding.Mode <- mode.Value
                 if updateSourceTrigger.IsSome then binding.UpdateSourceTrigger <- updateSourceTrigger.Value
                 if fallbackValue.IsSome then binding.FallbackValue <- fallbackValue.Value
@@ -56,5 +55,6 @@ type Binding with
     
     static member TwoWay(expr : Expr) = Binding.FromExpression(expr, BindingMode.TwoWay)
     static member OneWay(expr : Expr) = Binding.FromExpression(expr, BindingMode.OneWay)
+    static member OneWayToSource(expr : Expr) = Binding.FromExpression(expr, BindingMode.OneWayToSource)
     static member UpdateSourceOnChange(expr : Expr) = Binding.FromExpression(expr, updateSourceTrigger = UpdateSourceTrigger.PropertyChanged)
 
