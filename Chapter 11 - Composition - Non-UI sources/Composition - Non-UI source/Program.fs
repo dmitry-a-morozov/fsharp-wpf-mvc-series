@@ -5,7 +5,8 @@ open Mvc.Wpf.Sample
 open Mvc.Wpf
 
 [<STAThread>] 
-do
+[<EntryPoint>]
+let main _ = 
     let view = MainView()
     let stopWatch = StopWatchObservable(frequency = TimeSpan.FromSeconds(1.))
 
@@ -19,4 +20,4 @@ do
             <+> (TempConveterController(), TempConveterView(view.Control.TempConveterControl), fun m -> m.TempConveter)
             <+> (StockPricesChartController(), StockPricesChartView(view.Control.StockPricesChart), fun m -> m.StockPricesChart)
 
-    controller |> Controller.start |> ignore
+    Application().Run(Model.Create(), view.Control, controller)
