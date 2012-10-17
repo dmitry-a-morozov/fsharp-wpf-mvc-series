@@ -1,5 +1,6 @@
 ﻿namespace Mvc.Wpf.Sample
 
+open System
 open System.Windows.Data
 open Microsoft.FSharp.Reflection
 open Mvc.Wpf
@@ -35,6 +36,7 @@ type CalculatorEvents =
     | Hex1
     | Hex2
     | YChanged of string
+    | XotYChanging of string * (unit -> unit)
 
 type CalculatorView(control) =
     inherit PartialView<CalculatorEvents, CalculatorModel, CalculatorControl>(control)
@@ -50,6 +52,9 @@ type CalculatorView(control) =
             |> List.ofButtonClicks
                  
             yield this.Control.Y.TextChanged |> Observable.map(fun _ -> YChanged(this.Control.Y.Text))
+
+            yield this.Control.X.PreviewTextInput |> Observable.map (fun x -> XotYChanging(x.Text, fun() -> x.Handled <- true))
+            yield this.Control.Y.PreviewTextInput |> Observable.map (fun y -> XotYChanging(y.Text, fun() -> y.Handled <- true))
         ] 
 
     override this.SetBindings model = 
@@ -78,6 +83,7 @@ type CalculatorController() =
         | Hex1 -> this.Hex1
         | Hex2 -> this.Hex2
         | YChanged text -> this.YChanged text
+        | XotYChanging(text, cancel) -> this.EnsureDigitalInput(text, cancel)
 
     member this.Calculate model = 
         model.ClearAllErrors()
@@ -126,3 +132,7 @@ type CalculatorController() =
         else 
             model.AvailableOperations <- Operations.Values |> Array.filter(fun op -> op <> Operations.Divide)
 
+    member this.EnsureDigitalInput(newValue, cancel) model =
+        match Int32.TryParse newValue with 
+        | false, _  ->  cancel()
+        | _ -> ()
