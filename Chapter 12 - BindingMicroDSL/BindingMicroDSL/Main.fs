@@ -19,7 +19,7 @@ type MainModel() =
     abstract ProcessName : string with get, set
     abstract ActiveTab : string with get, set
     abstract RunningTime : TimeSpan with get, set
-    abstract Paused : Nullable<bool> with get, set
+    abstract Paused : bool with get, set
 
 type MainEvents = 
     | ActiveTabChanged of string
@@ -48,10 +48,13 @@ type MainView() as this =
         let titleBinding = MultiBinding(StringFormat = "{0} - {1}")
         titleBinding.Bindings.Add <| Binding("ProcessName")
         titleBinding.Bindings.Add <| Binding("ActiveTab")
-
         this.Control.SetBinding(Window.TitleProperty, titleBinding) |> ignore
-        Binding.FromExpression <@ this.Control.PauseWatch.IsChecked <- model.Paused @>
-        this.Control.RunningTime.SetBinding(TextBlock.TextProperty, Binding(path = "RunningTime", StringFormat = "Running time: {0:hh\:mm\:ss}")) |> ignore
+
+        Binding.FromExpression 
+            <@ 
+                pause.IsChecked <- Nullable model.Paused 
+                this.Control.RunningTime.Text <- String.Format("Running time: {0:hh\:mm\:ss}", model.RunningTime)
+            @>
 
 type MainController(view, stopWatch : StopWatchObservable) = 
     inherit SupervisingController<MainEvents, MainModel>(view)
@@ -60,7 +63,7 @@ type MainController(view, stopWatch : StopWatchObservable) =
         model.ProcessName <- Process.GetCurrentProcess().ProcessName
         model.ActiveTab <- "Calculator"
         model.RunningTime <- TimeSpan.Zero
-        model.Paused <- Nullable false
+        model.Paused <- false
 
         model.Calculator <- Model.Create()
         model.TempConveter <- Model.Create()
@@ -77,5 +80,5 @@ type MainController(view, stopWatch : StopWatchObservable) =
 
     member this.RestartWatch model =
         stopWatch.Restart()
-        model.Paused <- Nullable false
+        model.Paused <- false
 
