@@ -5,7 +5,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Mvc.Wpf", "Mvc.Wpf\Mvc.Wpf.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIElements", "UIElements\UIElements.csproj", "{FA52EE33-ECBE-4354-BCF2-CAEA2B9442DF}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Composition - external event sources", "Composition - Non-UI source\Composition - external event sources.fsproj", "{5330E15A-94AA-4891-BEE3-AD8A53BD048E}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Composition - external event sources", "Composition - external event sources\Composition - external event sources.fsproj", "{5330E15A-94AA-4891-BEE3-AD8A53BD048E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

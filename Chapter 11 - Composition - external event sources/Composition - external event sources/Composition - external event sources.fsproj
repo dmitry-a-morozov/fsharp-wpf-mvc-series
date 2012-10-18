@@ -8,7 +8,7 @@
     <ProjectGuid>{5330e15a-94aa-4891-bee3-ad8a53bd048e}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>PreventReentrancy</RootNamespace>
-    <AssemblyName>CompositionNonUISources</AssemblyName>
+    <AssemblyName>Composition - external event sources</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <Name>Composition - external event sources</Name>
