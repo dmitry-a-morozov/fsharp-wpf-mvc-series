@@ -5,13 +5,13 @@ open Mvc.Wpf.Sample
 open Mvc.Wpf
 
 [<STAThread>] 
-do
-    let view = MainView()
+[<EntryPoint>]
+let main _ = 
     let stopWatch = StopWatchObservable(frequency = TimeSpan.FromSeconds(1.))
-
     let stopWatchController(runningTime : TimeSpan) = 
         Sync <| fun(model : MainModel) -> model.RunningTime <- runningTime
 
+    let view = MainView()
     let controller = 
         MainController(view, stopWatch)
             .Compose(stopWatchController, stopWatch)
@@ -19,4 +19,4 @@ do
             <+> (TempConveterController(), TempConveterView(view.Control.TempConveterControl), fun m -> m.TempConveter)
             <+> (StockPricesChartController(), StockPricesChartView(view.Control.StockPricesChart), fun m -> m.StockPricesChart)
 
-    controller |> Controller.start |> ignore
+    Application().Run(Model.Create(), view.Control, controller)
