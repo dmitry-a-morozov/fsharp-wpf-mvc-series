@@ -10,7 +10,7 @@ open System.Threading
 module Application = 
 
     [<Extension>] //for C#
-    let AttachController(this : Application, model : 'Model, mainWindow : Window, controller : SupervisingController<_, _>) =
+    let AttachController(this : Application, model, mainWindow, controller : SupervisingController<_, _>) =
         let cts = new CancellationTokenSource()
         this.Startup.Add <| fun _ ->
             this.MainWindow <- mainWindow 
