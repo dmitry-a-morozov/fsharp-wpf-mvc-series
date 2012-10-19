@@ -3,6 +3,7 @@
 module Mvc.Wpf.Binding
 
 open System
+open System.Collections.Generic
 open System.Reflection
 open System.Windows
 open System.Windows.Data 
@@ -11,19 +12,15 @@ open Microsoft.FSharp.Quotations.Patterns
 open Microsoft.FSharp.Quotations.DerivedPatterns
 
 type IValueConverter with
-    static member Create(convert : 'a -> 'b, convertBack : 'b -> 'a) = 
-        {
-            new IValueConverter with
-                member this.Convert(value, _, _, _) = try value |> unbox |> convert |> box with _ -> DependencyProperty.UnsetValue
-                member this.ConvertBack(value, _, _, _) = try value |> unbox |> convertBack |> box with _ -> DependencyProperty.UnsetValue
-        }
-
-    static member OneWay(convert : 'a -> 'b) =  
+    static member OneWay convert =  
         {
             new IValueConverter with
                 member this.Convert(value, _, _, _) = try value |> unbox |> convert |> box with _ -> DependencyProperty.UnsetValue
                 member this.ConvertBack(value, _, _, _) = DependencyProperty.UnsetValue
         }
+
+type IEnumerable<'T> with
+    member this.CurrentItem : 'T = undefined
 
 module BindingPatterns = 
 
@@ -58,8 +55,6 @@ module BindingPatterns =
         | _ -> None    
          
     let (|BindingExpression|) = function
-        | Lambda(_, Coerce( expr, _)) 
-        | Lambda(_, expr) 
         | Coerce(expr, _) 
         | SpecificCall <@ string @> (None, _, [ expr ]) 
         | Nullable expr
