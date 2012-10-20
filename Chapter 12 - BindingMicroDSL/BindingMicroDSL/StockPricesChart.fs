@@ -50,7 +50,7 @@ type StockPricesChartController() =
             async {
                 let view = StockPickerView()
                 let! result = StockPickerController view |> Controller.asyncStart  
-                result |> Option.iter (fun stockInfo ->
+                result |> Option.iter(fun stockInfo ->
                     model.StockPrices.Add(stockInfo.Symbol, stockInfo.LastPrice)
                 )
             }
