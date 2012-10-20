@@ -54,15 +54,13 @@ module BindingPatterns =
             Some((fun(value : obj) -> methodInfo.Invoke(null, [| value |])), propertyPath )
         | _ -> None    
          
-    let (|BindingExpression|) = function
-        | Coerce(expr, _) 
-        | SpecificCall <@ string @> (None, _, [ expr ]) 
-        | Nullable expr
-        | expr ->
-            match expr with
-            | PropertyPath path -> Binding path
-            | StringFormat(format, PropertyPath path) -> Binding(path, StringFormat = format)
-            | _ -> invalidArg "binding property path quotation" (string expr)
+    let rec (|BindingExpression|) = function
+        | Coerce( BindingExpression binding, _) 
+        | SpecificCall <@ string @> (None, _, [ BindingExpression binding ]) 
+        | Nullable( BindingExpression binding) -> binding
+        | PropertyPath path -> Binding path
+        | StringFormat(format, PropertyPath path) -> Binding(path, StringFormat = format)
+        | expr -> invalidArg "binding property path quotation" (string expr)
 
 type PropertyInfo with
     member this.DependencyProperty : DependencyProperty = 
