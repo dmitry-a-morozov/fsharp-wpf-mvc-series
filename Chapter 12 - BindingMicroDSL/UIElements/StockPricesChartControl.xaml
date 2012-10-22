@@ -5,11 +5,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:WinFormsChart = "clr-namespace:System.Windows.Forms.DataVisualization.Charting;assembly=System.Windows.Forms.DataVisualization"       
     mc:Ignorable="d" 
-    d:DesignHeight="230" d:DesignWidth="290">
+    d:DesignHeight="230" d:DesignWidth="400">
     <UserControl.Resources>
         <ResourceDictionary Source="Styles.xaml"/>
     </UserControl.Resources>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="Auto" />
@@ -17,6 +21,10 @@
         <WindowsFormsHost>
             <WinFormsChart:Chart x:Name="StockPricesChart" x:FieldModifier="public"/>
         </WindowsFormsHost>
-        <Button Content="Add Stock..." Name="AddStock" x:FieldModifier="public" Grid.Row="1" Margin="5" Width="100"/>
+        <DockPanel Grid.Row="1">
+            <Button Content="Add Stock..." Name="AddStock" x:FieldModifier="public" Margin="5" Width="100"/>
+            <Label Content="Symbol"/>
+            <ComboBox Name="Symbol" x:FieldModifier="public" Margin="5"/>
+        </DockPanel>
     </Grid>
 </UserControl>

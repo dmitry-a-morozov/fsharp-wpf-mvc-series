@@ -54,6 +54,7 @@ type MainView() as this =
             <@ 
                 pause.IsChecked <- Nullable model.Paused 
                 this.Control.RunningTime.Text <- String.Format("Running time: {0:hh\:mm\:ss}", model.RunningTime)
+                this.Control.RestartWatch.IsEnabled <- not model.Paused
             @>
 
 type MainController(view, stopWatch : StopWatchObservable) = 

@@ -60,6 +60,7 @@ module BindingPatterns =
         | Nullable( BindingExpression binding) -> binding
         | PropertyPath path -> Binding path
         | StringFormat(format, PropertyPath path) -> Binding(path, StringFormat = format)
+        | Converter(convert, PropertyPath path) -> Binding(path, Converter = IValueConverter.OneWay convert, Mode = BindingMode.OneWay)
         | expr -> invalidArg "binding property path quotation" (string expr)
 
 type PropertyInfo with
@@ -72,22 +73,24 @@ type PropertyInfo with
 open BindingPatterns
 
 type Expr with
-    member this.ToBindingExpr() = 
+    member this.ToBindingExpr(?updateSourceTrigger) = 
         match this with
         | PropertySet(Target target, targetProperty, [], BindingExpression binding) ->
             binding.ValidatesOnDataErrors <- true
             binding.ValidatesOnExceptions <- true
+            if updateSourceTrigger.IsSome then binding.UpdateSourceTrigger <- updateSourceTrigger.Value
             BindingOperations.SetBinding(target, targetProperty.DependencyProperty, binding)
         | _ -> invalidArg "expr" (string this) 
 
 type Binding with
-    static member FromExpression expr = 
+    static member FromExpression(expr, ?updateSourceTrigger) =
         let rec split = function 
             | Sequential(head, tail) -> head :: split tail
             | tail -> [ tail ]
 
         for e in split expr do
-            let be = e.ToBindingExpr()
+            let be = e.ToBindingExpr(?updateSourceTrigger = updateSourceTrigger)
             assert not be.HasError
     
+    static member UpdateSourceOnChange(expr : Expr) = Binding.FromExpression(expr, updateSourceTrigger = UpdateSourceTrigger.PropertyChanged)
 
