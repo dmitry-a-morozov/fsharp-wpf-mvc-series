@@ -11,13 +11,12 @@ open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 open Microsoft.FSharp.Quotations.DerivedPatterns
 
-type IValueConverter with
-    static member OneWay convert =  
-        {
-            new IValueConverter with
-                member this.Convert(value, _, _, _) = try value |> unbox |> convert |> box with _ -> DependencyProperty.UnsetValue
-                member this.ConvertBack(value, _, _, _) = DependencyProperty.UnsetValue
-        }
+type PropertyInfo with
+    member this.DependencyProperty : DependencyProperty = 
+        this.DeclaringType
+            .GetField(this.Name + "Property", BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.FlattenHierarchy)
+            .GetValue(null, [||]) 
+            |> unbox
 
 type IEnumerable<'T> with
     member this.CurrentItem : 'T = undefined
@@ -34,9 +33,27 @@ module BindingPatterns =
         | :? DependencyObject as target -> Some target
         | _ -> None
 
-    let rec (|PropertyPath|_|) = function 
-        | PropertyGet( Some( Value _), sourceProperty, []) -> Some sourceProperty.Name
-        | _ -> None
+    let (|PropertyPath|_|) expr = 
+        let rec loop e acc = 
+            match e with
+            | PropertyGet( Some tail, property, []) -> 
+                loop tail (property.Name :: acc)
+            | SpecificCall <@ Seq.empty.CurrentItem @> (None, _, [ tail ]) -> 
+                loop tail ("/" :: acc)
+            | Value _ | Var _ -> Some acc
+            | _ -> None
+
+        loop expr [] |> Option.map(fun xs -> 
+            xs.Head + (
+                xs
+                |> Seq.pairwise
+                |> Seq.map(function 
+                    | "/", x -> x 
+                    | _, "/" -> "/" 
+                    | x, y -> "." + y) 
+                |> String.concat ""
+            )
+        )
 
     let (|StringFormat|_|) = function
         | SpecificCall <@ String.Format : string * obj -> string @> (None, [], [ Value(:? string as format, _); Coerce( propertyPath, _) ]) ->
@@ -60,15 +77,16 @@ module BindingPatterns =
         | Nullable( BindingExpression binding) -> binding
         | PropertyPath path -> Binding path
         | StringFormat(format, PropertyPath path) -> Binding(path, StringFormat = format)
-        | Converter(convert, PropertyPath path) -> Binding(path, Converter = IValueConverter.OneWay convert, Mode = BindingMode.OneWay)
+        | Converter(convert, PropertyPath path) -> 
+            Binding(
+                path, 
+                Mode = BindingMode.OneWay,
+                Converter = {
+                    new IValueConverter with
+                        member this.Convert(value, _, _, _) = try convert value with _ -> DependencyProperty.UnsetValue
+                        member this.ConvertBack(value, _, _, _) = DependencyProperty.UnsetValue
+                })
         | expr -> invalidArg "binding property path quotation" (string expr)
-
-type PropertyInfo with
-    member this.DependencyProperty : DependencyProperty = 
-        this.DeclaringType
-            .GetField(this.Name + "Property", BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.FlattenHierarchy)
-            .GetValue(null, [||]) 
-            |> unbox
 
 open BindingPatterns
 
@@ -94,3 +112,29 @@ type Binding with
     
     static member UpdateSourceOnChange(expr : Expr) = Binding.FromExpression(expr, updateSourceTrigger = UpdateSourceTrigger.PropertyChanged)
 
+open System.Windows.Controls
+open System.Windows.Controls.Primitives
+
+type Selector with
+    member this.SetBindings(itemsSource : Expr<#seq<'Item>>, ?selectedItem : Expr<'Item>, ?displayMember : PropertySelector<'Item, _>) = 
+
+        let e = this.SetBinding(ItemsControl.ItemsSourceProperty, match itemsSource with BindingExpression binding -> binding)
+        assert not e.HasError
+
+        selectedItem |> Option.iter(fun(BindingExpression binding) -> 
+            let e = this.SetBinding(DataGrid.SelectedItemProperty, binding)
+            assert not e.HasError
+            this.IsSynchronizedWithCurrentItem <- Nullable true
+        )
+
+        displayMember |> Option.iter(fun(SingleStepPropertySelector(propertyName, _)) -> 
+            this.DisplayMemberPath <- propertyName
+        )
+        
+type DataGrid with
+    member this.SetBindings(itemsSource : Expr<#seq<'Item>>, columnBindings : 'Item -> (#DataGridBoundColumn * Expr) list, ?selectedItem) = 
+
+        this.SetBindings(itemsSource, ?selectedItem = selectedItem)
+
+        for column, BindingExpression binding in columnBindings Unchecked.defaultof<'Item> do
+            column.Binding <- binding

@@ -12,7 +12,8 @@ open Mvc.Wpf.UIElements
 type StockPricesChartModel() = 
     inherit Model()
 
-    abstract StockPrices : ObservableCollection<string * decimal> with get, set
+    abstract StocksInfo : ObservableCollection<StockInfoModel> with get, set
+    abstract Selected : StockInfoModel with get, set
 
 type StockPricesChartView(control) as this =
     inherit PartialView<unit, StockPricesChartModel, StockPricesChartControl>(control)
@@ -26,8 +27,8 @@ type StockPricesChartView(control) as this =
             new Series(
                 ChartType = SeriesChartType.Column, 
                 Palette = ChartColorPalette.EarthTones, 
-                XValueMember = "Item1", 
-                YValueMembers = "Item2")
+                XValueMember = "Symbol", 
+                YValueMembers = "LastPrice")
         this.Control.StockPricesChart.Series.Add series
     
     override this.EventStreams = 
@@ -36,21 +37,38 @@ type StockPricesChartView(control) as this =
         ]
 
     override this.SetBindings model = 
-        this.Control.StockPricesChart.DataSource <- model.StockPrices
-        model.StockPrices.CollectionChanged.Add(fun _ -> this.Control.StockPricesChart.DataBind())
+        this.Control.StockPricesChart.DataSource <- model.StocksInfo
+        model.StocksInfo.CollectionChanged.Add(fun _ -> this.Control.StockPricesChart.DataBind())
+
+        this.Control.Symbol.SetBindings(
+            itemsSource = <@ model.StocksInfo @>, 
+            selectedItem = <@ model.Selected @>,
+            displayMember = <@ fun m -> m.Symbol @> 
+        )
+
+        this.Control.Details.SetBindings(
+            itemsSource = <@ model.Selected.Details @>, 
+//            itemsSource = <@ model.StocksInfo.CurrentItem.Details @>, 
+            columnBindings = fun stockProperty ->
+                [
+                    this.Control.DetailsName, <@@ stockProperty.Key @@>
+                    this.Control.DetailsValue, <@@ stockProperty.Value @@>
+                ]
+        )
 
 type StockPricesChartController() = 
     inherit Controller<unit, StockPricesChartModel>()
 
     override this.InitModel model = 
-        model.StockPrices <- ObservableCollection()
+        model.StocksInfo <- ObservableCollection()
 
     override this.Dispatcher = fun() -> 
         Async <| fun model ->
             async {
                 let view = StockPickerView()
                 let! result = StockPickerController view |> Controller.asyncStart  
-                result |> Option.iter(fun stockInfo ->
-                    model.StockPrices.Add(stockInfo.Symbol, stockInfo.LastPrice)
+                result |> Option.iter(fun newItem -> 
+                    model.StocksInfo.Add newItem
+                    model.Selected <- newItem
                 )
             }

@@ -1,6 +1,7 @@
 ﻿namespace Mvc.Wpf.Sample
 
 open System
+open System.Collections.Generic
 open System.Globalization
 open System.Windows.Data
 open System.Windows.Controls
@@ -10,16 +11,17 @@ open Mvc.Wpf
 open Mvc.Wpf.UIElements
 
 [<AbstractClass>]
-type StockPickerModel() = 
+type StockInfoModel() = 
     inherit Model()
 
     abstract Symbol : string with get, set
     abstract CompanyName : string with get, set
     abstract LastPrice : decimal with get, set
     abstract AddToChartEnabled : bool with get, set
+    abstract Details : IDictionary<string, string> with get, set
 
 type StockPickerView() as this =
-    inherit View<unit, StockPickerModel, StockPickerWindow>()
+    inherit View<unit, StockInfoModel, StockPickerWindow>()
 
     do
         this.Control.Symbol.CharacterCasing <- CharacterCasing.Upper
@@ -35,7 +37,6 @@ type StockPickerView() as this =
         Binding.FromExpression 
             <@ 
                 this.Control.CompanyName.Text <- model.CompanyName
-                this.Control.LastPrice.Text <- string model.LastPrice 
                 this.Control.AddToChart.IsEnabled <- model.AddToChartEnabled
                 this.Control.Retrieve.IsEnabled <- isNotNull model.Symbol
             @>
@@ -43,22 +44,39 @@ type StockPickerView() as this =
         Binding.UpdateSourceOnChange <@ this.Control.Symbol.Text <- model.Symbol @>
 
 type StockPickerController(view) = 
-    inherit SupervisingController<unit, StockPickerModel>(view)
+    inherit SupervisingController<unit, StockInfoModel>(view)
+
+    static let tags = [
+            "n", "Name"
+            "l1", "Last Trade (Price Only)"
+            "d1", "Last Trade Date"
+            "t1", "Last Trade Time"
+            "c1", "Change"
+            "h", "Day’s High"
+            "g", "Day’s Low"
+            "v", "Volume"
+            "b", "Bid"
+            "a", "Ask"
+            "p2", "Change in Percent"
+        ]
 
     override this.InitModel _ = ()
     override this.Dispatcher = fun() ->
         Async <| fun model ->
             async {
                 use wc = new WebClient()
-                let url = Uri(sprintf "http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=nl1" model.Symbol)
-                let! data = wc.AsyncDownloadString url
-                match data.Split([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries).Single().Split(',') with
-                | [| n; "0.00" |] when n = sprintf "\"%s\"" model.Symbol -> 
-                    model |> Validation.setError <@ fun m -> m.Symbol @> "Invalid security symbol."
-                | [| n; l1 |] -> 
-                    model.CompanyName <- n
-                    model.LastPrice <- decimal l1
-                    model.AddToChartEnabled <- true
-                | _ -> failwithf "Unexpected result service call result.\nRequest: %O.\nResponse: %s" url data
+                let uri = tags |> List.map fst |> String.concat "" |> sprintf "http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=%s" model.Symbol
+                let! data = wc.AsyncDownloadString <| Uri uri
+                match data.Split([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries).Single().Split(',') |> Array.toList with
+                | name :: lastPrice :: _ as details ->
+                    if name = sprintf "\"%s\"" model.Symbol && lastPrice = "0.00"
+                    then
+                        model |> Validation.setError <@ fun m -> m.Symbol @> "Invalid security symbol."
+                    else
+                        model.CompanyName <- name
+                        model.LastPrice <- decimal lastPrice
+                        model.Details <- (List.map snd tags, details) ||> List.zip |> dict
+                        model.AddToChartEnabled <- true
+                | _ -> failwithf "Unexpected result service call result.\nRequest: %O.\nResponse: %s" uri data
             }
 

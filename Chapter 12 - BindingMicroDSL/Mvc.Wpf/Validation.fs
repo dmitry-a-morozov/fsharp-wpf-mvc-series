@@ -2,17 +2,6 @@
 module Mvc.Wpf.Validation
 
 open System
-open Microsoft.FSharp.Quotations
-open Microsoft.FSharp.Quotations.Patterns
-
-type PropertySelector<'T, 'a> = Expr<('T -> 'a)>
-
-let (|SingleStepPropertySelector|) (expr : PropertySelector<'T, 'a>) = 
-    match expr with 
-    | Lambda(arg, PropertyGet( Some (Var selectOn), property, [])) -> 
-        assert(arg.Name = selectOn.Name)
-        property.Name, fun(this : 'T) -> property.GetValue(this, [||]) |> unbox<'a>
-    | _ -> invalidArg "Property selector quotation" (string expr)
 
 let inline setError( SingleStepPropertySelector(propertyName, _) : PropertySelector< ^Model, _>) message model = 
     (^Model : (member SetError : string * string -> unit) (model, propertyName, message))

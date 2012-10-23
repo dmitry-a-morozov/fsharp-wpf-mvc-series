@@ -11,14 +11,14 @@
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="1.5*" />
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <WindowsFormsHost>
+        <WindowsFormsHost MinWidth="300">
             <WinFormsChart:Chart x:Name="StockPricesChart" x:FieldModifier="public"/>
         </WindowsFormsHost>
         <DockPanel Grid.Row="1">
@@ -26,5 +26,11 @@
             <Label Content="Symbol"/>
             <ComboBox Name="Symbol" x:FieldModifier="public" Margin="5"/>
         </DockPanel>
+        <DataGrid Grid.Column="1" AutoGenerateColumns="False" x:Name="Details" x:FieldModifier="public" Margin="5,0" MinWidth="80" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" x:Name="DetailsName" x:FieldModifier="public" Width="*"/>
+                <DataGridTextColumn Header="Value" x:Name="DetailsValue" x:FieldModifier="public" Width="Auto"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </UserControl>
