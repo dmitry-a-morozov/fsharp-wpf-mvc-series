@@ -10,6 +10,7 @@ open System.Windows.Data
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 open Microsoft.FSharp.Quotations.DerivedPatterns
+open Unchecked
 
 type PropertyInfo with
     member this.DependencyProperty : DependencyProperty = 
@@ -20,6 +21,15 @@ type PropertyInfo with
 
 type IEnumerable<'T> with
     member this.CurrentItem : 'T = undefined
+
+//type IValueConverter with 
+//    member this.Apply _ = undefined
+//    static member Create(convert : 'a -> 'b, convertBack : 'b -> 'a) =  
+//        {
+//            new IValueConverter with
+//                member this.Convert(value, _, _, _) = try value |> unbox |> convert |> box with _ -> DependencyProperty.UnsetValue
+//                member this.ConvertBack(value, _, _, _) = try value |> unbox |> convertBack |> box with _ -> DependencyProperty.UnsetValue
+//        }
 
 module BindingPatterns = 
 
@@ -72,20 +82,31 @@ module BindingPatterns =
         | _ -> None    
          
     let rec (|BindingExpression|) = function
+        | PropertyPath path -> Binding path
+
         | Coerce( BindingExpression binding, _) 
         | SpecificCall <@ string @> (None, _, [ BindingExpression binding ]) 
-        | Nullable( BindingExpression binding) -> binding
-        | PropertyPath path -> Binding path
-        | StringFormat(format, PropertyPath path) -> Binding(path, StringFormat = format)
-        | Converter(convert, PropertyPath path) -> 
-            Binding(
-                path, 
-                Mode = BindingMode.OneWay,
-                Converter = {
-                    new IValueConverter with
-                        member this.Convert(value, _, _, _) = try convert value with _ -> DependencyProperty.UnsetValue
-                        member this.ConvertBack(value, _, _, _) = DependencyProperty.UnsetValue
-                })
+        | Nullable( BindingExpression binding) -> 
+            binding
+
+        | StringFormat(format, BindingExpression binding) -> 
+            binding.StringFormat <- format
+            binding
+
+        | Converter(convert, BindingExpression binding) -> 
+            binding.Mode <- BindingMode.OneWay
+            binding.Converter <- {
+                new IValueConverter with
+                    member this.Convert(value, _, _, _) = try convert value with _ -> DependencyProperty.UnsetValue
+                    member this.ConvertBack(value, _, _, _) = DependencyProperty.UnsetValue
+            }
+            binding
+
+//        | Call(None, methodInfo, [ Value(:? IValueConverter as converter, _); BindingExpression binding ] ) 
+//            when methodInfo.Name = "IValueConverter.Apply" -> 
+//            binding.Converter <- converter
+//            binding
+//
         | expr -> invalidArg "binding property path quotation" (string expr)
 
 open BindingPatterns
