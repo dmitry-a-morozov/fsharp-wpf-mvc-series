@@ -22,14 +22,16 @@ type PropertyInfo with
 type IEnumerable<'T> with
     member this.CurrentItem : 'T = undefined
 
-//type IValueConverter with 
-//    member this.Apply _ = undefined
-//    static member Create(convert : 'a -> 'b, convertBack : 'b -> 'a) =  
-//        {
-//            new IValueConverter with
-//                member this.Convert(value, _, _, _) = try value |> unbox |> convert |> box with _ -> DependencyProperty.UnsetValue
-//                member this.ConvertBack(value, _, _, _) = try value |> unbox |> convertBack |> box with _ -> DependencyProperty.UnsetValue
-//        }
+type IValueConverter with 
+    static member Create(convert : 'a -> 'b, convertBack : 'b -> 'a) =  
+        {
+            new IValueConverter with
+                member this.Convert(value, _, _, _) = try value |> unbox |> convert |> box with _ -> DependencyProperty.UnsetValue
+                member this.ConvertBack(value, _, _, _) = try value |> unbox |> convertBack |> box with _ -> DependencyProperty.UnsetValue
+        }
+    static member OneWay convert = IValueConverter.Create(convert, fun _ -> DependencyProperty.UnsetValue)
+
+    member this.Apply _ = undefined
 
 module BindingPatterns = 
 
@@ -40,7 +42,7 @@ module BindingPatterns =
             | Some( PropertyGet(tail, prop, []) ) -> prop.GetValue(loop tail, [||])
             | _ -> null
         match loop expr with
-        | :? DependencyObject as target -> Some target
+        | :? FrameworkElement as target -> Some target
         | _ -> None
 
     let (|PropertyPath|_|) expr = 
@@ -76,62 +78,64 @@ module BindingPatterns =
         | _ -> None    
 
     let (|Converter|_|) = function
-        | Call(None, methodInfo, [ propertyPath ]) -> 
-            assert (methodInfo.IsStatic && methodInfo.GetParameters().Length = 1)
-            Some((fun(value : obj) -> methodInfo.Invoke(null, [| value |])), propertyPath )
+        | Call(None, method', [ propertyPath ]) -> 
+            assert (method'.IsStatic && method'.GetParameters().Length = 1)
+            Some((fun(value : obj) -> method'.Invoke(null, [| value |])), propertyPath )
         | _ -> None    
          
     let rec (|BindingExpression|) = function
-        | PropertyPath path -> Binding path
-
+        | PropertyPath path -> 
+            Binding path
         | Coerce( BindingExpression binding, _) 
         | SpecificCall <@ string @> (None, _, [ BindingExpression binding ]) 
         | Nullable( BindingExpression binding) -> 
             binding
-
         | StringFormat(format, BindingExpression binding) -> 
             binding.StringFormat <- format
             binding
-
         | Converter(convert, BindingExpression binding) -> 
             binding.Mode <- BindingMode.OneWay
-            binding.Converter <- {
-                new IValueConverter with
-                    member this.Convert(value, _, _, _) = try convert value with _ -> DependencyProperty.UnsetValue
-                    member this.ConvertBack(value, _, _, _) = DependencyProperty.UnsetValue
-            }
+            binding.Converter <- IValueConverter.OneWay convert
             binding
-
-//        | Call(None, methodInfo, [ Value(:? IValueConverter as converter, _); BindingExpression binding ] ) 
-//            when methodInfo.Name = "IValueConverter.Apply" -> 
-//            binding.Converter <- converter
-//            binding
-//
+        | Call(None, method', [ Value(:? IValueConverter as converter, _); BindingExpression binding ] ) when method'.Name = "IValueConverter.Apply" -> 
+            binding.Converter <- converter
+            binding
         | expr -> invalidArg "binding property path quotation" (string expr)
 
 open BindingPatterns
 
 type Expr with
-    member this.ToBindingExpr(?updateSourceTrigger) = 
+    member this.ToBindingExpr(?mode, ?updateSourceTrigger, ?fallbackValue, ?targetNullValue, ?validatesOnDataErrors, ?validatesOnExceptions) = 
         match this with
         | PropertySet(Target target, targetProperty, [], BindingExpression binding) ->
-            binding.ValidatesOnDataErrors <- true
-            binding.ValidatesOnExceptions <- true
+
+            if mode.IsSome then binding.Mode <- mode.Value
             if updateSourceTrigger.IsSome then binding.UpdateSourceTrigger <- updateSourceTrigger.Value
-            BindingOperations.SetBinding(target, targetProperty.DependencyProperty, binding)
+            if fallbackValue.IsSome then binding.FallbackValue <- fallbackValue.Value
+            if targetNullValue.IsSome then binding.TargetNullValue <- targetNullValue.Value
+            binding.ValidatesOnDataErrors <- defaultArg validatesOnDataErrors true
+            binding.ValidatesOnExceptions <- defaultArg validatesOnExceptions true
+
+            target.SetBinding(targetProperty.DependencyProperty, binding)
+
         | _ -> invalidArg "expr" (string this) 
 
 type Binding with
-    static member FromExpression(expr, ?updateSourceTrigger) =
+    static member FromExpression(expr, ?mode, ?updateSourceTrigger, ?fallbackValue, ?targetNullValue, ?validatesOnDataErrors, ?validatesOnExceptions) =
         let rec split = function 
             | Sequential(head, tail) -> head :: split tail
             | tail -> [ tail ]
 
         for e in split expr do
-            let be = e.ToBindingExpr(?updateSourceTrigger = updateSourceTrigger)
+            let be = 
+                e.ToBindingExpr(
+                    ?mode = mode, ?updateSourceTrigger = updateSourceTrigger, ?fallbackValue = fallbackValue, ?targetNullValue = targetNullValue, 
+                    ?validatesOnDataErrors = validatesOnDataErrors, ?validatesOnExceptions = validatesOnExceptions)
             assert not be.HasError
     
-    static member UpdateSourceOnChange(expr : Expr) = Binding.FromExpression(expr, updateSourceTrigger = UpdateSourceTrigger.PropertyChanged)
+    static member UpdateSourceOnChange expr = Binding.FromExpression(expr, updateSourceTrigger = UpdateSourceTrigger.PropertyChanged)
+    static member TwoWay expr = Binding.FromExpression(expr, BindingMode.TwoWay)
+    static member OneWay expr = Binding.FromExpression(expr, BindingMode.OneWay)
 
 open System.Windows.Controls
 open System.Windows.Controls.Primitives
@@ -159,3 +163,4 @@ type DataGrid with
 
         for column, BindingExpression binding in columnBindings Unchecked.defaultof<'Item> do
             column.Binding <- binding
+

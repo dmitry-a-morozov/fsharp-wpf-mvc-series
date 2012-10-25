@@ -43,11 +43,11 @@ type StockPickerView() as this =
 
         Binding.UpdateSourceOnChange <@ this.Control.Symbol.Text <- model.Symbol @>
 
-//        let bool2Visibility  = BooleanToVisibilityConverter()
-//        Binding.FromExpression 
-//            <@ 
-//                this.Control.AddToChart.Visibility <- bool2Visibility.Apply model.AddToChartEnabled
-//            @>
+        let converter = BooleanToVisibilityConverter()
+        Binding.FromExpression 
+            <@ 
+                this.Control.AddToChart.Visibility <- converter.Apply model.AddToChartEnabled
+            @>
 
 
 type StockPickerController(view) = 
