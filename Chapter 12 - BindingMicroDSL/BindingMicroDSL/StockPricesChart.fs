@@ -13,7 +13,7 @@ type StockPricesChartModel() =
     inherit Model()
 
     abstract StocksInfo : ObservableCollection<StockInfoModel> with get, set
-    abstract Selected : StockInfoModel with get, set
+    abstract SelectedStock : StockInfoModel with get, set
 
 type StockPricesChartView(control) as this =
     inherit PartialView<unit, StockPricesChartModel, StockPricesChartControl>(control)
@@ -42,12 +42,12 @@ type StockPricesChartView(control) as this =
 
         this.Control.Symbol.SetBindings(
             itemsSource = <@ model.StocksInfo @>, 
-            selectedItem = <@ model.Selected @>,
+            selectedItem = <@ model.SelectedStock @>,
             displayMember = <@ fun m -> m.Symbol @> 
         )
 
         this.Control.Details.SetBindings(
-            itemsSource = <@ model.Selected.Details @>, 
+            itemsSource = <@ model.SelectedStock.Details @>, 
 //            itemsSource = <@ model.StocksInfo.CurrentItem.Details @>, 
             columnBindings = fun stockProperty ->
                 [
@@ -69,6 +69,6 @@ type StockPricesChartController() =
                 let! result = StockPickerController view |> Controller.asyncStart  
                 result |> Option.iter(fun newItem -> 
                     model.StocksInfo.Add newItem
-                    model.Selected <- newItem
+                    model.SelectedStock <- newItem
                 )
             }
