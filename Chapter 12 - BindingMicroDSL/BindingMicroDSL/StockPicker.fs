@@ -49,7 +49,6 @@ type StockPickerView() as this =
                 this.Control.AddToChart.Visibility <- converter.Apply model.AddToChartEnabled
             @>
 
-
 type StockPickerController(view) = 
     inherit SupervisingController<unit, StockInfoModel>(view)
 
