@@ -78,9 +78,9 @@ module BindingPatterns =
         | _ -> None    
 
     let (|Converter|_|) = function
-        | Call(None, method', [ propertyPath ]) -> 
-            assert (method'.IsStatic && method'.GetParameters().Length = 1)
-            Some((fun(value : obj) -> method'.Invoke(null, [| value |])), propertyPath )
+        | Call(instance, method', [ propertyPath ]) -> 
+            let instance = match instance with | Some( Value( value, _)) -> value | _ -> null
+            Some((fun(value : obj) -> method'.Invoke(instance, [| value |])), propertyPath )
         | _ -> None    
          
     let rec (|BindingExpression|) = function
