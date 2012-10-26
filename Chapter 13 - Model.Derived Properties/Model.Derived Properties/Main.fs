@@ -21,6 +21,9 @@ type MainModel() =
     abstract RunningTime : TimeSpan with get, set
     abstract Paused : bool with get, set
 
+    [<NotifyDependencyChanged>]
+    member this.Title = sprintf "%s-%s" this.ProcessName this.ActiveTab
+
 type MainEvents = 
     | ActiveTabChanged of string
     | StopWatch
@@ -45,13 +48,9 @@ type MainView() as this =
         ]
 
     override this.SetBindings model = 
-        let titleBinding = MultiBinding(StringFormat = "{0} - {1}")
-        titleBinding.Bindings.Add <| Binding("ProcessName")
-        titleBinding.Bindings.Add <| Binding("ActiveTab")
-        this.Control.SetBinding(Window.TitleProperty, titleBinding) |> ignore
-
         Binding.FromExpression 
             <@ 
+                this.Control.Title <- model.Title
                 pause.IsChecked <- Nullable model.Paused 
                 this.Control.RunningTime.Text <- String.Format("Running time: {0:hh\:mm\:ss}", model.RunningTime)
                 this.Control.RestartWatch.IsEnabled <- not model.Paused

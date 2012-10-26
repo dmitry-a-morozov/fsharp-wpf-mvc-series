@@ -3,21 +3,16 @@
 module Mvc.Wpf.Binding
 
 open System
-open System.Collections.Generic
 open System.Reflection
+open System.Diagnostics
+open System.Collections.Generic
 open System.Windows
 open System.Windows.Data 
+open System.Windows.Controls
+open System.Windows.Controls.Primitives
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 open Microsoft.FSharp.Quotations.DerivedPatterns
-open Unchecked
-
-type PropertyInfo with
-    member this.DependencyProperty : DependencyProperty = 
-        this.DeclaringType
-            .GetField(this.Name + "Property", BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.FlattenHierarchy)
-            .GetValue(null, [||]) 
-            |> unbox
 
 type IEnumerable<'T> with
     member this.CurrentItem : 'T = undefined
@@ -30,10 +25,13 @@ type IValueConverter with
                 member this.ConvertBack(value, _, _, _) = try value |> unbox |> convertBack |> box with _ -> DependencyProperty.UnsetValue
         }
     static member OneWay convert = IValueConverter.Create(convert, fun _ -> DependencyProperty.UnsetValue)
-
     member this.Apply _ = undefined
 
-module BindingPatterns = 
+module Patterns = 
+
+    type MemberInfo with
+        member internal this.IsNullableMember =  
+            this.DeclaringType.IsGenericType && this.DeclaringType.GetGenericTypeDefinition() = typedefof<Nullable<_>>
 
     let (|Target|_|) expr = 
         let rec loop = function
@@ -45,27 +43,42 @@ module BindingPatterns =
         | :? FrameworkElement as target -> Some target
         | _ -> None
 
-    let (|PropertyPath|_|) expr = 
+    let (|SourceAndPropertyPath|_|) expr = 
+        let source = ref None
         let rec loop e acc = 
             match e with
             | PropertyGet( Some tail, property, []) -> 
-                loop tail (property.Name :: acc)
-            | SpecificCall <@ Seq.empty.CurrentItem @> (None, _, [ tail ]) -> 
-                loop tail ("/" :: acc)
-            | Value _ | Var _ -> Some acc
-            | _ -> None
+                Debug.WriteLineIf(
+                    List.isEmpty acc && (let setter = property.GetSetMethod() in setter <> null && not setter.IsVirtual), 
+                    sprintf "Binding to non-virtual writeable property: %O" property
+                )
+                //if property.IsNullable then acc else loop tail (property.Name :: acc)
+                if property.IsNullableMember && property.Name = "Value" 
+                then loop tail acc
+                else loop tail (property.Name :: acc)
 
-        loop expr [] |> Option.map(fun xs -> 
-            xs.Head + (
-                xs
-                |> Seq.pairwise
-                |> Seq.map(function 
-                    | "/", x -> x 
-                    | _, "/" -> "/" 
-                    | x, y -> "." + y) 
-                |> String.concat ""
-            )
-        )
+            | SpecificCall <@ Seq.empty.CurrentItem @> (None, _, [tail]) ->
+                loop tail ("/" :: acc)
+            | Value _ -> acc
+            | Var v ->      
+                source := Some v
+                acc
+            | _ -> []
+
+        match loop expr [] with
+        | [] -> None
+        | x::_ as xs ->
+            xs 
+            |> Seq.pairwise 
+            |> Seq.map (function 
+                | "/", x -> x 
+                | _, "/" -> "/" 
+                | x, y -> "." + y) 
+            |> String.concat ""
+            |> ((+) x)
+            |> fun propetyPath -> Some(propetyPath, !source)
+
+    let (|PropertyPath|_|) = function | SourceAndPropertyPath(path, _) -> Some path | _ -> None
 
     let (|StringFormat|_|) = function
         | SpecificCall <@ String.Format : string * obj -> string @> (None, [], [ Value(:? string as format, _); Coerce( propertyPath, _) ]) ->
@@ -73,7 +86,7 @@ module BindingPatterns =
         | _ -> None    
 
     let (|Nullable|_|) = function
-        | NewObject( ctorInfo, [ propertyPath ] ) when ctorInfo.DeclaringType.GetGenericTypeDefinition() = typedefof<Nullable<_>> -> 
+        | NewObject( ctorInfo, [ propertyPath ] ) when ctorInfo.IsNullableMember ->
             Some propertyPath
         | _ -> None    
 
@@ -102,7 +115,14 @@ module BindingPatterns =
             binding
         | expr -> invalidArg "binding property path quotation" (string expr)
 
-open BindingPatterns
+type PropertyInfo with
+    member this.DependencyProperty : DependencyProperty = 
+        this.DeclaringType
+            .GetField(this.Name + "Property", BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.FlattenHierarchy)
+            .GetValue(null, [||]) 
+            |> unbox
+
+open Patterns
 
 type Expr with
     member this.ToBindingExpr(?mode, ?updateSourceTrigger, ?fallbackValue, ?targetNullValue, ?validatesOnDataErrors, ?validatesOnExceptions) = 
@@ -134,9 +154,6 @@ type Binding with
     static member UpdateSourceOnChange expr = Binding.FromExpression(expr, updateSourceTrigger = UpdateSourceTrigger.PropertyChanged)
     static member TwoWay expr = Binding.FromExpression(expr, BindingMode.TwoWay)
     static member OneWay expr = Binding.FromExpression(expr, BindingMode.OneWay)
-
-open System.Windows.Controls
-open System.Windows.Controls.Primitives
 
 type Selector with
     member this.SetBindings(itemsSource : Expr<#seq<'Item>>, ?selectedItem : Expr<'Item>, ?displayMember : PropertySelector<'Item, _>) = 
