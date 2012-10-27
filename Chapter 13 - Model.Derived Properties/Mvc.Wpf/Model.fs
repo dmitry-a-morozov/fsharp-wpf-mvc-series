@@ -35,23 +35,13 @@ module ModelExtensions =
 
     type Expr with
 
-//        member this.ExpandLetBindings() = 
-//            match this with 
-//            | Let(binding, expandTo, tail) -> 
-//                tail.Substitute(fun var -> if var = binding then Some expandTo else None).ExpandLetBindings() 
-//            | ShapeVar var -> Expr.Var(var)
-//            | ShapeLambda(var, body) -> Expr.Lambda(var, body.ExpandLetBindings())  
-//            | ShapeCombination(shape, exprs) -> ExprShape.RebuildShapeCombination(shape, [for e in exprs -> this.ExpandLetBindings()])
-
         member this.ExpandLetBindings() = 
-            let rec loop = function 
-                | Let(binding, expandTo, tail) -> 
-                    loop <| tail.Substitute(fun var -> if var = binding then Some expandTo else None) 
-                | ShapeVar var -> Expr.Var(var)
-                | ShapeLambda(var, body) -> Expr.Lambda(var, loop body)  
-                | ShapeCombination(shape, exprs) -> ExprShape.RebuildShapeCombination(shape, List.map loop exprs)
-
-            loop this
+            match this with 
+            | Let(binding, expandTo, tail) -> 
+                tail.Substitute(fun var -> if var = binding then Some expandTo else None).ExpandLetBindings() 
+            | ShapeVar var -> Expr.Var(var)
+            | ShapeLambda(var, body) -> Expr.Lambda(var, body.ExpandLetBindings())  
+            | ShapeCombination(shape, exprs) -> ExprShape.RebuildShapeCombination(shape, exprs |> List.map(fun e -> e.ExpandLetBindings()))
 
         member this.Dependencies model = 
             seq {
