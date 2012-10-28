@@ -52,20 +52,21 @@ module BindingPatterns =
                 loop tail (property.Name :: acc)
             | SpecificCall <@ Seq.empty.CurrentItem @> (None, _, [ tail ]) -> 
                 loop tail ("/" :: acc)
-            | Value _ | Var _ -> Some acc
-            | _ -> None
+            | Value _ | Var _ -> acc
+            | _ -> []
 
-        loop expr [] |> Option.map(fun xs -> 
-            xs.Head + (
-                xs
-                |> Seq.pairwise
-                |> Seq.map(function 
-                    | "/", x -> x 
-                    | _, "/" -> "/" 
-                    | x, y -> "." + y) 
-                |> String.concat ""
-            )
-        )
+        match loop expr [] with
+        | [] -> None
+        | x::_ as xs ->
+            xs 
+            |> Seq.pairwise 
+            |> Seq.map (function 
+                | "/", x -> x 
+                | _, "/" -> "/" 
+                | x, y -> "." + y) 
+            |> String.concat ""
+            |> ((+) x)
+            |> fun propetyPath -> Some propetyPath
 
     let (|StringFormat|_|) = function
         | SpecificCall <@ String.Format : string * obj -> string @> (None, [], [ Value(:? string as format, _); Coerce( propertyPath, _) ]) ->
