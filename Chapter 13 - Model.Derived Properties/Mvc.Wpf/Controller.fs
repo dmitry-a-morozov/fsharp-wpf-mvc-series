@@ -26,15 +26,21 @@ type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>
         this.InitModel model
         view.SetBindings model
 
-        let observer = Observer.Create(fun e -> 
-            match this.Dispatcher e with
-            | Sync handler -> try handler model with e -> this.OnError e
-            | Async handler -> 
-                Async.StartWithContinuations(
-                    computation = handler model, 
-                    continuation = ignore, 
-                    exceptionContinuation = this.OnError, 
-                    cancellationContinuation = ignore))
+        let observer = { 
+            new IObserver<_> with
+                member __.OnCompleted() = ()
+                member __.OnError why = this.OnError why
+                member __.OnNext e = 
+                    match this.Dispatcher e with
+                    | Sync handler -> try handler model with e -> this.OnError e
+                    | Async handler -> 
+                        Async.StartWithContinuations(
+                            computation = handler model, 
+                            continuation = ignore, 
+                            exceptionContinuation = this.OnError, 
+                            cancellationContinuation = ignore)
+        }
+
 #if DEBUG
         let observer = observer.Checked()
 #endif

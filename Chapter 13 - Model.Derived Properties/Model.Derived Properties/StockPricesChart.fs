@@ -46,15 +46,19 @@ type StockPricesChartView(control) as this =
             displayMember = <@ fun m -> m.Symbol @> 
         )
 
-        this.Control.Details.SetBindings(
-            itemsSource = <@ model.SelectedStock.Details @>, 
-//            itemsSource = <@ model.StocksInfo.CurrentItem.Details @>, 
-            columnBindings = fun stockProperty ->
-                [
-                    this.Control.DetailsName, <@@ stockProperty.Key @@>
-                    this.Control.DetailsValue, <@@ stockProperty.Value @@>
-                ]
-        )
+        Binding.FromExpression
+            <@
+                this.Control.CompanyName.Text <- model.SelectedStock.CompanyName
+                this.Control.AccDist.Text <- model.SelectedStock.AccDist
+            @>
+
+        Binding.UpdateSourceOnChange
+            <@
+                this.Control.LastPrice.Text <- string model.SelectedStock.LastPrice
+                this.Control.DaysHigh.Text <- string model.SelectedStock.DaysHigh
+                this.Control.DaysLow.Text <- string model.SelectedStock.DaysLow
+                this.Control.Volume.Text <- string model.SelectedStock.Volume
+            @>
 
 type StockPricesChartController() = 
     inherit Controller<unit, StockPricesChartModel>()
@@ -72,3 +76,4 @@ type StockPricesChartController() =
                     model.SelectedStock <- newItem
                 )
             }
+

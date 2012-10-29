@@ -18,7 +18,7 @@
             <RowDefinition/>
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <WindowsFormsHost MinWidth="300">
+        <WindowsFormsHost>
             <WinFormsChart:Chart x:Name="StockPricesChart" x:FieldModifier="public"/>
         </WindowsFormsHost>
         <DockPanel Grid.Row="1">
@@ -26,11 +26,18 @@
             <Label Content="Symbol"/>
             <ComboBox Name="Symbol" x:FieldModifier="public" Margin="5"/>
         </DockPanel>
-        <DataGrid Grid.Column="1" AutoGenerateColumns="False" x:Name="Details" x:FieldModifier="public" Margin="5,0" MinWidth="80" IsReadOnly="True">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" x:Name="DetailsName" x:FieldModifier="public" Width="*"/>
-                <DataGridTextColumn Header="Value" x:Name="DetailsValue" x:FieldModifier="public" Width="Auto"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <UniformGrid Grid.Column="1" Rows="5" Columns="2">
+            <Label Content="Name" Margin="5"/>
+            <TextBlock Name="CompanyName" x:FieldModifier="public" Margin="5" VerticalAlignment="Center"/>
+            <Label Content="Last price" Margin="5"/>
+            <TextBox Name="LastPrice" x:FieldModifier="public" Margin="5" VerticalContentAlignment="Center"/>
+            <Label Content="Day's High" Margin="5"/>
+            <TextBox Name="DaysHigh" x:FieldModifier="public" Margin="5" VerticalContentAlignment="Center"/>
+            <Label Content="Day's Low" Margin="5"/>
+            <TextBox Name="DaysLow" x:FieldModifier="public" Margin="5" VerticalContentAlignment="Center"/>
+            <Label Content="Volume" Margin="5"/>
+            <TextBox Name="Volume" x:FieldModifier="public" Margin="5" VerticalContentAlignment="Center"/>
+        </UniformGrid>
+        <TextBlock Grid.Row="1"  Grid.Column="1" Name="AccDist" Text="Acc/Dist" x:FieldModifier="public" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Grid>
 </UserControl>

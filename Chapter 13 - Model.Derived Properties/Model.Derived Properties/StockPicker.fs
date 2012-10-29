@@ -18,7 +18,15 @@ type StockInfoModel() =
     abstract CompanyName : string with get, set
     abstract LastPrice : decimal with get, set
     abstract AddToChartEnabled : bool with get, set
-    abstract Details : IDictionary<string, string> with get, set
+    abstract DaysLow : decimal with get, set
+    abstract DaysHigh : decimal with get, set
+    abstract Volume : decimal with get, set
+
+    [<NotifyDependencyChanged>]
+    member this.AccDist = 
+        let moneyFlowMultiplier = (this.LastPrice - this.DaysLow) - (this.DaysHigh - this.LastPrice) / (this.DaysHigh - this.DaysLow)
+        let moneyFlowVolume  = moneyFlowMultiplier * this.Volume
+        sprintf "Accumulation/Distribution: %M" <| Decimal.Round(moneyFlowVolume, 2)
 
 type StockPickerView() as this =
     inherit View<unit, StockInfoModel, StockPickerWindow>()
@@ -55,15 +63,9 @@ type StockPickerController(view) =
     static let tags = [
             "n", "Name"
             "l1", "Last Trade (Price Only)"
-            "d1", "Last Trade Date"
-            "t1", "Last Trade Time"
-            "c1", "Change"
             "h", "Day’s High"
             "g", "Day’s Low"
             "v", "Volume"
-            "b", "Bid"
-            "a", "Ask"
-            "p2", "Change in Percent"
         ]
 
     override this.InitModel _ = ()
@@ -73,15 +75,17 @@ type StockPickerController(view) =
                 use wc = new WebClient()
                 let uri = tags |> List.map fst |> String.concat "" |> sprintf "http://download.finance.yahoo.com/d/quotes.csv?s=%s&f=%s" model.Symbol
                 let! data = wc.AsyncDownloadString <| Uri uri
-                match data.Split([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries).Single().Split(',') |> Array.toList with
-                | name :: lastPrice :: _ as details ->
+                match data.Split([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries).Single().Split(',') with
+                | [| name; lastPrice; high; low; volume |] ->
                     if name = sprintf "\"%s\"" model.Symbol && lastPrice = "0.00"
                     then
                         model |> Validation.setError <@ fun m -> m.Symbol @> "Invalid security symbol."
                     else
                         model.CompanyName <- name
                         model.LastPrice <- decimal lastPrice
-                        model.Details <- (List.map snd tags, details) ||> List.zip |> dict
+                        model.DaysHigh <- decimal high
+                        model.DaysLow <- decimal low
+                        model.Volume <- decimal volume
                         model.AddToChartEnabled <- true
                 | _ -> failwithf "Unexpected result service call result.\nRequest: %O.\nResponse: %s" uri data
             }

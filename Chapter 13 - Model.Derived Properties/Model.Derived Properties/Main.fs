@@ -82,3 +82,5 @@ type MainController(view, stopWatch : StopWatchObservable) =
         stopWatch.Restart()
         model.Paused <- false
 
+    override this.OnError why = 
+        System.Windows.MessageBox.Show(why.ToString(), "Error!", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error) |> ignore

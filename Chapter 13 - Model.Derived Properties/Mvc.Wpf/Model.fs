@@ -71,8 +71,11 @@ module ModelExtensions =
                             then 
                                 DependencyProperty.UnsetValue
                             else
-                                let model = values.[0] 
-                                getter.Invoke(model, [||])
+                                try 
+                                    let model = values.[0] 
+                                    getter.Invoke(model, [||])
+                                with _ ->
+                                    DependencyProperty.UnsetValue
 
                         member this.ConvertBack(_, _, _, _) = undefined
                 }
