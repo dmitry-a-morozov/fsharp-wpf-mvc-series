@@ -18,7 +18,7 @@
             <RowDefinition/>
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <WindowsFormsHost MinWidth="300">
+        <WindowsFormsHost>
             <WinFormsChart:Chart x:Name="StockPricesChart" x:FieldModifier="public"/>
         </WindowsFormsHost>
         <DockPanel Grid.Row="1">
