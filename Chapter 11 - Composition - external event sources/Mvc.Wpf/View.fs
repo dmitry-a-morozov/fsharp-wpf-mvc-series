@@ -87,14 +87,14 @@ module View =
                     member __.Close ok = parent.Close ok
             }
 
-        member parent.Compose extension =
+        member view.Compose extension =
             {
                 new IView<_, _> with
-                    member __.Subscribe observer = (Observable.unify parent extension).Subscribe(observer)
-                    member __.SetBindings model = parent.SetBindings model  
-                    member __.Show() = parent.Show()
-                    member __.ShowDialog() = parent.ShowDialog()
-                    member __.Close ok = parent.Close ok
+                    member __.Subscribe observer = (Observable.unify view extension).Subscribe(observer)
+                    member __.SetBindings model = view.SetBindings model  
+                    member __.Show() = view.Show()
+                    member __.ShowDialog() = view.ShowDialog()
+                    member __.Close ok = view.Close ok
             }
 
 [<RequireQualifiedAccess>]
