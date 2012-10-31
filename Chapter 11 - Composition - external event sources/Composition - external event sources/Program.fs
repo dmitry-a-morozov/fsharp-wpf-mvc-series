@@ -19,4 +19,9 @@ let main _ =
             <+> (TempConveterController(), TempConveterView(view.Control.TempConveterControl), fun m -> m.TempConveter)
             <+> (StockPricesChartController(), StockPricesChartView(view.Control.StockPricesChart), fun m -> m.StockPricesChart)
 
-    Application().Run(Model.Create(), view.Control, controller)
+    let app = Application()
+    app.DispatcherUnhandledException.Add <| fun args ->
+        let why = match args.Exception with | PreserveStackTraceWrapper e -> e | e -> e
+        () //some catch all error-handling logic here
+
+    app.Run(Model.Create(), view.Control, controller)
