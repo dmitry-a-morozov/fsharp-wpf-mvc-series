@@ -75,26 +75,26 @@ module View =
                 value.IsDefault <- true
                 value.Click.Add(ignore >> this.OK)
 
-        member parent.Compose(child : IPartialView<_, 'MX>, childModelSelector : 'Model -> 'MX ) =
+        member parent.Compose(child : IPartialView<_, 'MX>, childModelSelector : _ -> 'MX ) =
             {
                 new IView<_, _> with
-                    member this.Subscribe observer = (Observable.unify parent child).Subscribe(observer)
-                    member this.SetBindings model =
+                    member __.Subscribe observer = (Observable.unify parent child).Subscribe(observer)
+                    member __.SetBindings model =
                         parent.SetBindings model  
                         model |> childModelSelector |> child.SetBindings
-                    member this.Show() = parent.Show()
-                    member this.ShowDialog() = parent.ShowDialog()
-                    member this.Close ok = parent.Close ok
+                    member __.Show() = parent.Show()
+                    member __.ShowDialog() = parent.ShowDialog()
+                    member __.Close ok = parent.Close ok
             }
 
-        member view.Compose extension =
+        member parent.Compose extension =
             {
                 new IView<_, _> with
-                    member this.Subscribe observer = (Observable.unify view extension).Subscribe(observer)
-                    member this.SetBindings model = view.SetBindings model  
-                    member this.Show() = view.Show()
-                    member this.ShowDialog() = view.ShowDialog()
-                    member this.Close ok = view.Close ok
+                    member __.Subscribe observer = (Observable.unify parent extension).Subscribe(observer)
+                    member __.SetBindings model = parent.SetBindings model  
+                    member __.Show() = parent.Show()
+                    member __.ShowDialog() = parent.ShowDialog()
+                    member __.Close ok = parent.Close ok
             }
 
 [<RequireQualifiedAccess>]
