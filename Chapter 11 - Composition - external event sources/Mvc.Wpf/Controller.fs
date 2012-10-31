@@ -36,7 +36,7 @@ type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>
                     exceptionContinuation = this.OnError, 
                     cancellationContinuation = ignore)
 
-        let observer = Observer.Create(onNext, this.OnError)
+        let observer = Observer.Create(onNext, this.OnError >> view.Cancel)
 
 #if DEBUG
         let observer = observer.Checked()
