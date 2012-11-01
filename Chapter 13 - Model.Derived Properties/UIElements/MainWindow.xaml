@@ -26,6 +26,7 @@
         <StatusBar Grid.Row="1">
             <TextBlock Name="RunningTime" x:FieldModifier="public" Text="00:00:00" Margin="5,0"/>
             <CheckBox Name="PauseWatch" x:FieldModifier="public" Content="Pause" Margin="5,0"/>
+            <CheckBox Name="Fail" x:FieldModifier="public" Content="Fail" Margin="5,0"/>
             <Button Content="Restart" Name="RestartWatch" x:FieldModifier="public" Width="80" />
         </StatusBar>
     </Grid>
