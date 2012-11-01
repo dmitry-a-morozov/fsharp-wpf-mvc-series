@@ -18,7 +18,6 @@ type StopWatchObservable(frequency, failureFrequencyInSeconds) =
     member this.Restart() = 
         watch.Restart()
         paused := false
-        generareFailures := false
 
     member this.GenerareFailures with set value = generareFailures := value
 
