@@ -35,13 +35,21 @@ type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>
                     continuation = ignore, 
                     exceptionContinuation = this.OnError, 
                     cancellationContinuation = ignore))
+
 #if DEBUG
         let observer = observer.Checked()
 #endif
         let nonReentrantobserver = Observer.Synchronize(observer, preventReentrancy = true)
 
         let scheduler = SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false)
-        view.ObserveOn(scheduler)
+
+        let rec catchyView() = view.Catch(fun why ->
+                this.OnError why
+                catchyView()
+            ) 
+
+        catchyView()
+            .ObserveOn(scheduler)
             .Subscribe(observer)
 
     member this.Start model =

@@ -75,7 +75,7 @@ module View =
                 value.IsDefault <- true
                 value.Click.Add(ignore >> this.OK)
 
-        member parent.Compose(child : IPartialView<_, 'MX>, childModelSelector : 'Model -> 'MX ) =
+        member parent.Compose(child : IPartialView<_, 'MX>, childModelSelector : _ -> 'MX ) =
             {
                 new IView<_, _> with
                     member __.Subscribe observer = (Observable.unify parent child).Subscribe(observer)
