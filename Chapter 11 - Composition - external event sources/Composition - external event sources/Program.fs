@@ -1,5 +1,6 @@
 ﻿
 open System
+open System.Diagnostics
 open System.Windows
 open Mvc.Wpf.Sample
 open Mvc.Wpf
@@ -22,6 +23,7 @@ let main _ =
     let app = Application()
     app.DispatcherUnhandledException.Add <| fun args ->
         let why = match args.Exception with | PreserveStackTraceWrapper e -> e | e -> e
-        () //some catch all error-handling logic here
+        //have application specific "catch-all" logic like logging errors below
+        Debug.Fail("DispatcherUnhandledException handler", string why)
 
     app.Run(Model.Create(), view.Control, controller)
