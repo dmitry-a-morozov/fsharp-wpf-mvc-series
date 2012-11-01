@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:WinFormsChart = "clr-namespace:System.Windows.Forms.DataVisualization.Charting;assembly=System.Windows.Forms.DataVisualization"       
         xmlns:local="clr-namespace:Mvc.Wpf.UIElements"
-        Title="Mvc.Wpf.Composition" Height="370" Width="370">
+        Title="Mvc.Wpf.Composition" Height="370" Width="420">
     <Window.Resources>
         <ResourceDictionary Source="Styles.xaml"/>
     </Window.Resources>
@@ -26,6 +26,7 @@
         <StatusBar Grid.Row="1">
             <TextBlock Name="RunningTime" x:FieldModifier="public" Text="00:00:00" Margin="5,0"/>
             <CheckBox Name="PauseWatch" x:FieldModifier="public" Content="Pause" Margin="5,0"/>
+            <CheckBox Name="Fail" x:FieldModifier="public" Content="Fail" Margin="5,0"/>
             <Button Content="Restart" Name="RestartWatch" x:FieldModifier="public" Width="80" />
         </StatusBar>
     </Grid>
