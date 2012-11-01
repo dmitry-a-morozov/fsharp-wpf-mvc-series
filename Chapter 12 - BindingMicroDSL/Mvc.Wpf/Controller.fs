@@ -35,13 +35,21 @@ type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>
                     continuation = ignore, 
                     exceptionContinuation = this.OnError, 
                     cancellationContinuation = ignore))
+
 #if DEBUG
         let observer = observer.Checked()
 #endif
         let nonReentrantobserver = Observer.Synchronize(observer, preventReentrancy = true)
 
         let scheduler = SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false)
-        view.ObserveOn(scheduler)
+
+        let rec catchyView() = view.Catch(fun why ->
+                this.OnError why
+                catchyView()
+            ) 
+
+        catchyView()
+            .ObserveOn(scheduler)
             .Subscribe(observer)
 
     member this.Start model =
@@ -57,36 +65,37 @@ type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>
     abstract OnError : exn -> unit
     default this.OnError why = why |> PreserveStackTraceWrapper |> raise
 
-    member this.Compose(childController : Controller<'EX, 'MX>, childView : PartialView<'EX, 'MX, _>, childModelSelector : 'Model -> 'MX ) = 
+    member parent.Compose(childController : Controller<'EX, 'MX>, childView : PartialView<'EX, 'MX, _>, childModelSelector : _ -> 'MX ) = 
         let compositeView = view.Compose(childView, childModelSelector)
         { 
             new SupervisingController<_, _>(compositeView) with
                 member __.InitModel model = 
-                    this.InitModel model
+                    parent.InitModel model
                     model |> childModelSelector |> childController.InitModel
                 member __.Dispatcher = function 
-                    | Choice1Of2 e -> this.Dispatcher e
+                    | Choice1Of2 e -> parent.Dispatcher e
                     | Choice2Of2 e -> 
                         match childController.Dispatcher e with
                         | Sync handler -> Sync(childModelSelector >> handler)  
                         | Async handler -> Async(childModelSelector >> handler) 
+                member __.OnError why = parent.OnError why
         }
 
-    member this.Compose(childController : Controller<_, _>, childView : PartialView<_, _, _>) = 
-        this.Compose(childController, childView, id)
+    member parent.Compose(childController : Controller<_, _>, childView : PartialView<_, _, _>) = 
+        parent.Compose(childController, childView, id)
 
     static member (<+>) (parent : SupervisingController<_, _>,  (childController, childView, childModelSelector)) = 
         parent.Compose(childController, childView, childModelSelector)
 
-    //Non-UI sources
-    member this.Compose<'EX>(extension : 'EX -> EventHandler<_>, events : IObservable<'EX>) = 
+    member parent.Compose<'EX>(extension : 'EX -> EventHandler<_>, events : IObservable<'EX>) = 
         let compositeView = view.Compose(events)
         { 
             new SupervisingController<_, _>(compositeView) with
                 member __.InitModel model = 
-                    this.InitModel model
+                    parent.InitModel model
                 member __.Dispatcher = function 
-                    | Choice1Of2 e -> this.Dispatcher e
+                    | Choice1Of2 e -> parent.Dispatcher e
                     | Choice2Of2 e -> extension e 
+                member __.OnError why = parent.OnError why
         }
 

@@ -17,15 +17,14 @@ type MainModel() =
     abstract StockPricesChart : StockPricesChartModel with get, set
 
     abstract ProcessName : string with get, set
-    abstract ActiveTab : string with get, set
+    abstract ActiveTab : TabItem with get, set
     abstract RunningTime : TimeSpan with get, set
     abstract Paused : bool with get, set
 
     [<NotifyDependencyChanged>]
-    member this.Title = sprintf "%s-%s" this.ProcessName this.ActiveTab
+    member this.Title = sprintf "%s-%O" this.ProcessName this.ActiveTab.Header
 
 type MainEvents = 
-    | ActiveTabChanged of string
     | StopWatch
     | StartWatch
     | RestartWatch
@@ -37,11 +36,6 @@ type MainView() as this =
 
     override this.EventStreams = 
         [   
-            yield this.Control.Tabs.SelectionChanged |> Observable.map(fun _ -> 
-                let activeTab : TabItem = unbox this.Control.Tabs.SelectedItem
-                let header = string activeTab.Header
-                ActiveTabChanged header)
-
             yield this.Control.RestartWatch.Click |> Observable.mapTo RestartWatch
             yield pause.Checked |> Observable.mapTo StopWatch
             yield pause.Unchecked |> Observable.mapTo StartWatch
@@ -50,6 +44,7 @@ type MainView() as this =
     override this.SetBindings model = 
         Binding.FromExpression 
             <@ 
+                this.Control.Tabs.SelectedItem <- model.ActiveTab
                 this.Control.Title <- model.Title
                 pause.IsChecked <- Nullable model.Paused 
                 this.Control.RunningTime.Text <- String.Format("Running time: {0:hh\:mm\:ss}", model.RunningTime)
@@ -61,7 +56,6 @@ type MainController(view, stopWatch : StopWatchObservable) =
 
     override this.InitModel model = 
         model.ProcessName <- Process.GetCurrentProcess().ProcessName
-        model.ActiveTab <- "Calculator"
         model.RunningTime <- TimeSpan.Zero
         model.Paused <- false
 
@@ -70,13 +64,9 @@ type MainController(view, stopWatch : StopWatchObservable) =
         model.StockPricesChart <- Model.Create()
 
     override this.Dispatcher = Sync << function
-        | ActiveTabChanged header -> this.ActiveTabChanged header
         | StopWatch -> ignore >> stopWatch.Pause
         | StartWatch -> ignore >> stopWatch.Start
         | RestartWatch -> this.RestartWatch
-
-    member this.ActiveTabChanged header model =
-        model.ActiveTab <- header
 
     member this.RestartWatch model =
         stopWatch.Restart()

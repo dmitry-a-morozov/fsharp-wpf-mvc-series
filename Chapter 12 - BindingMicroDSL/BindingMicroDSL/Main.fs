@@ -20,17 +20,21 @@ type MainModel() =
     abstract ActiveTab : string with get, set
     abstract RunningTime : TimeSpan with get, set
     abstract Paused : bool with get, set
+    abstract Fail : bool with get, set
 
 type MainEvents = 
     | ActiveTabChanged of string
     | StopWatch
     | StartWatch
     | RestartWatch
+    | StartFailingWatch
+    | StopFailingWatch
 
 type MainView() as this = 
     inherit View<MainEvents, MainModel, MainWindow>()
 
     let pause = this.Control.PauseWatch
+    let fail = this.Control.Fail
 
     override this.EventStreams = 
         [   
@@ -42,6 +46,8 @@ type MainView() as this =
             yield this.Control.RestartWatch.Click |> Observable.mapTo RestartWatch
             yield pause.Checked |> Observable.mapTo StopWatch
             yield pause.Unchecked |> Observable.mapTo StartWatch
+            yield fail.Checked |> Observable.mapTo StartFailingWatch
+            yield fail.Unchecked |> Observable.mapTo StopFailingWatch
         ]
 
     override this.SetBindings model = 
@@ -53,9 +59,10 @@ type MainView() as this =
         Binding.FromExpression 
             <@ 
                 pause.IsChecked <- Nullable model.Paused 
+                fail.IsChecked <- Nullable model.Fail
                 this.Control.RunningTime.Text <- String.Format("Running time: {0:hh\:mm\:ss}", model.RunningTime)
-                this.Control.RestartWatch.IsEnabled <- not model.Paused
-            @>
+                this.Control.RestartWatch.IsEnabled <- not model.Fail
+             @>
 
 type MainController(view, stopWatch : StopWatchObservable) = 
     inherit SupervisingController<MainEvents, MainModel>(view)
@@ -65,6 +72,7 @@ type MainController(view, stopWatch : StopWatchObservable) =
         model.ActiveTab <- "Calculator"
         model.RunningTime <- TimeSpan.Zero
         model.Paused <- false
+        model.Fail <- false
 
         model.Calculator <- Model.Create()
         model.TempConveter <- Model.Create()
@@ -75,6 +83,8 @@ type MainController(view, stopWatch : StopWatchObservable) =
         | StopWatch -> ignore >> stopWatch.Pause
         | StartWatch -> ignore >> stopWatch.Start
         | RestartWatch -> this.RestartWatch
+        | StartFailingWatch -> fun _ -> stopWatch.GenerareFailures <- true
+        | StopFailingWatch -> fun _ -> stopWatch.GenerareFailures <- false
 
     member this.ActiveTabChanged header model =
         model.ActiveTab <- header
@@ -83,3 +93,4 @@ type MainController(view, stopWatch : StopWatchObservable) =
         stopWatch.Restart()
         model.Paused <- false
 
+    override this.OnError why = Debug.WriteLine why.Message
