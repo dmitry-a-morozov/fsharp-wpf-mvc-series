@@ -26,7 +26,7 @@ type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>
         this.InitModel model
         view.SetBindings model
 
-        let onNext = fun e -> 
+        let observer = Observer.Create(fun e -> 
             match this.Dispatcher e with
             | Sync handler -> try handler model with e -> this.OnError e
             | Async handler -> 
@@ -34,9 +34,7 @@ type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>
                     computation = handler model, 
                     continuation = ignore, 
                     exceptionContinuation = this.OnError, 
-                    cancellationContinuation = ignore)
-
-        let observer = Observer.Create(onNext, this.OnError >> view.Cancel)
+                    cancellationContinuation = ignore))
 
 #if DEBUG
         let observer = observer.Checked()
@@ -44,7 +42,14 @@ type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>
         let nonReentrantobserver = Observer.Synchronize(observer, preventReentrancy = true)
 
         let scheduler = SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false)
-        view.ObserveOn(scheduler)
+
+        let rec catchyView() = view.Catch(fun why ->
+                this.OnError why
+                catchyView()
+            ) 
+
+        catchyView()
+            .ObserveOn(scheduler)
             .Subscribe(observer)
 
     member this.Start model =
