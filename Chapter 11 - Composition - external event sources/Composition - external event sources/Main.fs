@@ -27,8 +27,8 @@ type MainEvents =
     | StopWatch
     | StartWatch
     | RestartWatch
-    | StartFailingEvery5Secs
-    | StopFailingEvery5Secs
+    | StartFailingWatch
+    | StopFailingWatch
 
 type MainView() as this = 
     inherit View<MainEvents, MainModel, MainWindow>()
@@ -46,16 +46,16 @@ type MainView() as this =
             yield this.Control.RestartWatch.Click |> Observable.mapTo RestartWatch
             yield pause.Checked |> Observable.mapTo StopWatch
             yield pause.Unchecked |> Observable.mapTo StartWatch
-            yield fail.Checked |> Observable.mapTo StartFailingEvery5Secs
-            yield fail.Unchecked |> Observable.mapTo StopFailingEvery5Secs
+            yield fail.Checked |> Observable.mapTo StartFailingWatch
+            yield fail.Unchecked |> Observable.mapTo StopFailingWatch
         ]
 
     override this.SetBindings model = 
         let titleBinding = MultiBinding(StringFormat = "{0} - {1}")
         titleBinding.Bindings.Add <| Binding("ProcessName")
         titleBinding.Bindings.Add <| Binding("ActiveTab")
-
         this.Control.SetBinding(Window.TitleProperty, titleBinding) |> ignore
+
         Binding.FromExpression 
             <@ 
                 this.Control.PauseWatch.IsChecked <- model.Paused 
@@ -82,8 +82,8 @@ type MainController(view, stopWatch : StopWatchObservable) =
         | StopWatch -> ignore >> stopWatch.Pause
         | StartWatch -> ignore >> stopWatch.Start
         | RestartWatch -> this.RestartWatch
-        | StartFailingEvery5Secs -> fun _ -> stopWatch.GenerareFailures <- true
-        | StopFailingEvery5Secs -> fun _ -> stopWatch.GenerareFailures <- false
+        | StartFailingWatch -> fun _ -> stopWatch.GenerareFailures <- true
+        | StopFailingWatch -> fun _ -> stopWatch.GenerareFailures <- false
 
     member this.ActiveTabChanged header model =
         model.ActiveTab <- header
