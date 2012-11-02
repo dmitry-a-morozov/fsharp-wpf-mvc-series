@@ -18,12 +18,12 @@ type MainModel() =
 
     abstract ProcessName : string with get, set
     abstract ActiveTab : TabItem with get, set
+    [<NotifyDependencyChanged>]
+    member this.Title = sprintf "%s-%O" this.ProcessName this.ActiveTab.Header
+
     abstract RunningTime : TimeSpan with get, set
     abstract Paused : bool with get, set
     abstract Fail : bool with get, set
-
-    [<NotifyDependencyChanged>]
-    member this.Title = sprintf "%s-%O" this.ProcessName this.ActiveTab.Header
 
 type MainEvents = 
     | StopWatch
