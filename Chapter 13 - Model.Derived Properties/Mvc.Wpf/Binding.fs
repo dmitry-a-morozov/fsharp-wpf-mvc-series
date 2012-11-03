@@ -76,9 +76,9 @@ module Patterns =
                 | x, y -> "." + y) 
             |> String.concat ""
             |> ((+) x)
-            |> fun propetyPath -> Some(propetyPath, !source)
+            |> fun propetyPath -> Some(!source, propetyPath)
 
-    let (|PropertyPath|_|) = function | SourceAndPropertyPath(path, _) -> Some path | _ -> None
+    let (|PropertyPath|_|) = function | SourceAndPropertyPath(_, path) -> Some path | _ -> None
 
     let (|StringFormat|_|) = function
         | SpecificCall <@ String.Format : string * obj -> string @> (None, [], [ Value(:? string as format, _); Coerce( propertyPath, _) ]) ->

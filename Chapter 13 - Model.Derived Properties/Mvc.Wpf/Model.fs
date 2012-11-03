@@ -42,13 +42,13 @@ module ModelExtensions =
             | ShapeLambda(var, body) -> Expr.Lambda(var, body.ExpandLetBindings())  
             | ShapeCombination(shape, exprs) -> ExprShape.RebuildShapeCombination(shape, exprs |> List.map(fun e -> e.ExpandLetBindings()))
 
-        member this.Dependencies model = 
+        member this.Dependencies = 
             seq {
                 match this with 
-                | SourceAndPropertyPath(path, Some(source)) when source = model -> yield path
+                | SourceAndPropertyPath x -> yield x
                 | ShapeVar _ -> ()
-                | ShapeLambda(_, body) -> yield! body.Dependencies model   
-                | ShapeCombination(_, exprs) -> for subExpr in exprs do yield! subExpr.Dependencies model
+                | ShapeLambda(_, body) -> yield! body.Dependencies   
+                | ShapeCombination(_, exprs) -> for subExpr in exprs do yield! subExpr.Dependencies 
             }
 
     let (|DependentProperty|_|) (memberInfo : MemberInfo) = 
@@ -60,8 +60,14 @@ module ModelExtensions =
                 let self = Binding(path = "", RelativeSource = RelativeSource.Self) 
                 binding.Bindings.Add self
 
-                for dependency in propertyBody.ExpandLetBindings().Dependencies(model).Distinct() do
-                    binding.Bindings.Add <| Binding(path = dependency, RelativeSource = RelativeSource.Self)
+                propertyBody
+                    .ExpandLetBindings()
+                    .Dependencies
+                    |> Seq.choose(function 
+                        | Some source, path when source = model -> Some(Binding(path, RelativeSource = RelativeSource.Self))
+                        | _ -> None)
+                    |> Seq.distinct 
+                    |> Seq.iter binding.Bindings.Add
 
                 binding.Converter <- {
                     new IMultiValueConverter with
