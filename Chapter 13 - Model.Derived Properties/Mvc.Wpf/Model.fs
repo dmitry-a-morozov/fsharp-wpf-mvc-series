@@ -92,9 +92,6 @@ module ModelExtensions =
 
 open ModelExtensions
 
-type IInterceptorFilter = 
-    abstract Applicable : (MethodInfo -> bool) with get 
-
 [<AbstractClass>]
 type Model() = 
     inherit DependencyObject()
@@ -124,15 +121,7 @@ type Model() =
                         | PropertyGetter _ | PropertySetter _ -> method'.IsVirtual 
                         | _ -> false
                     member this.MethodsInspected() = ()
-            },
-            Selector = {
-                new IInterceptorSelector with
-                    member this.SelectInterceptors(_, method', interceptors) = 
-                        interceptors |> Array.filter(function 
-                            | :? IInterceptorFilter as filter -> filter.Applicable method'
-                            | _ -> true
-                        )
-            } 
+            }
         )
 
     static let notifyPropertyChanged = {
@@ -141,8 +130,6 @@ type Model() =
                 match invocation.Method, invocation.InvocationTarget with 
                     | PropertySetter propertyName, (:? Model as model) -> model.ClearError propertyName 
                     | _ -> ()
-        interface IInterceptorFilter with 
-            member this.Applicable = function | PropertySetter _ -> true | _ -> false
     }
 
     let errors = Dictionary()
@@ -179,9 +166,7 @@ type Model() =
         this.TriggerPropertyChanged propertyName
     member this.ClearError propertyName = this.SetError(propertyName, null)
     member this.ClearAllErrors() = errors.Keys |> Seq.toArray |> Array.iter this.ClearError
-    abstract HasErrors : bool
-    default this.HasErrors = errors.Values |> Seq.exists (not << String.IsNullOrEmpty)
-    member this.IsValid = not this.HasErrors
+    member this.HasErrors = errors.Values |> Seq.exists (not << String.IsNullOrEmpty)
 
 and AbstractProperties() =
     let data = Dictionary()
@@ -201,9 +186,6 @@ and AbstractProperties() =
                             invocation.ReturnValue <- Activator.CreateInstance returnType
 
                 | _ -> invocation.Proceed()
-
-    interface IInterceptorFilter with 
-        member this.Applicable = function | Abstract & (PropertySetter _ | PropertyGetter _) -> true | _ -> false
 
 [<RequireQualifiedAccess>]
 module Controller = 
