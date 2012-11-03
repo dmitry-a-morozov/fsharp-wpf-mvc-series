@@ -17,10 +17,11 @@ type StockInfoModel() =
     abstract Symbol : string with get, set
     abstract CompanyName : string with get, set
     abstract LastPrice : decimal with get, set
-    abstract AddToChartEnabled : bool with get, set
     abstract DaysLow : decimal with get, set
     abstract DaysHigh : decimal with get, set
     abstract Volume : decimal with get, set
+
+    abstract AddToChartEnabled : bool with get, set
 
     [<NotifyDependencyChanged>]
     member this.AccDist = 
