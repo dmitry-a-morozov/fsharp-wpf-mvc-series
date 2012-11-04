@@ -5,6 +5,7 @@ open LanguagePrimitives
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 
+
 [<AutoOpen>]
 module Extensions = 
 
@@ -27,3 +28,15 @@ module Observable =
     let mapTo value = Observable.map(fun _ -> value)
     let unify first second = Observable.merge (Observable.map Choice1Of2 first) (Observable.map Choice2Of2 second)
 
+    open System.Reactive.Linq
+
+    type QueryBuilder internal() =
+        member this.For (s:IObservable<_>, body : _ -> IObservable<_>) = s.SelectMany(body)
+        member this.Zero() = Observable.Empty()
+        [<CustomOperation("where", MaintainsVariableSpace=true, AllowIntoPattern=true)>]
+        member this.Where (s:IObservable<_>, [<ProjectionParameter>] predicate : _ -> bool ) = s.Where(predicate)
+        member this.Yield (value) = Observable.Return(value)
+        [<CustomOperation("select", AllowIntoPattern=true)>]
+        member this.Select (s:IObservable<_>, [<ProjectionParameter>] selector : _ -> _) = s.Select(selector)
+
+    let query = QueryBuilder()
