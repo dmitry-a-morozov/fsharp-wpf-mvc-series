@@ -8,7 +8,7 @@ open Mvc.Wpf
 type StopWatchObservable(frequency, failureFrequencyInSeconds) =
     let watch = Stopwatch.StartNew()
     let paused = ref false
-    let generareFailures = ref false
+    let generateFailures = ref false
 
     member this.Pause() = 
         watch.Stop()
@@ -20,14 +20,14 @@ type StopWatchObservable(frequency, failureFrequencyInSeconds) =
         watch.Restart()
         paused := false
 
-    member this.GenerareFailures with set value = generareFailures := value
+    member this.GenerateFailures with set value = generateFailures := value
 
     interface IObservable<TimeSpan> with
         member this.Subscribe observer = 
             let xs = Observable.query {
                 for _ in Observable.Interval(period = frequency) do
                 where (not !paused)
-                select (if !generareFailures && watch.Elapsed.TotalSeconds % failureFrequencyInSeconds < 1.0
+                select (if !generateFailures && watch.Elapsed.TotalSeconds % failureFrequencyInSeconds < 1.0
                     then failwithf "failing every %.1f secs" failureFrequencyInSeconds
                     else watch.Elapsed)
             }

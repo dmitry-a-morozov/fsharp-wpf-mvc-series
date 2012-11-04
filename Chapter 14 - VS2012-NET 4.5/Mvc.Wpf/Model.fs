@@ -102,6 +102,8 @@ type Model() =
     let propertyChangedEvent = Event<_,_>()
     let errorsChanged = Event<_,_>()
 
+    let getErrorsOrEmpty propertyName = match errors.TryGetValue propertyName with | true, errors -> errors | false, _ -> []
+
     static let options = 
         ProxyGenerationOptions(
             Hook = { 
@@ -157,24 +159,21 @@ type Model() =
 
     interface INotifyDataErrorInfo with
         member this.HasErrors = this.HasErrors
-        member this.GetErrors propertyName = 
-            match errors.TryGetValue propertyName with 
-            | true, errors -> upcast errors 
-            | false, _ -> upcast Seq.empty
+        member this.GetErrors propertyName = upcast getErrorsOrEmpty propertyName
         [<CLIEvent>]
         member this.ErrorsChanged = errorsChanged.Publish
 
     member internal this.TriggerErrorsChanged propertyName = 
         errorsChanged.Trigger(this, DataErrorsChangedEventArgs propertyName)
 
-    member this.SetErrors(propertyName, messages) = 
-        errors.[propertyName] <- messages
+    member this.AddErrors(propertyName, [<ParamArray>] messages) = 
+        errors.[propertyName] <- getErrorsOrEmpty propertyName @ List.ofArray messages 
         this.TriggerErrorsChanged propertyName
-    member this.SetError(propertyName, message) = this.SetErrors(propertyName, [message])
+    member this.SetError(propertyName, message : string) = this.AddErrors(propertyName, message)
     member this.ClearErrors propertyName = 
         errors.Remove propertyName |> ignore
         this.TriggerErrorsChanged propertyName
-    member this.ClearAllErrors() = errors.Clear()
+    member this.ClearAllErrors() = errors.Keys |> Seq.toArray |> Array.iter this.ClearErrors
     member this.HasErrors = errors.Values |> Seq.collect id |> Seq.exists (not << String.IsNullOrEmpty)
 
 and AbstractProperties() =
