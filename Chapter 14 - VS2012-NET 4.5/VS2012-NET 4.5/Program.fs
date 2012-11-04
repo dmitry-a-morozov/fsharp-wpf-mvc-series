@@ -22,8 +22,7 @@ let main _ =
 
     let app = Application()
     app.DispatcherUnhandledException.Add <| fun args ->
-        let why = match args.Exception with | PreserveStackTraceWrapper e -> e | e -> e
         //have application specific "catch-all" logic like logging errors below
-        Debug.Fail("DispatcherUnhandledException handler", string why)
+        Debug.Fail("DispatcherUnhandledException handler", string args.Exception)
 
     app.Run(Model.Create(), view.Control, controller)
