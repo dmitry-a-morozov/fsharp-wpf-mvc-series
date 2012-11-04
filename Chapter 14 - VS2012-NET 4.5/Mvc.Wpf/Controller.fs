@@ -6,6 +6,7 @@ open System.Reactive.Concurrency
 open System.Reactive
 open System.Threading
 open System.ComponentModel
+open System.Runtime.ExceptionServices
 
 type EventHandler<'M> = 
     | Sync of ('M -> unit)
@@ -15,8 +16,6 @@ type EventHandler<'M> =
 type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>() =
     abstract InitModel : 'Model -> unit
     abstract Dispatcher : ('Event -> EventHandler<'Model>)
-
-exception PreserveStackTraceWrapper of exn
 
 [<AbstractClass>]
 type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view : IView<'Event, 'Model>) =
@@ -63,7 +62,7 @@ type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>
         }
 
     abstract OnError : exn -> unit
-    default this.OnError why = why |> PreserveStackTraceWrapper |> raise
+    default this.OnError why = ExceptionDispatchInfo.Capture(why).Throw()
 
     member parent.Compose(childController : Controller<'EX, 'MX>, childView : PartialView<'EX, 'MX, _>, childModelSelector : _ -> 'MX ) = 
         let compositeView = view.Compose(childView, childModelSelector)
