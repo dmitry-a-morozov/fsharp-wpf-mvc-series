@@ -2,7 +2,6 @@
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Mvc.Wpf.Sample
 
-open Microsoft.FSharp.Linq
 open Microsoft.FSharp.Data.TypeProviders
 
 type TempConvert = WsdlService<"http://www.w3schools.com/webservices/tempconvert.asmx?WSDL">

@@ -4,8 +4,6 @@ open System.Threading
 open System.Windows.Data
 open Mvc.Wpf
 open Mvc.Wpf.UIElements
-open Microsoft.FSharp.Linq
-open Microsoft.FSharp.Data.TypeProviders
 
 [<AbstractClass>]
 type TempConveterModel() = 
