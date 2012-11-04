@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="Mvc.Wpf.UIElements.CalculatorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="230" d:DesignWidth="290">
+    <UserControl.Resources>
+        <ResourceDictionary Source="Styles.xaml"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <DockPanel>
+            <Label Content="X"/>
+            <Button Name="Hex1" Content="H..." Grid.Column="1" Height="30" Width="30" Margin="5" x:FieldModifier="public" DockPanel.Dock="Right"/>
+            <TextBox Name="X" Margin="5" Height="25" x:FieldModifier="public"/>
+        </DockPanel>
+        <DockPanel Grid.Row="1" Grid.ColumnSpan="2" >
+            <Label Content="Operation"/>
+            <ComboBox Name="Operation" Grid.Row="1" Height="25" Width="70" x:FieldModifier="public" Margin="5"/>
+            <Rectangle/>
+        </DockPanel>
+        <DockPanel Grid.Row="2" >
+            <Label Content="Y"/>
+            <Button Name="Hex2" Content="H..." Height="30" Width="30" Margin="5" x:FieldModifier="public" DockPanel.Dock="Right"/>
+            <TextBox Name="Y" Height="25" x:FieldModifier="public"/>
+        </DockPanel>
+        <DockPanel Grid.Row="3">
+            <Label Content="Result:"/>
+            <TextBlock Name="Result" Margin="5" Height="25" x:FieldModifier="public"/>
+        </DockPanel>
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Grid.ColumnSpan="3" >
+            <Button Content="=" Name="Calculate" Width="80" Height="25" Margin="5" x:FieldModifier="public"/>
+            <Button Content="C" Name="Clear" Width="80" Height="25" Margin="5" x:FieldModifier="public"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
