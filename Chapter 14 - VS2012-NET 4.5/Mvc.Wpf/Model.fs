@@ -128,12 +128,14 @@ type Model() =
         new StandardInterceptor() with
             member this.PostProceed invocation = 
                 match invocation.Method, invocation.InvocationTarget with 
-                    | PropertySetter propertyName, (:? Model as model) -> model.ClearError propertyName 
+                    | PropertySetter propertyName, (:? Model as model) -> 
+                        model.ClearErrors propertyName 
                     | _ -> ()
     }
 
-    let errors = Dictionary()
+    let errors = Dictionary<string, string list>()
     let propertyChangedEvent = Event<_,_>()
+    let errorsChanged = Event<_,_>()
 
     interface INotifyPropertyChanged with
         [<CLIEvent>]
@@ -153,20 +155,27 @@ type Model() =
         | false, _ -> ()
         model
 
-    interface IDataErrorInfo with
-        member this.Error = undefined
-        member this.Item 
-            with get propertyName = 
-                match errors.TryGetValue propertyName with
-                | true, message -> message
-                | false, _ -> null
+    member internal this.TriggerErrorsChanged propertyName = 
+        errorsChanged.Trigger(this, DataErrorsChangedEventArgs propertyName)
 
-    member this.SetError(propertyName, message) = 
-        errors.[propertyName] <- message
+    interface INotifyDataErrorInfo with
+        member this.HasErrors = this.HasErrors
+        member this.GetErrors propertyName = 
+            match errors.TryGetValue propertyName with 
+            | true, errors -> upcast errors 
+            | false, _ -> upcast Seq.empty
+        [<CLIEvent>]
+        member this.ErrorsChanged = errorsChanged.Publish
+
+    member this.SetErrors(propertyName, messages) = 
+        errors.[propertyName] <- messages
         this.TriggerPropertyChanged propertyName
-    member this.ClearError propertyName = this.SetError(propertyName, null)
-    member this.ClearAllErrors() = errors.Keys |> Seq.toArray |> Array.iter this.ClearError
-    member this.HasErrors = errors.Values |> Seq.exists (not << String.IsNullOrEmpty)
+    member this.SetError(propertyName, message) = this.SetErrors(propertyName, [message])
+    member this.ClearErrors propertyName = 
+        errors.Remove propertyName |> ignore
+        this.TriggerPropertyChanged propertyName
+    member this.ClearAllErrors() = errors.Clear()
+    member this.HasErrors = errors.Values |> Seq.collect id |> Seq.exists (not << String.IsNullOrEmpty)
 
 and AbstractProperties() =
     let data = Dictionary()
