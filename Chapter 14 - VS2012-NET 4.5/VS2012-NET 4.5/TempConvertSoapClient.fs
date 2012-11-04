@@ -6,11 +6,20 @@ open Microsoft.FSharp.Data.TypeProviders
 
 type TempConvert = WsdlService<"http://www.w3schools.com/webservices/tempconvert.asmx?WSDL">
 
-type TempConvert.ServiceTypes.TempConvertSoapClient with
+[<Measure>] type celsius
+[<Measure>] type fahrenheit
 
-    member this.AsyncCelsiusToFahrenheit(celsius : float) = 
-        celsius |> string |> this.CelsiusToFahrenheitAsync |> Async.AwaitTask 
+type TempConvert.ServiceTypes.SimpleDataContextTypes.TempConvertSoapClient with
 
-    member this.AsyncFahrenheitToCelsius(fahrenheit : float) = 
-        fahrenheit |> string |> this.FahrenheitToCelsiusAsync |> Async.AwaitTask 
+    member this.AsyncCelsiusToFahrenheit(value : float<celsius>) = 
+        async {
+            let! response = value |> string |> this.CelsiusToFahrenheitAsync |> Async.AwaitTask 
+            return response.Body.CelsiusToFahrenheitResult |> float |> LanguagePrimitives.FloatWithMeasure<fahrenheit>
+        }
+
+    member this.AsyncFahrenheitToCelsius(value : float<fahrenheit>) = 
+        async {
+            let! response = value |> string |> this.FahrenheitToCelsiusAsync |> Async.AwaitTask 
+            return response.Body.FahrenheitToCelsiusResult |> float |> LanguagePrimitives.FloatWithMeasure<celsius>
+        }
 

@@ -9,8 +9,8 @@ open Mvc.Wpf.UIElements
 type TempConveterModel() = 
     inherit Model()
 
-    abstract Celsius : float with get, set
-    abstract Fahrenheit : float with get, set
+    abstract Celsius : float<celsius> with get, set
+    abstract Fahrenheit : float<fahrenheit> with get, set
     abstract ResponseStatus : string with get, set
     abstract Delay : int with get, set
 
@@ -60,11 +60,10 @@ type TempConveterController() =
                 context.Post((fun _ -> model.ResponseStatus <- "Async TempConverter. Request cancelled."), null)) 
             model.ResponseStatus <- "Async TempConverter. Waiting for response ..."            
             do! Async.Sleep(model.Delay * 1000)
-            //let! fahrenheit = service.AsyncCelsiusToFahrenheit model.Celsius
-            let! response = model.Celsius |> string |> service.CelsiusToFahrenheitAsync |> Async.AwaitTask 
+            let! fahrenheit = service.AsyncCelsiusToFahrenheit model.Celsius
             do! Async.SwitchToContext context
             model.ResponseStatus <- "Async TempConverter. Response received."            
-            model.Fahrenheit <- float response.Body.CelsiusToFahrenheitResult
+            model.Fahrenheit <- fahrenheit
         }
 
     member this.FahrenheitToCelsius model = 
@@ -74,10 +73,9 @@ type TempConveterController() =
                 context.Post((fun _ -> model.ResponseStatus <- "Async TempConverter. Request cancelled."), null)) 
             model.ResponseStatus <- "Async TempConverter. Waiting for response ..."            
             do! Async.Sleep(model.Delay * 1000)
-            //let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
-            let! celsius = model.Fahrenheit |> string |> service.FahrenheitToCelsiusAsync |> Async.AwaitTask
+            let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
             do! Async.SwitchToContext context
             model.ResponseStatus <- "Async TempConverter. Response received."            
-            model.Celsius <- float celsius.Body.FahrenheitToCelsiusResult
+            model.Celsius <- celsius
         }
 
