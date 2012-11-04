@@ -4,6 +4,8 @@ open System.Threading
 open System.Windows.Data
 open Mvc.Wpf
 open Mvc.Wpf.UIElements
+open Microsoft.FSharp.Linq
+open Microsoft.FSharp.Data.TypeProviders
 
 [<AbstractClass>]
 type TempConveterModel() = 
@@ -42,7 +44,7 @@ type TempConveterView(control) =
 type TempConveterController() = 
     inherit Controller<TempConveterEvents, TempConveterModel>()
 
-    let service = new Sample.TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
+    let service = TempConvert.GetTempConvertSoap()
 
     override this.InitModel model = 
         model.ResponseStatus <- "Async TempConveter"
@@ -60,10 +62,11 @@ type TempConveterController() =
                 context.Post((fun _ -> model.ResponseStatus <- "Async TempConverter. Request cancelled."), null)) 
             model.ResponseStatus <- "Async TempConverter. Waiting for response ..."            
             do! Async.Sleep(model.Delay * 1000)
-            let! fahrenheit = service.AsyncCelsiusToFahrenheit model.Celsius
+            //let! fahrenheit = service.AsyncCelsiusToFahrenheit model.Celsius
+            let! response = model.Celsius |> string |> service.CelsiusToFahrenheitAsync |> Async.AwaitTask 
             do! Async.SwitchToContext context
             model.ResponseStatus <- "Async TempConverter. Response received."            
-            model.Fahrenheit <- fahrenheit
+            model.Fahrenheit <- float response.Body.CelsiusToFahrenheitResult
         }
 
     member this.FahrenheitToCelsius model = 
@@ -73,9 +76,10 @@ type TempConveterController() =
                 context.Post((fun _ -> model.ResponseStatus <- "Async TempConverter. Request cancelled."), null)) 
             model.ResponseStatus <- "Async TempConverter. Waiting for response ..."            
             do! Async.Sleep(model.Delay * 1000)
-            let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
+            //let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
+            let! celsius = model.Fahrenheit |> string |> service.FahrenheitToCelsiusAsync |> Async.AwaitTask
             do! Async.SwitchToContext context
             model.ResponseStatus <- "Async TempConverter. Response received."            
-            model.Celsius <- celsius
+            model.Celsius <- float celsius.Body.FahrenheitToCelsiusResult
         }
 

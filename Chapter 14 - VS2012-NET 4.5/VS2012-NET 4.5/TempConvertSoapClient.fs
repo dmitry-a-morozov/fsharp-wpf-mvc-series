@@ -1,18 +1,17 @@
 ﻿[<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Mvc.Wpf.Sample.TempConvertSoapClient
+module Mvc.Wpf.Sample
 
-type Mvc.Wpf.UIElements.Sample.TempConvertSoapClient with
-    
+open Microsoft.FSharp.Linq
+open Microsoft.FSharp.Data.TypeProviders
+
+type TempConvert = WsdlService<"http://www.w3schools.com/webservices/tempconvert.asmx?WSDL">
+
+type TempConvert.ServiceTypes.TempConvertSoapClient with
+
     member this.AsyncCelsiusToFahrenheit(celsius : float) = 
-        async {
-            let! result = Async.FromBeginEnd(string celsius, this.BeginCelsiusToFahrenheit, this.EndCelsiusToFahrenheit) 
-            return float result
-        }
+        celsius |> string |> this.CelsiusToFahrenheitAsync |> Async.AwaitTask 
 
     member this.AsyncFahrenheitToCelsius(fahrenheit : float) = 
-        async {
-            let! result = Async.FromBeginEnd(string fahrenheit, this.BeginFahrenheitToCelsius, this.EndFahrenheitToCelsius) 
-            return float result
-        }
+        fahrenheit |> string |> this.FahrenheitToCelsiusAsync |> Async.AwaitTask 
 
