@@ -25,7 +25,7 @@ type StopWatchObservable(frequency, failureFrequencyInSeconds) =
     interface IObservable<TimeSpan> with
         member this.Subscribe observer = 
             let xs = Observable.query {
-                for x in Observable.Interval(period = frequency) do
+                for _ in Observable.Interval(period = frequency) do
                 where (not !paused)
                 select (if !generareFailures && watch.Elapsed.TotalSeconds % failureFrequencyInSeconds < 1.0
                     then failwithf "failing every %.1f secs" failureFrequencyInSeconds
