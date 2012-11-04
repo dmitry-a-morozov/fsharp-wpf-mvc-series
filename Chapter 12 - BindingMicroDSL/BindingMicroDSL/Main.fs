@@ -83,8 +83,8 @@ type MainController(view, stopWatch : StopWatchObservable) =
         | StopWatch -> ignore >> stopWatch.Pause
         | StartWatch -> ignore >> stopWatch.Start
         | RestartWatch -> this.RestartWatch
-        | StartFailingWatch -> fun _ -> stopWatch.GenerareFailures <- true
-        | StopFailingWatch -> fun _ -> stopWatch.GenerareFailures <- false
+        | StartFailingWatch -> fun _ -> stopWatch.GenerateFailures <- true
+        | StopFailingWatch -> fun _ -> stopWatch.GenerateFailures <- false
 
     member this.ActiveTabChanged header model =
         model.ActiveTab <- header
