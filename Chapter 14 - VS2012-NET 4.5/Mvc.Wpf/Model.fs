@@ -98,6 +98,9 @@ type Model() =
 
     static let dependentProperties = Dictionary()
     static let proxyFactory = ProxyGenerator()
+    let errors = Dictionary<string, string list>()
+    let propertyChangedEvent = Event<_,_>()
+    let errorsChanged = Event<_,_>()
 
     static let options = 
         ProxyGenerationOptions(
@@ -134,17 +137,6 @@ type Model() =
                     | _ -> ()
     }
 
-    let errors = Dictionary<string, string list>()
-    let propertyChangedEvent = Event<_,_>()
-    let errorsChanged = Event<_,_>()
-
-    interface INotifyPropertyChanged with
-        [<CLIEvent>]
-        member this.PropertyChanged = propertyChangedEvent.Publish
-
-    member internal this.TriggerPropertyChanged propertyName = 
-        propertyChangedEvent.Trigger(this, PropertyChangedEventArgs propertyName)
-
     static member Create<'T when 'T :> Model and 'T : not struct>()  : 'T = 
         let interceptors : IInterceptor[] = [| notifyPropertyChanged; AbstractProperties() |]
         let model = proxyFactory.CreateClassProxy(options, interceptors)
@@ -156,8 +148,12 @@ type Model() =
         | false, _ -> ()
         model
 
-    member internal this.TriggerErrorsChanged propertyName = 
-        errorsChanged.Trigger(this, DataErrorsChangedEventArgs propertyName)
+    interface INotifyPropertyChanged with
+        [<CLIEvent>]
+        member this.PropertyChanged = propertyChangedEvent.Publish
+
+    member internal this.TriggerPropertyChanged propertyName = 
+        propertyChangedEvent.Trigger(this, PropertyChangedEventArgs propertyName)
 
     interface INotifyDataErrorInfo with
         member this.HasErrors = this.HasErrors
@@ -167,6 +163,9 @@ type Model() =
             | false, _ -> upcast Seq.empty
         [<CLIEvent>]
         member this.ErrorsChanged = errorsChanged.Publish
+
+    member internal this.TriggerErrorsChanged propertyName = 
+        errorsChanged.Trigger(this, DataErrorsChangedEventArgs propertyName)
 
     member this.SetErrors(propertyName, messages) = 
         errors.[propertyName] <- messages
