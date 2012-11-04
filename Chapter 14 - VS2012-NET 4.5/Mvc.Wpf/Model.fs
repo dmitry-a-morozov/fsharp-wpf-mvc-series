@@ -129,6 +129,7 @@ type Model() =
             member this.PostProceed invocation = 
                 match invocation.Method, invocation.InvocationTarget with 
                     | PropertySetter propertyName, (:? Model as model) -> 
+                        model.TriggerPropertyChanged propertyName
                         model.ClearErrors propertyName 
                     | _ -> ()
     }
@@ -169,11 +170,11 @@ type Model() =
 
     member this.SetErrors(propertyName, messages) = 
         errors.[propertyName] <- messages
-        this.TriggerPropertyChanged propertyName
+        this.TriggerErrorsChanged propertyName
     member this.SetError(propertyName, message) = this.SetErrors(propertyName, [message])
     member this.ClearErrors propertyName = 
         errors.Remove propertyName |> ignore
-        this.TriggerPropertyChanged propertyName
+        this.TriggerErrorsChanged propertyName
     member this.ClearAllErrors() = errors.Clear()
     member this.HasErrors = errors.Values |> Seq.collect id |> Seq.exists (not << String.IsNullOrEmpty)
 
