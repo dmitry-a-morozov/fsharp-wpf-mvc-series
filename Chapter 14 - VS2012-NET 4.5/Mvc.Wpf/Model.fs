@@ -169,7 +169,7 @@ type Model() =
     member this.AddErrors(propertyName, [<ParamArray>] messages) = 
         errors.[propertyName] <- getErrorsOrEmpty propertyName @ List.ofArray messages 
         this.TriggerErrorsChanged propertyName
-    member this.SetError(propertyName, message : string) = this.AddErrors(propertyName, message)
+    member this.AddError(propertyName, message : string) = this.AddErrors(propertyName, message)
     member this.ClearErrors propertyName = 
         errors.Remove propertyName |> ignore
         this.TriggerErrorsChanged propertyName
