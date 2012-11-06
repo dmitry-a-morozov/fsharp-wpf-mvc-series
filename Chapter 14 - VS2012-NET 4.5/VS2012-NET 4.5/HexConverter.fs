@@ -5,8 +5,12 @@ open System.Globalization
 open System.Windows.Data
 open Mvc.Wpf
 open Mvc.Wpf.UIElements
+open System.Windows
+open FSharpx
 
 module HexConverter =  
+
+    type HexConverterWindow = XAML<"HexConverterWindow.xaml">
 
     [<AbstractClass>]
     type Model() = 
@@ -18,20 +22,23 @@ module HexConverter =
             and set value = this.HexValue <- sprintf "%X" value
 
     let view() = 
+        let window = HexConverterWindow()
+        let ok = window.OK
+        let value = window.Value
         let result = {
-            new View<unit, Model, HexConverterWindow>() with 
+            new View<unit, Model, Window>(window.Root) with 
                 member this.EventStreams = 
                     [
-                        this.Control.OK.Click |> Observable.mapTo()
+                        ok.Click |> Observable.mapTo()
                     ]
 
                 member this.SetBindings model = 
                     Binding.FromExpression 
                         <@ 
-                            this.Control.Value.Text <- model.HexValue
+                            value.Text <- model.HexValue
                         @>
         }
-        result.CancelButton <- result.Control.Cancel
+        result.CancelButton <- window.Cancel
         result
 
     let controller view = {
