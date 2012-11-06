@@ -6,11 +6,12 @@ open System.Windows.Data
 open Mvc.Wpf
 open Mvc.Wpf.UIElements
 open System.Windows
+open System.Windows.Controls
 open FSharpx
 
 module HexConverter =  
 
-    type HexConverterWindow = XAML<"HexConverterWindow.xaml">
+    type HexConverterWindow = XAML<"View\HexConverterWindow.xaml">
 
     [<AbstractClass>]
     type Model() = 
@@ -25,6 +26,7 @@ module HexConverter =
         let window = HexConverterWindow()
         let ok = window.OK
         let value = window.Value
+        value.ShowErrorInTooltip()
         let result = {
             new View<unit, Model, Window>(window.Root) with 
                 member this.EventStreams = 
