@@ -52,6 +52,7 @@
     <Compile Include="Main.fs" />
     <Compile Include="Program.fs" />
     <None Include="View\HexConverterWindow.xaml" />
+    <None Include="View\StockPickerWindow.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Data.TypeProviders, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
