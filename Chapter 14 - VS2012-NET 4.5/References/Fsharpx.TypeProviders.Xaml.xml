@@ -1,0 +1,786 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+<assembly><name>FSharpx.TypeProviders.Xaml</name></assembly>
+<members>
+<member name="M:FSharpx.Strings.inferType(System.Collections.Generic.IEnumerable{System.String})">
+<summary>
+ Checks whether all values of the sequence can be inferred to a special type
+</summary>
+</member>
+<member name="M:FSharpx.Strings.isFloat(System.String)">
+<summary>
+ Checks whether the string is a float
+</summary>
+</member>
+<member name="M:FSharpx.Strings.isInt(System.String)">
+<summary>
+ Checks whether the string is an int
+</summary>
+</member>
+<member name="M:FSharpx.Strings.isBool(System.String)">
+<summary>
+ Checks whether the string is a boolean value
+</summary>
+</member>
+<member name="M:FSharpx.Strings.niceName(System.String)">
+<summary>
+ Turns a string into a nice PascalCase identifier
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="M:FSharpx.Strings.singularize(System.String)">
+<summary>
+ Returns the singularized version of a noun
+</summary>
+</member>
+<member name="M:FSharpx.Strings.pluralize(System.String)">
+<summary>
+ Returns the pluralized version of a noun
+</summary>
+</member>
+<member name="M:FSharpx.Strings.isNullOrEmpty(System.String)">
+<summary>
+ Returns if the string is null or empty
+</summary>
+</member>
+<member name="M:FSharpx.Strings.separatedBy(System.String,System.Collections.Generic.IEnumerable{System.String})">
+<summary>
+ Converts a sequence of strings to a single string separated with the delimiters
+</summary>
+</member>
+<member name="M:FSharpx.Strings.split(System.Char,System.String)">
+<summary>
+ Splits the given string at the given delimiter
+</summary>
+</member>
+<member name="M:FSharpx.Strings.contains(System.String,System.String)">
+<summary>
+ Returns a value indicating whether the specified substring occurs within this string
+</summary>
+</member>
+<member name="M:FSharpx.Strings.replace(System.String,System.String,System.String)">
+<summary>
+ Replaces the given &quot;replacement&quot; for every occurence of the pattern in the given text 
+</summary>
+</member>
+<member name="M:FSharpx.Strings.startsWith(System.String,System.String)">
+<summary>
+ Checks whether the given text starts with the given prefix
+</summary>
+</member>
+<member name="T:FSharpx.Strings">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="M:FSharpx.TypeProviders.Helper.watchForChanges(Samples.FSharp.ProvidedTypes.TypeProviderForNamespaces,System.String)">
+<summary>
+ Implements invalidation of schema when the file changes
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:FSharpx.TypeProviders.Helper">
+<summary>
+ Starting to implement some helpers on top of ProvidedTypes API
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:FSharpx.TypeProviders.Xaml.AssemblyInfo">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:FSharpx.TypeProviders.XamlProvider.XamlFile">
+<summary>
+ Simple type wrapping Xaml file
+</summary>
+</member>
+<member name="M:FSharpx.TypeProviders.XamlProvider.xamlType(Samples.FSharp.ProvidedTypes.TypeProviderForNamespaces,Microsoft.FSharp.Core.CompilerServices.TypeProviderConfig)">
+<summary>
+ Infer schema from the loaded data and generate type with properties     
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:FSharpx.TypeProviders.XamlProvider">
+
+</member>
+<member name="">
+
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.TypeProviderForNamespaces.ResolveAssembly(System.ResolveEventArgs)">
+<summary>
+ AssemblyResolve handler. Default implementation searches &lt;assemblyname&gt;.dll file in registered folders 
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.TypeProviderForNamespaces.RegisterRuntimeAssemblyLocationAsProbingFolder(Microsoft.FSharp.Core.CompilerServices.TypeProviderConfig)">
+<summary>
+ Registers location of RuntimeAssembly (from TypeProviderConfig) as probing folder
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.TypeProviderForNamespaces.RegisterProbingFolder(System.String)">
+<summary>
+ Registers custom probing path that can be used for probing assemblies
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.TypeProviderForNamespaces.Invalidate">
+<summary>
+ Invalidate the information provided by the provider
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.TypeProviderForNamespaces.AddNamespace(System.String,Microsoft.FSharp.Collections.FSharpList{Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition})">
+<summary>
+ Add a namespace of provided types.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.TypeProviderForNamespaces.#ctor">
+<summary>
+ Initializes a type provider 
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.TypeProviderForNamespaces.#ctor(System.String,Microsoft.FSharp.Collections.FSharpList{Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition})">
+<summary>
+ Initializes a type provider to provide the types in the given namespace.
+</summary>
+</member>
+<member name="T:Samples.FSharp.ProvidedTypes.TypeProviderForNamespaces">
+<summary>
+ A base type providing default implementations of type provider functionality when all provided 
+ types are of type ProvidedTypeDefinition.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedAssembly.RegisterGenerated(System.String)">
+<summary>
+ Register that a given file is a provided generated assembly
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedAssembly.AddTypes(Microsoft.FSharp.Collections.FSharpList{Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition})">
+ <summary>
+ Emit the given provided type definitions as part of the assembly 
+ and adjust the 'Assembly' property of all provided type definitions to return that
+ assembly.
+
+ The assembly is only emitted when the Assembly property on the root type is accessed for the first time.
+ The host F# compiler does this when processing a generative type declaration for the type.
+ </summary>
+ <param name="enclosingTypeNames">An optional path of type names to wrap the generated types. The generated types are then generated as nested types.</param>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Samples.FSharp.ProvidedTypes.ProvidedAssembly">
+<summary>
+ A provided generated assembly
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.SuppressRelocation(System.Boolean)">
+<summary>
+ Get or set a flag indicating if the ProvidedTypeDefinition has type-relocation suppressed
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.IsErased(System.Boolean)">
+<summary>
+ Get or set a flag indicating if the ProvidedTypeDefinition is erased
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.HideObjectMethods(System.Boolean)">
+<summary>
+ Suppress System.Object entries in intellisense menus in instances of this provided type 
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.SuppressRelocation">
+<summary>
+ Get or set a flag indicating if the ProvidedTypeDefinition has type-relocation suppressed
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.IsErased">
+<summary>
+ Get or set a flag indicating if the ProvidedTypeDefinition is erased
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.SetBaseType(System.Type)">
+<summary>
+ Set the base type
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.SetAttributes(System.Reflection.TypeAttributes)">
+<summary>
+ Set the attributes on the provided type. This fully replaces the default TypeAttributes.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.ResetEnclosingType(System.Type)">
+<summary>
+ Reset the enclosing type (for generated nested types)
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.DefineMethodOverride(Samples.FSharp.ProvidedTypes.ProvidedMethod,System.Reflection.MethodInfo)">
+<summary>
+ Specifies that the given method body implements the given method declaration.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.AddXmlDocDelayed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary.
+ The documentation is only computed once.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.AddXmlDocComputed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
+ The documentation is re-computed  every time it is required.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.AddXmlDoc(System.String)">
+<summary>
+ Add XML documentation information to this provided constructor
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.AddObsoleteAttribute(System.String)">
+<summary>
+ Add a &apos;System.Obsolete&apos; attribute to this provided type definition
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.AddMembersDelayed``1(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,Microsoft.FSharp.Collections.FSharpList{``0}})">
+<summary>
+ Add a set of members to a ProvidedTypeDefinition, delaying computation of the members until required by the compilation context.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.AddMembers``1(Microsoft.FSharp.Collections.FSharpList{``0})">
+<summary>
+ Add a set of members to a ProvidedTypeDefinition
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.AddMemberDelayed``1(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,``0})">
+<summary>
+ Add a member to a ProvidedTypeDefinition, delaying computation of the members until required by the compilation context.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.AddMember(System.Reflection.MemberInfo)">
+<summary>
+ Add a method, property, nested type or other member to a ProvidedTypeDefinition
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.AddInterfaceImplementationsDelayed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,Microsoft.FSharp.Collections.FSharpList{System.Type}})">
+<summary>
+ Add the given function as a set of on-demand computed interfaces.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.AddInterfaceImplementation(System.Type)">
+<summary>
+ Add the given type as an implemented interface.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.AddDefinitionLocation(System.Int32,System.Int32,System.String)">
+<summary>
+ Add definition location information to the provided type definition.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.AddAssemblyTypesAsNestedTypesDelayed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.Reflection.Assembly})">
+<summary>
+ Add the types of the generated assembly as generative types, where types in namespaces get hierarchically positioned as nested types.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.#ctor(System.String,Microsoft.FSharp.Core.FSharpOption{System.Type})">
+<summary>
+ Create a new provided type definition, to be located as a nested type in some type definition.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition.#ctor(System.Reflection.Assembly,System.String,System.String,Microsoft.FSharp.Core.FSharpOption{System.Type})">
+<summary>
+ Create a new provided type definition in a namespace. 
+</summary>
+</member>
+<member name="T:Samples.FSharp.ProvidedTypes.ProvidedTypeDefinition">
+<summary>
+ Represents a provided type definition.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedStaticParameter.AddXmlDocDelayed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedStaticParameter.AddXmlDoc(System.String)">
+<summary>
+ Add XML documentation information to this provided constructor
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="T:Samples.FSharp.ProvidedTypes.ProvidedStaticParameter">
+<summary>
+ Represents a provided static parameter.
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedMeasureBuilder.One">
+<summary>
+ e.g. 1
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedMeasureBuilder.Default">
+<summary>
+ The ProvidedMeasureBuilder for building measures.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMeasureBuilder.Square(System.Type)">
+<summary>
+ e.g. m * m 
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMeasureBuilder.SI(System.String)">
+<summary>
+ the SI unit from the F# core library, where the string is in capitals and US spelling, e.g. Meter
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMeasureBuilder.Ratio(System.Type,System.Type)">
+<summary>
+ e.g. kg / m
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMeasureBuilder.Product(System.Type,System.Type)">
+<summary>
+ e.g. m * kg
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMeasureBuilder.Inverse(System.Type)">
+<summary>
+ e.g. 1 / kg
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMeasureBuilder.AnnotateType(System.Type,Microsoft.FSharp.Collections.FSharpList{System.Type})">
+<summary>
+ e.g. float&lt;kg&gt;, Vector&lt;int, kg&gt;
+</summary>
+</member>
+<member name="T:Samples.FSharp.ProvidedTypes.ProvidedMeasureBuilder">
+<summary>
+ Helps create erased provided unit-of-measure annotations.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeBuilder.MakeGenericType(System.Type,Microsoft.FSharp.Collections.FSharpList{System.Type})">
+<summary>
+ Like typ.MakeGenericType, but will also work with unit-annotated types
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedTypeBuilder.MakeGenericMethod(System.Reflection.MethodInfo,Microsoft.FSharp.Collections.FSharpList{System.Type})">
+<summary>
+ Like methodInfo.MakeGenericMethod, but will also work with unit-annotated types and provided types
+</summary>
+</member>
+<member name="T:Samples.FSharp.ProvidedTypes.ProvidedTypeBuilder">
+<summary>
+ Provides symbolic provided types
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedField.AddXmlDocDelayed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided field, where the computation of the documentation is delayed until necessary
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedField.AddXmlDocComputed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided field, where the computation of the documentation is delayed until necessary
+ The documentation is re-computed  every time it is required.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedField.AddXmlDoc(System.String)">
+<summary>
+ Add XML documentation information to this provided field
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedField.AddObsoleteAttribute(System.String)">
+<summary>
+ Add a &apos;System.Obsolete&apos; attribute to this provided field
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedField.AddDefinitionLocation(System.Int32,System.Int32,System.String)">
+<summary>
+ Add definition location information to the provided field definition.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedField.#ctor(System.String,System.Type)">
+<summary>
+ Create a new provided field. It is not initially associated with any specific provided type definition.
+</summary>
+</member>
+<member name="T:Samples.FSharp.ProvidedTypes.ProvidedField">
+<summary>
+ Represents an erased provided field.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedLiteralField.AddXmlDocDelayed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided field, where the computation of the documentation is delayed until necessary
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedLiteralField.AddXmlDocComputed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided field, where the computation of the documentation is delayed until necessary
+ The documentation is re-computed  every time it is required.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedLiteralField.AddXmlDoc(System.String)">
+<summary>
+ Add XML documentation information to this provided field
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedLiteralField.AddObsoleteAttribute(System.String)">
+<summary>
+ Add a &apos;System.Obsolete&apos; attribute to this provided field
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedLiteralField.AddDefinitionLocation(System.Int32,System.Int32,System.String)">
+<summary>
+ Add definition location information to the provided field.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedLiteralField.#ctor(System.String,System.Type,System.Object)">
+<summary>
+ Create a new provided field. It is not initially associated with any specific provided type definition.
+</summary>
+</member>
+<member name="T:Samples.FSharp.ProvidedTypes.ProvidedLiteralField">
+<summary>
+ Represents an erased provided field.
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedEvent.RemoverCode(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Quotations.FSharpExpr},Microsoft.FSharp.Quotations.FSharpExpr})">
+<summary>
+ Set the function used to compute the implementation of sets of this property.
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedEvent.IsStatic(System.Boolean)">
+<summary>
+ Get or set a flag indicating if the property is static.
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedEvent.AdderCode(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Quotations.FSharpExpr},Microsoft.FSharp.Quotations.FSharpExpr})">
+<summary>
+ Set the quotation used to compute the implementation of gets of this property.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedEvent.AddXmlDocDelayed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedEvent.AddXmlDocComputed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
+ The documentation is re-computed  every time it is required.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedEvent.AddXmlDoc(System.String)">
+<summary>
+ Add XML documentation information to this provided constructor
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedEvent.AddDefinitionLocation(System.Int32,System.Int32,System.String)">
+<summary>
+ Add definition location information to the provided type definition.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedEvent.#ctor(System.String,System.Type)">
+<summary>
+ Create a new provided type. It is not initially associated with any specific provided type definition.
+</summary>
+</member>
+<member name="T:Samples.FSharp.ProvidedTypes.ProvidedEvent">
+<summary>
+ Represents an erased provided property.
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedProperty.SetterCode(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Quotations.FSharpExpr},Microsoft.FSharp.Quotations.FSharpExpr})">
+<summary>
+ Set the function used to compute the implementation of sets of this property.
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedProperty.IsStatic(System.Boolean)">
+<summary>
+ Get or set a flag indicating if the property is static.
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedProperty.GetterCode(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Quotations.FSharpExpr},Microsoft.FSharp.Quotations.FSharpExpr})">
+<summary>
+ Set the quotation used to compute the implementation of gets of this property.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedProperty.AddXmlDocDelayed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedProperty.AddXmlDocComputed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
+ The documentation is re-computed  every time it is required.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedProperty.AddXmlDoc(System.String)">
+<summary>
+ Add XML documentation information to this provided constructor
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedProperty.AddObsoleteAttribute(System.String)">
+<summary>
+ Add a &apos;System.Obsolete&apos; attribute to this provided property
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedProperty.AddDefinitionLocation(System.Int32,System.Int32,System.String)">
+<summary>
+ Add definition location information to the provided type definition.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedProperty.#ctor(System.String,System.Type,Microsoft.FSharp.Core.FSharpOption{Microsoft.FSharp.Collections.FSharpList{Samples.FSharp.ProvidedTypes.ProvidedParameter}})">
+<summary>
+ Create a new provided type. It is not initially associated with any specific provided type definition.
+</summary>
+</member>
+<member name="T:Samples.FSharp.ProvidedTypes.ProvidedProperty">
+<summary>
+ Represents an erased provided property.
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedMethod.IsStaticMethod(System.Boolean)">
+<summary>
+ Get or set a flag indicating if the property is static.
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedMethod.InvokeCode(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Quotations.FSharpExpr},Microsoft.FSharp.Quotations.FSharpExpr})">
+<summary>
+ Set the quotation used to compute the implementation of invocations of this method.
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedMethod.IsStaticMethod">
+<summary>
+ Get or set a flag indicating if the property is static.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMethod.SetMethodAttrs(System.Reflection.MethodAttributes)">
+<summary>
+ Set the method attributes of the method. By default these are simple &apos;MethodAttributes.Public&apos;
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMethod.AddXmlDocDelayed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMethod.AddXmlDocComputed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
+ The documentation is re-computed  every time it is required.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMethod.AddXmlDoc(System.String)">
+<summary>
+ Add XML documentation information to this provided constructor
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMethod.AddObsoleteAttribute(System.String)">
+<summary>
+ Add XML documentation information to this provided method
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMethod.AddDefinitionLocation(System.Int32,System.Int32,System.String)">
+<summary>
+ Add definition location information to the provided type definition.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedMethod.#ctor(System.String,Microsoft.FSharp.Collections.FSharpList{Samples.FSharp.ProvidedTypes.ProvidedParameter},System.Type)">
+<summary>
+ Create a new provided method. It is not initially associated with any specific provided type definition.
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedConstructor.IsImplicitCtor(System.Boolean)">
+<summary>
+ Set a flag indicating that the constructor acts like an F# implicit constructor, so the
+ parameters of the constructor become fields and can be accessed using Expr.GlobalVar with the
+ same name.
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedConstructor.InvokeCode(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Quotations.FSharpExpr},Microsoft.FSharp.Quotations.FSharpExpr})">
+<summary>
+ Set the quotation used to compute the implementation of invocations of this constructor.
+</summary>
+</member>
+<member name="P:Samples.FSharp.ProvidedTypes.ProvidedConstructor.BaseConstructorCall(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Quotations.FSharpExpr},System.Tuple{System.Reflection.ConstructorInfo,Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Quotations.FSharpExpr}}})">
+<summary>
+ Set the target and arguments of the base constructor call. Only used for generated types.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedConstructor.AddXmlDocDelayed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedConstructor.AddXmlDocComputed(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.String})">
+<summary>
+ Add XML documentation information to this provided constructor, where the documentation is re-computed  every time it is required.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedConstructor.AddXmlDoc(System.String)">
+<summary>
+ Add XML documentation information to this provided constructor
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedConstructor.AddObsoleteAttribute(System.String)">
+<summary>
+ Add a &apos;System.Obsolete&apos; attribute to this provided constructor
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedConstructor.AddDefinitionLocation(System.Int32,System.Int32,System.String)">
+<summary>
+ Add definition location information to the provided constructor.
+</summary>
+</member>
+<member name="M:Samples.FSharp.ProvidedTypes.ProvidedConstructor.#ctor(Microsoft.FSharp.Collections.FSharpList{Samples.FSharp.ProvidedTypes.ProvidedParameter})">
+<summary>
+ Create a new provided constructor. It is not initially associated with any specific provided type definition.
+</summary>
+</member>
+<member name="T:Samples.FSharp.ProvidedTypes.ProvidedConstructor">
+<summary>
+ Represents an erased provided constructor.
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Samples.FSharp.ProvidedTypes.ProvidedParameter">
+<summary>
+ Represents an erased provided parameter
+</summary>
+</member>
+</members>
+</doc>
