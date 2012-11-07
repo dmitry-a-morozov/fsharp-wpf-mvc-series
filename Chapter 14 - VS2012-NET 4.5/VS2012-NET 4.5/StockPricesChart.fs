@@ -69,7 +69,8 @@ type StockPricesChartController() =
     override this.Dispatcher = fun() -> 
         Async <| fun model ->
             async {
-                let view = StockPickerView()
+                let window = StockPickerWindow()
+                let view = StockPickerView(window)
                 let! result = StockPickerController view |> Controller.asyncStart  
                 result |> Option.iter(fun newItem -> 
                     model.StocksInfo.Add newItem

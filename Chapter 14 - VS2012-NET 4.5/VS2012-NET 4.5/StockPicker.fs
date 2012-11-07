@@ -29,33 +29,41 @@ type StockInfoModel() =
         let moneyFlowVolume  = moneyFlowMultiplier * this.Volume
         sprintf "Accumulation/Distribution: %M" <| Decimal.Round(moneyFlowVolume, 2)
 
-type StockPickerView() as this =
-    inherit View<unit, StockInfoModel, StockPickerWindow>()
+open FSharpx
+type StockPickerWindow = XAML<"View\StockPickerWindow.xaml">
+
+type StockPickerView(xaml : StockPickerWindow) as this =
+    inherit XamlProviderView<unit, StockInfoModel>(xaml.Root)
+
+    let companyName = xaml.CompanyName
+    let addToChart = xaml.AddToChart
+    let retrieve = xaml.Retrieve
+    let symbol = xaml.Symbol
 
     do
-        this.Control.Symbol.CharacterCasing <- CharacterCasing.Upper
-        this.CancelButton <- this.Control.CloseButton
-        this.DefaultOKButton <- this.Control.AddToChart
+        symbol.CharacterCasing <- CharacterCasing.Upper
+        this.CancelButton <- xaml.CloseButton
+        this.DefaultOKButton <- xaml.AddToChart
 
     override this.EventStreams = 
         [
-            this.Control.Retrieve.Click |> Observable.mapTo()
+            xaml.Retrieve.Click |> Observable.mapTo()
         ]
 
     override this.SetBindings model = 
         Binding.FromExpression 
             <@ 
-                this.Control.CompanyName.Text <- model.CompanyName
-                this.Control.AddToChart.IsEnabled <- model.AddToChartEnabled
-                this.Control.Retrieve.IsEnabled <- isNotNull model.Symbol
+                companyName.Text <- model.CompanyName
+                addToChart.IsEnabled <- model.AddToChartEnabled
+                retrieve.IsEnabled <- isNotNull model.Symbol
             @>
 
-        Binding.UpdateSourceOnChange <@ this.Control.Symbol.Text <- model.Symbol @>
+        Binding.UpdateSourceOnChange <@ symbol.Text <- model.Symbol @>
 
         let converter = BooleanToVisibilityConverter()
         Binding.FromExpression 
             <@ 
-                this.Control.AddToChart.Visibility <- converter.Apply model.AddToChartEnabled
+                addToChart.Visibility <- converter.Apply model.AddToChartEnabled
             @>
 
 type StockPickerController(view) = 

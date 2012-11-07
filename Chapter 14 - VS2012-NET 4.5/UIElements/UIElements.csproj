@@ -70,9 +70,6 @@
     <Compile Include="StockPricesChartControl.xaml.cs">
       <DependentUpon>StockPricesChartControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="StockPickerWindow.xaml.cs">
-      <DependentUpon>StockPickerWindow.xaml</DependentUpon>
-    </Compile>
     <Page Include="TempConveterControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -84,10 +81,6 @@
     <Page Include="StockPricesChartControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="StockPickerWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

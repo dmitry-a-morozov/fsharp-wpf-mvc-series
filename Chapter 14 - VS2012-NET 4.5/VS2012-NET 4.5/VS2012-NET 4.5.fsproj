@@ -46,6 +46,7 @@
     <Compile Include="Calculator.fs" />
     <Compile Include="TempConvertSoapClient.fs" />
     <Compile Include="TempConveter.fs" />
+    <Compile Include="XamlProviderView.fs" />
     <Compile Include="StockPicker.fs" />
     <Compile Include="StockPricesChart.fs" />
     <Compile Include="StopWatchObservable.fs" />
