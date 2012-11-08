@@ -82,3 +82,4 @@ type MainController(view, stopWatch : StopWatchObservable) =
         stopWatch.Restart()
         model.Paused <- false
 
+    override this.OnError why = Debug.WriteLine why.Message
