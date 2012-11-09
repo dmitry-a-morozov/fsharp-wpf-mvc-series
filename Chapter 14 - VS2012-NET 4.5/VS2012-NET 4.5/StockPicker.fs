@@ -46,6 +46,7 @@ type StockPickerView(xaml : StockPickerWindow) as this =
         symbol.CharacterCasing <- CharacterCasing.Upper
         this.CancelButton <- xaml.CloseButton
         this.DefaultOKButton <- xaml.AddToChart
+        symbol.ShowErrorInTooltip()
 
     override this.EventStreams = 
         [

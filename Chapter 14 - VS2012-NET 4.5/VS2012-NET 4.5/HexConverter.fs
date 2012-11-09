@@ -24,14 +24,13 @@ module HexConverter =
 
     let view() = 
         let window = HexConverterWindow()
-        let ok = window.OK
         let value = window.Value
         value.ShowErrorInTooltip()
         let result = {
             new View<unit, Model, Window>(window.Root) with 
                 member this.EventStreams = 
                     [
-                        ok.Click |> Observable.mapTo()
+                        window.OK.Click |> Observable.mapTo()
                     ]
 
                 member this.SetBindings model = 
