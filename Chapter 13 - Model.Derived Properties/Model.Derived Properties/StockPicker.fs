@@ -25,9 +25,11 @@ type StockInfoModel() =
 
     [<NotifyDependencyChanged>]
     member this.AccDist = 
-        let moneyFlowMultiplier = (this.LastPrice - this.DaysLow) - (this.DaysHigh - this.LastPrice) / (this.DaysHigh - this.DaysLow)
-        let moneyFlowVolume  = moneyFlowMultiplier * this.Volume
-        sprintf "Accumulation/Distribution: %M" <| Decimal.Round(moneyFlowVolume, 2)
+        if this.DaysLow = 0M && this.DaysHigh = 0M then "Accumulation/Distribution: N/A"
+        else
+            let moneyFlowMultiplier = (this.LastPrice - this.DaysLow) - (this.DaysHigh - this.LastPrice) / (this.DaysHigh - this.DaysLow)
+            let moneyFlowVolume  = moneyFlowMultiplier * this.Volume
+            sprintf "Accumulation/Distribution: %M" <| Decimal.Round(moneyFlowVolume, 2)
 
 type StockPickerView() as this =
     inherit View<unit, StockInfoModel, StockPickerWindow>()
@@ -83,10 +85,11 @@ type StockPickerController(view) =
                         model |> Validation.setError <@ fun m -> m.Symbol @> "Invalid security symbol."
                     else
                         model.CompanyName <- name
-                        model.LastPrice <- decimal lastPrice
-                        model.DaysHigh <- decimal high
-                        model.DaysLow <- decimal low
-                        model.Volume <- decimal volume
+                        let zeroIfNa = function | "N/A" -> 0M | value -> decimal value
+                        model.LastPrice <- zeroIfNa lastPrice
+                        model.DaysHigh <- zeroIfNa high
+                        model.DaysLow <- zeroIfNa low
+                        model.Volume <- zeroIfNa volume
                         model.AddToChartEnabled <- true
                 | _ -> failwithf "Unexpected result service call result.\nRequest: %O.\nResponse: %s" uri data
             }
