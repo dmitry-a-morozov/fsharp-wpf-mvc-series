@@ -31,12 +31,12 @@ module Observable =
     open System.Reactive.Linq
 
     type QueryBuilder internal() =
-        member this.For (s:IObservable<_>, body : _ -> IObservable<_>) = s.SelectMany(body)
+        member this.For(source : IObservable<_>, selector : _ -> IObservable<_>) = source.SelectMany(selector)
         member this.Zero() = Observable.Empty()
-        [<CustomOperation("where", MaintainsVariableSpace=true, AllowIntoPattern=true)>]
-        member this.Where (s:IObservable<_>, [<ProjectionParameter>] predicate : _ -> bool ) = s.Where(predicate)
-        member this.Yield (value) = Observable.Return(value)
-        [<CustomOperation("select", AllowIntoPattern=true)>]
-        member this.Select (s:IObservable<_>, [<ProjectionParameter>] selector : _ -> _) = s.Select(selector)
+        [<CustomOperation("where", MaintainsVariableSpace = true, AllowIntoPattern = true)>]
+        member this.Where(source : IObservable<_>, [<ProjectionParameter>] predicate : _ -> bool ) = source.Where(predicate)
+        member this.Yield value = Observable.Return value
+        [<CustomOperation("select", AllowIntoPattern = true)>]
+        member this.Select(source : IObservable<_>, [<ProjectionParameter>] selector : _ -> _) = source.Select(selector)
 
     let query = QueryBuilder()
