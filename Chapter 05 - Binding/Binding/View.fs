@@ -27,7 +27,7 @@ type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : un
             let xs = this.EventStreams |> List.reduce Observable.merge 
             xs.Subscribe observer
         member this.SetBindings model = 
-            window.DataContext <- model; 
+            window.DataContext <- model
             this.SetBindings model
 
     abstract EventStreams : IObservable<'Event> list
