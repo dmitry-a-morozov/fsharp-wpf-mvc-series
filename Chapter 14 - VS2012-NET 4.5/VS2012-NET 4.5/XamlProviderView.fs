@@ -15,7 +15,7 @@ type XamlProviderView<'Event, 'Model>(window : Window) =
             let xs = this.EventStreams |> List.reduce Observable.merge 
             xs.Subscribe observer
         member this.SetBindings model = 
-            window.DataContext <- model; 
+            window.DataContext <- model 
             this.SetBindings model
         member this.ShowDialog() = 
             window.ShowDialog() |> ignore
