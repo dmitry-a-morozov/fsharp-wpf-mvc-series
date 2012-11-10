@@ -33,7 +33,7 @@ type PartialView<'Event, 'Model, 'Control when 'Control :> FrameworkElement>(con
             let xs = this.EventStreams |> List.reduce Observable.merge 
             xs.Subscribe observer
         member this.SetBindings model = 
-            control.DataContext <- model; 
+            control.DataContext <- model 
             this.SetBindings model
 
     abstract EventStreams : IObservable<'Event> list
