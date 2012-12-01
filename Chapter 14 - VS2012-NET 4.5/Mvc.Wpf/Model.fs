@@ -63,10 +63,10 @@ module ModelExtensions =
                 propertyBody
                     .ExpandLetBindings()
                     .Dependencies
+                    |> Seq.distinct 
                     |> Seq.choose(function 
                         | Some source, path when source = model -> Some(Binding(path, RelativeSource = RelativeSource.Self))
                         | _ -> None)
-                    |> Seq.distinct 
                     |> Seq.iter binding.Bindings.Add
 
                 binding.Converter <- {
