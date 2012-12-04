@@ -98,7 +98,7 @@ type Model() =
 
     static let dependentProperties = Dictionary()
     static let proxyFactory = ProxyGenerator()
-    let errors = Dictionary<string, string list>()
+    let errors = Dictionary()
     let propertyChangedEvent = Event<_,_>()
     let errorsChanged = Event<_,_>()
 
