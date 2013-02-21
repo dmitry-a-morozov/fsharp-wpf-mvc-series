@@ -2,7 +2,7 @@
 open System.Windows
 open System.Windows.Controls
 
-open Mvc.Wpf
+open FSharp.Windows
 
 type SampleModel() = 
     inherit Model()
