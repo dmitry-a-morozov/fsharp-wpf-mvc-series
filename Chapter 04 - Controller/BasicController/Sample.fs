@@ -1,11 +1,11 @@
 ﻿
-namespace Mvc.Wpf.Sample
+namespace FSharp.Windows.Sample
 
 open System
 open System.Windows.Controls
 open System.Windows
 
-open Mvc.Wpf
+open FSharp.Windows
 
 [<AbstractClass>]
 type SampleModel() = 
@@ -19,8 +19,8 @@ type SampleModel() =
 
 type SampleEvents = 
     | Add
-    | Clear
     | Subtract of int * int
+    | Clear
 
 type SampleView() =
     inherit View<SampleEvents, SampleWindow>()
@@ -38,21 +38,15 @@ type SampleView() =
         this.Window.Result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
         this.Window.SetBinding(Window.TitleProperty, "Title") |> ignore
 
-type SimpleController(view) = 
-    inherit Controller<SampleEvents, SampleModel>(view)
+type SampleController() = 
 
-    override this.InitModel model = 
-        model.X <- 0
-        model.Y <- 0
-        model.Result <- 0
-
-        model.Title <- 
-            sprintf "Process name: %s" <| System.Diagnostics.Process.GetCurrentProcess().ProcessName
-
-    override this.EventHandler = function
+    member this.EventHandler = function
         | Add -> this.Add
-        | Clear -> this.InitModel
         | Subtract(x, y) -> this.Subtract x y
+        | Clear -> fun(model : SampleModel) ->
+            model.X <- 0
+            model.Y <- 0
+            model.Result <- 0
 
     member this.Add model = 
         model.Result <- model.X + model.Y

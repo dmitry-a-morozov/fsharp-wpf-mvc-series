@@ -39,7 +39,7 @@
   <ItemGroup>
     <Compile Include="Model.fs" />
     <Compile Include="View.fs" />
-    <Compile Include="Controller.fs" />
+    <Compile Include="Mvc.fs" />
     <Compile Include="Sample.fs" />
     <Compile Include="SampleControllerTest.fs" />
     <Compile Include="Program.fs" />

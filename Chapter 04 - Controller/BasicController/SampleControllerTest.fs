@@ -4,19 +4,15 @@ open System
 open System.Diagnostics
 open Xunit
 open Swensen.Unquote.Assertions
-open Mvc.Wpf
+open FSharp.Windows
+open FSharp.Windows.Sample
 
-let controller = 
-    SimpleController(view = {
-        new IView<SampleEvents> with
-            member __.Subscribe _ = raise <| NotImplementedException()
-            member __.SetBindings _ = raise <| NotImplementedException()
-    })
+let controller = SampleController()
 
 [<Fact>]
 let InitModel() = 
     let model = SampleModel.Create()
-    controller.InitModel model
+    controller.EventHandler Clear model
     model.X =? 0
     model.Y =? 0
     model.Result =? 0 

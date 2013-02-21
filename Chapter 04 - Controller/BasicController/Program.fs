@@ -1,12 +1,14 @@
 ﻿
 open System
 open System.Windows
-open Mvc.Wpf.Sample
+open FSharp.Windows
+open FSharp.Windows.Sample
 
 [<STAThread>] 
 do 
     let model = SampleModel.Create()
     let view = SampleView()
-    let controller = SimpleController(view)
-    controller.Start model |> ignore
+    let eventHandler = SampleController().EventHandler
+    let mvc = Mvc(model, view, eventHandler)
+    mvc.Start() |> ignore
     Application().Run view.Window |> ignore
