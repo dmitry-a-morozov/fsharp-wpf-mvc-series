@@ -1,16 +1,25 @@
-﻿namespace Mvc.Wpf
+﻿namespace FSharp.Windows
 
 open System.ComponentModel
 
-[<AbstractClass>]
-type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view : IView<'Event, 'Model>) =
+type IController<'Event, 'Model when 'Model :> INotifyPropertyChanged> =
 
     abstract InitModel : 'Model -> unit
     abstract EventHandler : ('Event -> 'Model -> unit)
 
-    member this.Start model =
-        this.InitModel model
-        view.SetBindings model
-        view.Subscribe(callback = fun event -> this.EventHandler event model)
+[<AbstractClass>]
+type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>() =
 
+    interface IController<'Event, 'Model> with
+        member this.InitModel model = this.InitModel model
+        member this.EventHandler = this.EventHandler
+
+    abstract InitModel : 'Model -> unit
+    abstract EventHandler : ('Event -> 'Model -> unit)
+
+    static member FromEventHandler callback = {
+        new IController<'Event, 'Model> with
+            member this.InitModel _ = ()
+            member this.EventHandler = callback
+    } 
 

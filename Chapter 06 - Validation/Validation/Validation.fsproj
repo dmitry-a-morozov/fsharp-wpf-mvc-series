@@ -60,6 +60,7 @@
     <Compile Include="Validation.fs" />
     <Compile Include="View.fs" />
     <Compile Include="Controller.fs" />
+    <Compile Include="Mvc.fs" />
     <Compile Include="Sample.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
