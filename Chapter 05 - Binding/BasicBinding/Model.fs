@@ -1,4 +1,4 @@
-﻿namespace Mvc.Wpf
+﻿namespace FSharp.Windows
 
 open System
 open System.ComponentModel
@@ -66,4 +66,5 @@ and AbstractProperties() =
                             invocation.ReturnValue <- Activator.CreateInstance returnType
 
                 | _ -> invocation.Proceed()
+
 

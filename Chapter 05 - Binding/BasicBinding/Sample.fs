@@ -1,11 +1,11 @@
 ﻿
-namespace Mvc.Wpf.Sample
+namespace FSharp.Windows.Sample
 
 open System
 open System.Windows.Controls
 open System.Collections
 
-open Mvc.Wpf
+open FSharp.Windows
 
 type Operations =
     | Add = 0
@@ -44,21 +44,21 @@ type SampleView() =
         //Binding to property of type obj
         <@ this.Window.Operation.SelectedItem <- model.SelectedOperation @>.ToBindingExpr()
 
-type SimpleController(view) = 
-    inherit Controller<SampleEvents, SampleModel>(view)
+type SimpleController() = 
 
-    override this.InitModel model = 
-        model.AvailableOperations <- Enum.GetValues typeof<Operations>
-        model.SelectedOperation <- Operations.Add
-        model.X <- "0"
-        model.Y <- "0"
-        model.Result <- "0"
+    interface IController<SampleEvents, SampleModel> with 
+        member this.InitModel model = 
+            model.AvailableOperations <- Enum.GetValues typeof<Operations>
+            model.SelectedOperation <- Operations.Add
+            model.X <- "0"
+            model.Y <- "0"
+            model.Result <- "0"
 
-    override this.EventHandler = function
-        | Calculate -> this.Calculate
-        | Clear -> this.InitModel
+        member this.EventHandler = function
+            | Calculate -> this.Calculate
+            | Clear -> (this :> IController<_, _>).InitModel
 
-    member this.Calculate model = 
+    member this.Calculate(model : SampleModel) = 
         match model.SelectedOperation with
         | (:? Operations as op) when op = Operations.Add -> model.Result <- int model.X + int model.Y |> string
         | (:? Operations as op) when op = Operations.Subtract -> model.Result <- int model.X - int model.Y |> string

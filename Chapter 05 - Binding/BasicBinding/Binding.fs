@@ -1,6 +1,6 @@
 ﻿[<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Mvc.Wpf.Binding
+module FSharp.Windows.Data
 
 open System.Reflection
 open System.Windows

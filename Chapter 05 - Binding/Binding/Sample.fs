@@ -1,10 +1,10 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Windows.Controls
 open System.Windows.Data
 open Microsoft.FSharp.Reflection
-open Mvc.Wpf
+open FSharp.Windows
 
 type Operations =
     | Add
@@ -46,7 +46,7 @@ type SampleView() =
             @>
 
 type SimpleController(view) = 
-    inherit Controller<SampleEvents, SampleModel>(view)
+    inherit Controller<SampleEvents, SampleModel>()
 
     override this.InitModel model = 
         model.AvailableOperations <- 
