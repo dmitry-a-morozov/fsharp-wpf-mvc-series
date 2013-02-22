@@ -14,4 +14,4 @@ module Mvc =
 
     let inline start(view, controller) = 
         let model = (^Model : (static member Create : unit -> ^Model ) ())
-        Mvc(model, view, controller).Start()
+        Mvc<'Event, ^Model>(model, view, controller).Start()

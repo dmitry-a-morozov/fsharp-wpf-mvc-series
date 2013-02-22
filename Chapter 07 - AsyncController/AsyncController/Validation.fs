@@ -1,5 +1,5 @@
 ﻿[<AutoOpen>]
-module Mvc.Wpf.Validation
+module FSharp.Windows.Validation
 
 open System
 open Microsoft.FSharp.Quotations

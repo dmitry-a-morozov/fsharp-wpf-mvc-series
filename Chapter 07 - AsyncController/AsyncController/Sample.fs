@@ -1,11 +1,11 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Windows.Controls
 open System.Windows.Data
 open System.Threading
 open Microsoft.FSharp.Reflection
-open Mvc.Wpf
+open FSharp.Windows
 open CSharpWindow.TempConverter
 
 type Operations =
@@ -66,8 +66,8 @@ type SampleView() =
                 this.Window.Delay.Text <- string model.Delay
             @>
 
-type SimpleController(view) = 
-    inherit Controller<SampleEvents, SampleModel>(view)
+type SampleController() = 
+    inherit Controller<SampleEvents, SampleModel>()
 
     let service = new TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
 

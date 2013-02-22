@@ -7,6 +7,6 @@ open FSharp.Windows.Sample
 [<STAThread>] 
 do 
     let view = SampleView()
-    let controller = SimpleController()
+    let controller = SampleController()
     Mvc.start(view, controller) |> ignore
     Application().Run view.Window |> ignore
