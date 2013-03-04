@@ -10,3 +10,9 @@ do
     let controller = SimpleController()
     Mvc.start(view, controller) |> ignore
     Application().Run view.Window |> ignore
+
+(*
+    IController introduction
+    Controller.fromEventHandler
+    Mvc.start with default model instance
+*)

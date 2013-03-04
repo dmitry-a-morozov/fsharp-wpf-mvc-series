@@ -2,7 +2,7 @@
 
 open System.ComponentModel
 
-type Mvc<'Event, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Event, 'Model>, controller : IController<'Event, 'Model>) =
+type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events, 'Model>, controller : IController<'Events, 'Model>) =
 
     member this.Start() =
         controller.InitModel model
@@ -14,4 +14,4 @@ module Mvc =
 
     let inline start(view, controller) = 
         let model = (^Model : (static member Create : unit -> ^Model ) ())
-        Mvc<'Event, ^Model>(model, view, controller).Start()
+        Mvc<'Events, ^Model>(model, view, controller).Start()

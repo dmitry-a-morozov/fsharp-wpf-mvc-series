@@ -2,15 +2,15 @@
 
 open System.ComponentModel
 
-type IController<'Event, 'Model when 'Model :> INotifyPropertyChanged> =
+type IController<'Events, 'Model when 'Model :> INotifyPropertyChanged> =
 
     abstract InitModel : 'Model -> unit
-    abstract EventHandler : ('Event -> 'Model -> unit)
+    abstract EventHandler : ('Events -> 'Model -> unit)
 
 module Controller = 
 
     let fromEventHandler callback = {
-        new IController<'Event, 'Model> with
+        new IController<'Events, 'Model> with
             member this.InitModel _ = ()
             member this.EventHandler = callback
     } 

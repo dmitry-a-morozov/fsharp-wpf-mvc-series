@@ -12,3 +12,7 @@ do
     let mvc = Mvc(model, view, eventHandler)
     mvc.Start() |> ignore
     Application().Run view.Window |> ignore
+
+(*
+    Mvc class introduction
+*)
