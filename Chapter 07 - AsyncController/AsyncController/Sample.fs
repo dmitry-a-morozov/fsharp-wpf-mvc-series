@@ -1,9 +1,12 @@
 ﻿namespace FSharp.Windows.Sample
 
 open System
+open System.Windows
 open System.Windows.Controls
 open System.Windows.Data
 open System.Threading
+open System.Threading.Tasks
+open System.IO
 open Microsoft.FSharp.Reflection
 open FSharp.Windows
 open CSharpWindow.TempConverter
@@ -30,6 +33,8 @@ type SampleModel() =
     abstract Fahrenheit : float with get, set
     abstract TempConverterHeader : string with get, set
     abstract Delay : int with get, set
+
+    abstract Title : string with get, set
 
 type SampleEvents = 
     | Calculate
@@ -66,30 +71,41 @@ type SampleView() =
                 this.Window.Celsius.Text <- string model.Celsius
                 this.Window.Fahrenheit.Text <- string model.Fahrenheit
                 this.Window.Delay.Text <- string model.Delay
+
             @>
 
+        this.Window.SetBinding(Window.TitleProperty, "Title") |> ignore
+         
 type SampleController() = 
-    inherit Controller<SampleEvents, SampleModel>()
+    inherit AsyncInitController<SampleEvents, SampleModel>()
 
     let service = new TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
 
-    override this.InitModel model = 
+    override this.InitModel(model : SampleModel) = 
         model.AvailableOperations <- 
             typeof<Operations>
             |> FSharpType.GetUnionCases
             |> Array.map(fun x -> FSharpValue.MakeUnion(x, [||]))
             |> Array.map unbox
         model.SelectedOperation <- Operations.Add
-        model.X <- 0
-        model.Y <- 0
-        model.Result <- 0
 
         model.TempConverterHeader <- "Async TempConveter"
         model.Delay <- 3
 
+        let folderToSearch = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
+        model.Title <- sprintf "Files in %s: - ..." folderToSearch
+
+        async {
+            let context = SynchronizationContext.Current
+            do! Async.SwitchToThreadPool()
+            let totalFiles = Directory.GetFiles(folderToSearch, "*.*", SearchOption.AllDirectories).Length
+            do! Async.SwitchToContext context
+            model.Title <- sprintf "Files in %s: - %i" folderToSearch totalFiles
+        }
+
     override this.Dispatcher = function
         | Calculate -> Sync this.Calculate
-        | Clear -> Sync this.InitModel
+        | Clear -> Sync this.Clear
         | CelsiusToFahrenheit -> Async this.CelsiusToFahrenheit
         | FahrenheitToCelsius -> Async(fun model -> 
             let context = SynchronizationContext.Current
@@ -100,6 +116,11 @@ type SampleController() =
             ))
         | CancelAsync -> Sync(ignore >> Async.CancelDefaultToken)
         | Kaboom -> Sync(fun _  -> failwith "Kaboom !")
+
+    member this.Clear model = 
+        model.X <- 0
+        model.Y <- 0
+        model.Result <- 0
 
     member this.Calculate model = 
         model.ClearAllErrors()
