@@ -48,3 +48,7 @@ do
     calculate.Click.Add(fun _ -> model.Result <- model.X + model.Y)
 
     Application().Run window |> ignore
+
+(*
+    namespace changed Mvc.Wpf -> FSharp.Windows
+*)
