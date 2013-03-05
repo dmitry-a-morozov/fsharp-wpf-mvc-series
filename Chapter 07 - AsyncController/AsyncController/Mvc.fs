@@ -1,42 +1,41 @@
 ﻿namespace FSharp.Windows
 
 open System.ComponentModel
+open System
+open System.Reflection
 
-exception PreserveStackTraceWrapper of exn
+type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events, 'Model>, controller : IController<'Events, 'Model>) =
 
-type Mvc<'Event, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Event, 'Model>, controller : IController<'Event, 'Model>) =
-
-    static let mutable defaultOnError : 'Event -> exn -> unit = fun event why -> why |> PreserveStackTraceWrapper |> raise
-    static member DefaultOnError 
-        with get() = defaultOnError
-        and set errorHandler = defaultOnError <- errorHandler
+    static let defaultReraise =  
+        let internalPreserveStackTrace = lazy typeof<Exception>.GetMethod("InternalPreserveStackTrace", BindingFlags.Instance ||| BindingFlags.NonPublic)
+        fun exn ->
+            internalPreserveStackTrace.Value.Invoke(exn, [||]) |> ignore
+            raise exn |> ignore
     
     member this.Start() =
         controller.InitModel model
         view.SetBindings model
         view.Subscribe (fun event -> 
             match controller.Dispatcher event with
-            | Sync handler -> 
-                try 
-                    handler model 
-                with 
-                    why -> this.OnError event why
-            | Async handler -> 
+            | Sync eventHandler ->
+                try eventHandler model 
+                with exn -> this.OnException(event, exn)
+            | Async eventHandler -> 
                 Async.StartWithContinuations(
-                    computation = handler model, 
+                    computation = eventHandler model, 
                     continuation = ignore, 
-                    exceptionContinuation = this.OnError event, 
+                    exceptionContinuation = (fun exn -> this.OnException(event, exn)),
                     cancellationContinuation = ignore
                 )
         )
 
-    abstract OnError : ('Event -> exn -> unit)
-    default this.OnError = defaultOnError
+    abstract OnException : 'Events * exn -> unit
+    default this.OnException(_, exn) = defaultReraise exn 
+    //defaultReraise on CLR 4.5 is replaced by ExceptionDispatchInfo.Capture(exn).Throw()
 
 module Mvc = 
 
     let inline start(view, controller) = 
         let model = (^Model : (static member Create : unit -> ^Model ) ())
-        Mvc<'Event, ^Model>(model, view, controller).Start()
+        Mvc<'Events, ^Model>(model, view, controller).Start()
 
-    

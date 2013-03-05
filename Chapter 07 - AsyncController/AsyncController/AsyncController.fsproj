@@ -46,6 +46,7 @@
     <Compile Include="Mvc.fs" />
     <Compile Include="TempConvertSoapClient.fs" />
     <Compile Include="Sample.fs" />
+    <Compile Include="PreserveStackTraceWrapper.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
   </ItemGroup>

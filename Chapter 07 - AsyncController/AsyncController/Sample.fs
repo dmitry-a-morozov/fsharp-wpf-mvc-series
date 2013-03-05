@@ -37,6 +37,7 @@ type SampleEvents =
     | CelsiusToFahrenheit
     | FahrenheitToCelsius
     | CancelAsync
+    | Kaboom
 
 type SampleView() =
     inherit View<SampleEvents, SampleModel, SampleWindow>()
@@ -48,6 +49,7 @@ type SampleView() =
             this.Window.CelsiusToFahrenheit, CelsiusToFahrenheit
             this.Window.FahrenheitToCelsius, FahrenheitToCelsius
             this.Window.CancelAsync, CancelAsync
+            this.Window.Kaboom, Kaboom
         ]
         |> List.map(fun(button, value) -> button.Click |> Observable.mapTo value)
 
@@ -89,8 +91,15 @@ type SampleController() =
         | Calculate -> Sync this.Calculate
         | Clear -> Sync this.InitModel
         | CelsiusToFahrenheit -> Async this.CelsiusToFahrenheit
-        | FahrenheitToCelsius -> Async this.FahrenheitToCelsius
+        | FahrenheitToCelsius -> Async(fun model -> 
+            let context = SynchronizationContext.Current
+            Async.TryCancelled(
+                computation = this.FahrenheitToCelsius model,
+                compensation = fun error -> 
+                    context.Post((fun _ -> model.TempConverterHeader <- "Async TempConverter. Request cancelled."), null) 
+            ))
         | CancelAsync -> Sync(ignore >> Async.CancelDefaultToken)
+        | Kaboom -> Sync(fun _  -> failwith "Kaboom !")
 
     member this.Calculate model = 
         model.ClearAllErrors()
@@ -129,13 +138,13 @@ type SampleController() =
 
     member this.FahrenheitToCelsius model = 
         async {
-            let context = SynchronizationContext.Current
-            use! cancelHandler = Async.OnCancel(fun() -> 
-                context.Post((fun _ -> model.TempConverterHeader <- "Async TempConverter. Request cancelled."), null)) 
-            model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
-            do! Async.Sleep(model.Delay * 1000)
-            let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
-            do! Async.SwitchToContext context
-            model.TempConverterHeader <- "Async TempConverter. Response received."            
-            model.Celsius <- celsius
+                let context = SynchronizationContext.Current
+                model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
+                do! Async.Sleep(model.Delay * 1000)
+                let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
+                do! Async.SwitchToContext context
+                model.TempConverterHeader <- "Async TempConverter. Response received."            
+                model.Celsius <- celsius
         }
+
+                

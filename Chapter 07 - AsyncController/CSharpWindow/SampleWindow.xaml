@@ -26,6 +26,9 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <Button Grid.Column="1" Grid.RowSpan="2" Margin="10" Name="Kaboom" x:FieldModifier="public">
+            <Image Source="kaboom.jpg"/>
+        </Button>
         <TextBox Name="X" Margin="5" Height="25" x:FieldModifier="public"/>
         <DockPanel Grid.Row="1">
             <Label Content="Operation" VerticalAlignment="Center"/>
