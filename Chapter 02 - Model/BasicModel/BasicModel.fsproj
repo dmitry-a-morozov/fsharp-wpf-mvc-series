@@ -8,7 +8,7 @@
     <ProjectGuid>{849afbed-e9f1-459e-aa56-0e02a5663a68}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>SimpleModel</RootNamespace>
-    <AssemblyName>SimpleModel</AssemblyName>
+    <AssemblyName>BasicModel</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <Name>BasicModel</Name>
