@@ -45,7 +45,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Mvc.Wpf\FSharp.Windows.fsproj">
+    <ProjectReference Include="..\FSharp.Windows\FSharp.Windows.fsproj">
       <Name>FSharp.Windows</Name>
       <Project>{fc53e577-bb90-44b9-847f-81ad097cf38e}</Project>
       <Private>True</Private>
