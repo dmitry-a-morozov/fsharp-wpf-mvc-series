@@ -1,4 +1,4 @@
-﻿namespace Mvc.Wpf
+﻿namespace FSharp.Windows
  
 open System
 open LanguagePrimitives

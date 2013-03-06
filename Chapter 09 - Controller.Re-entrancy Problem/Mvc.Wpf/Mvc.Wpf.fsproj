@@ -70,6 +70,7 @@
     <Compile Include="Binding.fs" />
     <Compile Include="View.fs" />
     <Compile Include="Controller.fs" />
+    <Compile Include="Mvc.fs" />
     <Compile Include="Model.fs" />
     <Compile Include="Validation.fs" />
   </ItemGroup>

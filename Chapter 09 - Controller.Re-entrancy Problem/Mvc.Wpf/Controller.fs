@@ -1,56 +1,56 @@
-﻿namespace Mvc.Wpf
+﻿namespace FSharp.Windows
 
 open System.ComponentModel
-open System.Reactive
 
-type EventHandler<'M> = 
-    | Sync of ('M -> unit)
-    | Async of ('M -> Async<unit>)
+type EventHandler<'Model> = 
+    | Sync of ('Model -> unit)
+    | Async of ('Model -> Async<unit>)
 
-exception PreserveStackTraceWrapper of exn
-
-[<AbstractClass>]
-type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view : IView<'Event, 'Model>) =
+type IController<'Events, 'Model when 'Model :> INotifyPropertyChanged> =
 
     abstract InitModel : 'Model -> unit
-    abstract Dispatcher : ('Event -> EventHandler<'Model>)
-
-    member this.Activate model =
-        this.InitModel model
-        view.SetBindings model
-
-        let observer = Observer.Create(fun e -> 
-            match this.Dispatcher e with
-            | Sync handler -> try handler model with e -> this.OnError e
-            | Async handler -> 
-                Async.StartWithContinuations(
-                    computation = handler model, 
-                    continuation = ignore, 
-                    exceptionContinuation = this.OnError, 
-                    cancellationContinuation = ignore))
-#if DEBUG
-        let observer = observer.Checked()
-#endif
-        let observer = Observer.Synchronize(observer, preventReentrancy = true)
-        view.Subscribe observer
-
-    member this.Start model =
-        use subcription = this.Activate model
-        view.ShowDialog()
-
-    member this.AsyncStart model =
-        async {
-            use subcription = this.Activate model
-            return! view.Show()
-        }
-
-    abstract OnError : exn -> unit
-    default this.OnError why = why |> PreserveStackTraceWrapper |> raise
+    abstract Dispatcher : ('Events -> EventHandler<'Model>)
 
 [<AbstractClass>]
-type SyncController<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view) =
-    inherit Controller<'Event, 'Model>(view)
+type Controller<'Events, 'Model when 'Model :> INotifyPropertyChanged>() =
 
-    abstract Dispatcher : ('Event -> 'Model -> unit)
+    interface IController<'Events, 'Model> with
+        member this.InitModel model = this.InitModel model
+        member this.Dispatcher = this.Dispatcher
+
+    abstract InitModel : 'Model -> unit
+    abstract Dispatcher : ('Events -> EventHandler<'Model>)
+
+    static member Create callback = {
+        new IController<'Events, 'Model> with
+            member this.InitModel _ = ()
+            member this.Dispatcher = callback
+    } 
+
+    static member Create callback = {
+        new IController<'Events, 'Model> with
+            member this.InitModel _ = ()
+            member this.Dispatcher = fun event -> Sync(callback event)
+    } 
+
+[<AbstractClass>]
+type AsyncInitController<'Events, 'Model when 'Model :> INotifyPropertyChanged>() =
+    inherit Controller<'Events, 'Model>()
+
+    abstract InitModel : 'Model -> Async<unit>
+    override this.InitModel model = model |> this.InitModel |> Async.StartImmediate
+
+    static member inline Create(controller : ^Controller) = {
+        new IController<'Events, 'Model> with
+            member this.InitModel model = (^Controller : (member InitModel : 'Model -> Async<unit>) (controller, model)) |> Async.StartImmediate
+            member this.Dispatcher = (^Controller : (member Dispatcher : ('Events -> EventHandler<'Model>)) controller)
+    } 
+
+
+[<AbstractClass>]
+type SyncController<'Events, 'Model when 'Model :> INotifyPropertyChanged>(view) =
+    inherit Controller<'Events, 'Model>()
+
+    abstract Dispatcher : ('Events -> 'Model -> unit)
     override this.Dispatcher = fun e -> Sync(this.Dispatcher e)
 

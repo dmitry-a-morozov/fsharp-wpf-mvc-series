@@ -1,6 +1,6 @@
 ﻿[<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Mvc.Wpf.Sample.TempConvertSoapClient
+module FSharp.Windows.Sample.TempConvertSoapClient
 
 open CSharpWindow.TempConverter
 

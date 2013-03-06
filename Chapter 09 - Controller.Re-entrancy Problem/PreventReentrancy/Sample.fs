@@ -1,4 +1,4 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Windows.Controls
@@ -11,7 +11,7 @@ open System.Collections.ObjectModel
 
 open Microsoft.FSharp.Reflection
 
-open Mvc.Wpf
+open FSharp.Windows
 
 open CSharpWindow.TempConverter
 
@@ -108,8 +108,8 @@ type SampleView() as this =
         this.Window.StockPricesChart.DataSource <- model.StockPrices
         model.StockPrices.CollectionChanged.Add(fun _ -> this.Window.StockPricesChart.DataBind())
 
-type SimpleController(view) = 
-    inherit Controller<SampleEvents, SampleModel>(view)
+type SampleController() = 
+    inherit Controller<SampleEvents, SampleModel>()
 
     let service = new TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
 
@@ -186,26 +186,25 @@ type SimpleController(view) =
 
     member this.Hex1 model = 
         let view = HexConverter.view()
-        let controller = HexConverter.controller view
-        let childModel : HexConverter.Model = Model.Create() 
+        let childModel = Model.Create() 
+        let controller = HexConverter.controller() 
+        let mvc = Mvc(childModel, view, controller)
         childModel.Value <- model.X
 
-        if controller.Start childModel
+        if mvc.Start()
         then 
             model.X <- childModel.Value 
 
     member this.Hex2 model = 
-        HexConverter.view()
-        |> HexConverter.controller 
-        |> Controller.start
+        (HexConverter.view(), HexConverter.controller())
+        |> Mvc.start
         |> Option.iter(fun resultModel ->
             model.Y <- resultModel.Value 
         )
 
     member this.AddStockToPriceChart model = 
         async {
-            let view = StockPriceView()
-            let! result = StockPriceController view |> Controller.asyncStart  
+            let! result = (StockPriceView(), StockPriceController()) |> Mvc.asyncStart  
             result |> Option.iter (fun stockInfo ->
                 model.StockPrices.Add(stockInfo.Symbol, stockInfo.LastPrice)
             )

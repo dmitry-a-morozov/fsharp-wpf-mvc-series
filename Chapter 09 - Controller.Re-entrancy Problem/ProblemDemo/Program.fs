@@ -23,7 +23,7 @@ do
     let model = Model()
     let textBox = TextBox(DataContext = model)
     textBox.SetBinding(TextBox.TextProperty, "Text") |> ignore
-    textBox.TextChanged |> Observable.add(fun _ ->
+    textBox.TextChanged |> Observable.add (fun _ ->
         printfn "Begin event handler. TextBox.Text value: %s. Reverting ..." model.Text
         model.Text <- String(model.Text.ToCharArray() |> Array.rev)
         printfn "End event handler."

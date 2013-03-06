@@ -1,9 +1,9 @@
 ﻿
 open System
 open System.Windows
-open Mvc.Wpf.Sample
-open Mvc.Wpf
+open FSharp.Windows.Sample
+open FSharp.Windows
 
 [<STAThread>] 
 do 
-    SimpleController(view = SampleView()) |> Controller.start |> ignore
+    (SampleView(), SampleController()) |> Mvc.start |> ignore
