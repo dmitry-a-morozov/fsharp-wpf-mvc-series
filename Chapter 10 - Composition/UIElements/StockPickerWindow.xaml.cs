@@ -11,7 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace Mvc.Wpf.UIElements
+namespace FSharp.Windows.UIElements
 {
     public partial class StockPickerWindow : Window
     {

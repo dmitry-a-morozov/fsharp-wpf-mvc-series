@@ -1,12 +1,12 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Diagnostics
 open System.Windows.Data
 open System.Windows
 open System.Windows.Controls
-open Mvc.Wpf
-open Mvc.Wpf.UIElements
+open FSharp.Windows
+open FSharp.Windows.UIElements
 
 [<AbstractClass>]
 type MainModel() = 
@@ -38,8 +38,8 @@ type MainView() =
         titleBinding.Bindings.Add <| Binding("ActiveTab")
         this.Control.SetBinding(Window.TitleProperty, titleBinding) |> ignore
 
-type MainController(view) = 
-    inherit SupervisingController<MainEvents, MainModel>(view)
+type MainController() = 
+    inherit Controller<MainEvents, MainModel>()
 
     override this.InitModel model = 
         model.ProcessName <- Process.GetCurrentProcess().ProcessName

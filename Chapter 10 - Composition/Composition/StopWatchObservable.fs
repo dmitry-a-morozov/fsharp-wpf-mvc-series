@@ -1,4 +1,4 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Reactive.Linq

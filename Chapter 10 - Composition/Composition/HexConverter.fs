@@ -1,16 +1,18 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Globalization
 open System.Windows.Data
-open Mvc.Wpf
-open Mvc.Wpf.UIElements
+open FSharp.Windows
+open FSharp.Windows.UIElements
 
 module HexConverter =  
 
+    type Events = ValueChanging of string * (unit -> unit)
+
     [<AbstractClass>]
     type Model() = 
-        inherit Mvc.Wpf.Model()
+        inherit FSharp.Windows.Model()
 
         abstract HexValue : string with get, set
         member this.Value 
@@ -19,10 +21,10 @@ module HexConverter =
 
     let view() = 
         let result = {
-            new View<unit, Model, HexConverterWindow>() with 
+            new View<Events, Model, HexConverterWindow>() with 
                 member this.EventStreams = 
                     [
-                        this.Control.OK.Click |> Observable.mapTo()
+                        this.Control.Value.PreviewTextInput |> Observable.map(fun args -> ValueChanging(args.Text, fun() -> args.Handled <- true))
                     ]
 
                 member this.SetBindings model = 
@@ -32,18 +34,12 @@ module HexConverter =
                         @>
         }
         result.CancelButton <- result.Control.Cancel
+        result.DefaultOKButton <- result.Control.OK
         result
 
-    let controller view = {
-        new SupervisingController<unit, Model>(view) with
-            member this.InitModel _ = ()
-            member this.Dispatcher = fun() -> 
-                Sync <| fun(model : Model) ->
-                    try 
-                        let _ = model.Value
-                        view.OK()
-                    with :? FormatException as why ->  
-                        let errorMessage = sprintf "Cannot parse hex value %s because %s" model.HexValue why.Message
-                        model |> Validation.setError <@ fun m -> m.HexValue @> errorMessage
-    }
-
+    let controller() = 
+        Controller.Create(
+            fun(ValueChanging(text, cancel)) (model : Model) ->
+                let isValid, _ = Int32.TryParse(text, NumberStyles.HexNumber, null)
+                if not isValid then cancel()
+            )

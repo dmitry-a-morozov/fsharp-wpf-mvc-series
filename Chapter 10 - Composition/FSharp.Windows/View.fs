@@ -1,26 +1,26 @@
-﻿namespace Mvc.Wpf
+﻿namespace FSharp.Windows
 
 open System
 open System.Windows
 open System.Windows.Controls
 
-type IPartialView<'Event, 'Model> = 
-    inherit IObservable<'Event>
+type IPartialView<'Events, 'Model> = 
+    inherit IObservable<'Events>
 
     abstract SetBindings : 'Model -> unit
 
-type IView<'Event, 'Model> =
-    inherit IPartialView<'Event, 'Model>
+type IView<'Events, 'Model> =
+    inherit IPartialView<'Events, 'Model>
 
     abstract ShowDialog : unit -> bool
     abstract Show : unit -> Async<bool>
     abstract Close : bool -> unit
 
 [<AbstractClass>]
-type PartialView<'Event, 'Model, 'Control when 'Control :> FrameworkElement>(control : 'Control) =
+type PartialView<'Events, 'Model, 'Control when 'Control :> FrameworkElement>(control : 'Control) =
 
     member this.Control = control
-    static member (?) (view : PartialView<'Event, 'Model, 'Window>, name) = 
+    static member (?) (view : PartialView<'Events, 'Model, 'Window>, name) = 
         match view.Control.FindName name with
         | null -> 
             match view.Control.TryFindResource name with
@@ -28,7 +28,7 @@ type PartialView<'Event, 'Model, 'Control when 'Control :> FrameworkElement>(con
             | resource -> resource |> unbox
         | control -> control |> unbox
     
-    interface IPartialView<'Event, 'Model> with
+    interface IPartialView<'Events, 'Model> with
         member this.Subscribe observer = 
             let xs = this.EventStreams |> List.reduce Observable.merge 
             xs.Subscribe observer
@@ -36,16 +36,16 @@ type PartialView<'Event, 'Model, 'Control when 'Control :> FrameworkElement>(con
             control.DataContext <- model
             this.SetBindings model
 
-    abstract EventStreams : IObservable<'Event> list
+    abstract EventStreams : IObservable<'Events> list
     abstract SetBindings : 'Model -> unit
 
 [<AbstractClass>]
-type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>(?window) = 
-    inherit PartialView<'Event, 'Model, 'Window>(control = defaultArg window (new 'Window()))
+type View<'Events, 'Model, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>(?window) = 
+    inherit PartialView<'Events, 'Model, 'Window>(control = defaultArg window (new 'Window()))
 
     let mutable isOK = false
 
-    interface IView<'Event, 'Model> with
+    interface IView<'Events, 'Model> with
         member this.ShowDialog() = 
             this.Control.ShowDialog() |> ignore
             isOK
@@ -57,14 +57,14 @@ type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : un
             this.Control.Close()
 
 [<AbstractClass>]
-type XamlView<'Event, 'Model>(resourceLocator) = 
-    inherit View<'Event, 'Model, Window>(resourceLocator |> Application.LoadComponent |> unbox)
+type XamlView<'Events, 'Model>(resourceLocator) = 
+    inherit View<'Events, 'Model, Window>(resourceLocator |> Application.LoadComponent |> unbox)
 
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module View = 
 
-    type IView<'Event, 'Model> with
+    type IView<'Events, 'Model> with
 
         member this.OK() = this.Close true
         member this.Cancel() = this.Close false

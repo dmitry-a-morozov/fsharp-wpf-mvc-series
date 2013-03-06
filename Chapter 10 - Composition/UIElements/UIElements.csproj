@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Mvc.Wpf.UIElements</RootNamespace>
-    <AssemblyName>Mvc.Wpf.UIElements</AssemblyName>
+    <AssemblyName>FSharp.Windows.UIElements</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
