@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpWindow", "CSharpWindo
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PreventReentrancy", "PreventReentrancy\PreventReentrancy.fsproj", "{5330E15A-94AA-4891-BEE3-AD8A53BD048E}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Windows", "Mvc.Wpf\FSharp.Windows.fsproj", "{FC53E577-BB90-44B9-847F-81AD097CF38E}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Windows", "FSharp.Windows\FSharp.Windows.fsproj", "{FC53E577-BB90-44B9-847F-81AD097CF38E}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ProblemDemo", "ProblemDemo\ProblemDemo.fsproj", "{625B5C05-5FA8-4706-A3C0-28032BE65A04}"
 EndProject
