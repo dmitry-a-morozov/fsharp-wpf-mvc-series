@@ -28,13 +28,6 @@ type Controller<'Events, 'Model when 'Model :> INotifyPropertyChanged>() =
     } 
 
 [<AbstractClass>]
-type SyncController<'Events, 'Model when 'Model :> INotifyPropertyChanged>() =
-    inherit Controller<'Events, 'Model>()
-
-    abstract Dispatcher : ('Events -> 'Model -> unit)
-    override this.Dispatcher = fun e -> Sync(this.Dispatcher e)
-
-[<AbstractClass>]
 type AsyncInitController<'Events, 'Model when 'Model :> INotifyPropertyChanged>() =
     inherit Controller<'Events, 'Model>()
 

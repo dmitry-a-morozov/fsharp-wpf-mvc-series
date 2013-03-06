@@ -1,11 +1,11 @@
-﻿namespace Mvc.Wpf
+﻿namespace FSharp.Windows
 
 open System
 open System.Windows
 open System.Windows.Controls
 
-type IView<'Event, 'Model> =
-    inherit IObservable<'Event>
+type IView<'Events, 'Model> =
+    inherit IObservable<'Events>
 
     abstract SetBindings : 'Model -> unit
 
@@ -14,13 +14,13 @@ type IView<'Event, 'Model> =
     abstract Close : bool -> unit
 
 [<AbstractClass>]
-type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>(?window) = 
+type View<'Events, 'Model, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>(?window) = 
 
     let window = defaultArg window (new 'Window())
     let mutable isOK = false
 
     member this.Window = window
-    static member (?) (view : View<'Event, 'Model, 'Window>, name) = 
+    static member (?) (view : View<'Events, 'Model, 'Window>, name) = 
         match view.Window.FindName name with
         | null -> 
             match view.Window.TryFindResource name with
@@ -28,7 +28,7 @@ type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : un
             | resource -> resource |> unbox
         | control -> control |> unbox
     
-    interface IView<'Event, 'Model> with
+    interface IView<'Events, 'Model> with
 
         member this.Subscribe observer = 
             let xs = this.EventStreams |> List.reduce Observable.merge 
@@ -47,18 +47,18 @@ type View<'Event, 'Model, 'Window when 'Window :> Window and 'Window : (new : un
             isOK <- isOK'
             this.Window.Close()
 
-    abstract EventStreams : IObservable<'Event> list
+    abstract EventStreams : IObservable<'Events> list
     abstract SetBindings : 'Model -> unit
 
 [<AbstractClass>]
-type XamlView<'Event, 'Model>(resourceLocator) = 
-    inherit View<'Event, 'Model, Window>(resourceLocator |> Application.LoadComponent |> unbox)
+type XamlView<'Events, 'Model>(resourceLocator) = 
+    inherit View<'Events, 'Model, Window>(resourceLocator |> Application.LoadComponent |> unbox)
 
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module View = 
 
-    type IView<'Event, 'Model> with
+    type IView<'Events, 'Model> with
 
         member this.OK() = this.Close true
         member this.Cancel() = this.Close false

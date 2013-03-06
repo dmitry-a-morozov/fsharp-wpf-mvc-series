@@ -12,7 +12,7 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
             internalPreserveStackTrace.Value.Invoke(exn, [||]) |> ignore
             raise exn |> ignore
     
-    member this.Start() =
+    member this.Activate() =
         controller.InitModel model
         view.SetBindings model
         view.Subscribe (fun event -> 
@@ -29,14 +29,16 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
                 )
         )
 
+    member this.Start() =
+        use subscription = this.Activate()
+        view.ShowDialog()
+
+    member this.AsyncStart() =
+        async {
+            use subscription = this.Activate()
+            return! view.Show()
+        }
+
     abstract OnException : 'Events * exn -> unit
     default this.OnException(_, exn) = defaultReraise exn 
-    //defaultReraise on CLR 4.5 is replaced by ExceptionDispatchInfo.Capture(exn).Throw()
-
-[<RequireQualifiedAccess>]
-module Mvc = 
-
-    let inline start(view, controller) = 
-        let model = (^Model : (static member Create : unit -> ^Model ) ())
-        Mvc<'Events, ^Model>(model, view, controller).Start()
 

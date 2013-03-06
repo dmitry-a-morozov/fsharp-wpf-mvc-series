@@ -1,4 +1,4 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Globalization
@@ -6,7 +6,7 @@ open System.Windows.Data
 open System.Windows.Controls
 open System.Net
 open System.Linq
-open Mvc.Wpf
+open FSharp.Windows
 
 [<AbstractClass>]
 type StockPriceModel() = 
@@ -39,8 +39,8 @@ type StockPriceView() as this =
                 this.Window.AddToChart.IsEnabled <- model.AddToChartEnabled
             @>
 
-type StockPriceController(view) = 
-    inherit Controller<unit, StockPriceModel>(view)
+type StockPriceController() = 
+    inherit Controller<unit, StockPriceModel>()
 
     override this.InitModel _ = ()
     override this.Dispatcher = fun() ->

@@ -92,8 +92,8 @@ type SampleController() =
         model.TempConverterHeader <- "Async TempConveter"
         model.Delay <- 3
 
-        let folderToSearch = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
-        model.Title <- sprintf "Files in %s: - ..." folderToSearch
+        let folderToSearch = Environment.GetFolderPath Environment.SpecialFolder.ProgramFiles
+        model.Title <- sprintf "Files in %s: ..." folderToSearch
 
         async {
             let context = SynchronizationContext.Current

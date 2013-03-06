@@ -42,6 +42,7 @@
     <Compile Include="Validation.fs" />
     <Compile Include="View.fs" />
     <Compile Include="Controller.fs" />
+    <Compile Include="Mvc.fs" />
     <Compile Include="Model.fs" />
     <Compile Include="TempConvertSoapClient.fs" />
     <Compile Include="HexConverter.fs" />
