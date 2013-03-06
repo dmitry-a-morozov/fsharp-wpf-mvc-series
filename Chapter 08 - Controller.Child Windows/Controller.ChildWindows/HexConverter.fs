@@ -13,7 +13,6 @@ module HexConverter =
     type Model() = 
         inherit FSharp.Windows.Model()
 
-        abstract OkEnabled : bool with get, set
         abstract HexValue : string with get, set
         member this.Value 
             with get() = Int32.Parse(this.HexValue, NumberStyles.HexNumber)
@@ -31,19 +30,15 @@ module HexConverter =
                     Binding.FromExpression 
                         <@ 
                             this.Window.Value.Text <- model.HexValue
-                            this.Window.OK.IsEnabled <- model.OkEnabled
                         @>
         }
         result.CancelButton <- result.Window.Cancel
         result.DefaultOKButton <- result.Window.OK
         result
 
-    let controller() = {
-        new SyncController<Events, Model>() with
-            member this.InitModel model = 
-                model.OkEnabled <- true
-            member this.Dispatcher = fun(ValueChanging(text, cancel)) (model : Model) ->
-                if Int32.TryParse(text, NumberStyles.HexNumber, null, ref 0)
-                then model.OkEnabled <- true
-                else cancel()
-    }
+    let controller() = 
+        Controller.Create(
+            fun(ValueChanging(text, cancel)) (model : Model) ->
+                let isValid, _ = Int32.TryParse(text, NumberStyles.HexNumber, null)
+                if not isValid then cancel()
+            )
