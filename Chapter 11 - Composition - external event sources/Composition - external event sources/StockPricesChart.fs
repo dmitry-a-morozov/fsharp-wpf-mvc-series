@@ -1,12 +1,12 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System.Windows.Data
 open System.Drawing
 open System.Windows.Forms.DataVisualization.Charting
 open System.Collections.ObjectModel
 
-open Mvc.Wpf
-open Mvc.Wpf.UIElements
+open FSharp.Windows
+open FSharp.Windows.UIElements
 
 [<AbstractClass>]
 type StockPricesChartModel() = 
@@ -48,8 +48,7 @@ type StockPricesChartController() =
     override this.Dispatcher = fun() -> 
         Async <| fun model ->
             async {
-                let view = StockPickerView()
-                let! result = StockPickerController view |> Controller.asyncStart  
+                let! result = Mvc.asyncStart(StockPickerView(), StockPickerController())  
                 result |> Option.iter (fun stockInfo ->
                     model.StockPrices.Add(stockInfo.Symbol, stockInfo.LastPrice)
                 )

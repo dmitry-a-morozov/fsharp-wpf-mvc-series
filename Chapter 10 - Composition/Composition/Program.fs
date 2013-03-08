@@ -10,8 +10,8 @@ do
 
     let mvc = 
         Mvc(MainModel.Create(), view, MainController())
-            <+> (CalculatorController(), CalculatorView(view.Control.Calculator), fun m -> m.Calculator)
-            <+> (TempConveterController(), TempConveterView(view.Control.TempConveterControl), fun m -> m.TempConveter)
-            <+> (StockPricesChartController(), StockPricesChartView(view.Control.StockPricesChart), fun m -> m.StockPricesChart)
+            <+> ((fun m -> m.Calculator), CalculatorView(view.Control.Calculator), CalculatorController())
+            <+> ((fun m -> m.TempConveter), TempConveterView(view.Control.TempConveterControl), TempConveterController())
+            <+> ((fun m -> m.StockPricesChart), StockPricesChartView(view.Control.StockPricesChart), StockPricesChartController())
 
     mvc.Start() |> ignore

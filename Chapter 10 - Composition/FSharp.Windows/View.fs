@@ -75,18 +75,6 @@ module View =
                 value.IsDefault <- true
                 value.Click.Add(ignore >> this.OK)
 
-        member parent.Compose(child : IPartialView<_, 'MX>, childModelSelector : _ -> 'MX ) =
-            {
-                new IView<_, _> with
-                    member __.Subscribe observer = (Observable.unify parent child).Subscribe(observer)
-                    member __.SetBindings model =
-                        parent.SetBindings model  
-                        model |> childModelSelector |> child.SetBindings
-                    member __.Show() = parent.Show()
-                    member __.ShowDialog() = parent.ShowDialog()
-                    member __.Close ok = parent.Close ok
-            }
-
 [<RequireQualifiedAccess>]
 module List =
     open System.Windows.Controls

@@ -1,9 +1,13 @@
 ﻿namespace FSharp.Windows
 
-open System.ComponentModel
-open System.Reactive
 open System
 open System.Reflection
+open System.Reactive.Linq
+open System.Reactive.Concurrency
+open System.Reactive
+open System.Threading
+open System.ComponentModel
+open System.Windows
 
 type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events, 'Model>, controller : IController<'Events, 'Model>) =
 
@@ -31,7 +35,11 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
 #if DEBUG
         let observer = observer.Checked()
 #endif
-        view.Subscribe <| Observer.Synchronize(observer, preventReentrancy = true)
+        view
+            .ObserveOn(
+                scheduler = SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false))
+            .Subscribe(
+                observer = Observer.Synchronize(observer, preventReentrancy = true))
 
     member this.Start() =
         use subscription = this.Activate()
@@ -73,8 +81,25 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
 
         Mvc(model, compositeView, compositeController)
 
-    member this.Compose(childView : PartialView<_, _, _>, childController : Controller<_, _>) = 
+    member this.Compose(childView : PartialView<_, _, _>, childController) = 
         this.Compose(id,  childView, childController)
 
-    static member (<+>) (mvc : Mvc<_, _>,  (childModelSelector, childView, childController)) = 
+    static member (<+>) (mvc : Mvc<_, _>,  (childModelSelector, childView, childController : #IController<_, _>)) = 
         mvc.Compose(childModelSelector, childView, childController)
+
+    member this.Compose<'EX>(events : System.IObservable<'EX>, childController, onException : exn -> unit) = 
+
+        let rec catchyView() = events.Catch(fun why ->
+                onException why
+                catchyView()) 
+        let view = catchyView()
+        
+        let childView = {
+            new IPartialView<_, _> with
+                member __.Subscribe observer = view.Subscribe observer
+                member __.SetBindings _ = () 
+        }
+
+        this.Compose(id, childView, childController)
+
+    

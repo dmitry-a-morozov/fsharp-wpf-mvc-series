@@ -11,7 +11,7 @@
     <AssemblyName>Mvc.Wpf</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
-    <Name>Mvc.Wpf</Name>
+    <Name>FSharp.Windows</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -73,9 +73,10 @@
     <Compile Include="Binding.fs" />
     <Compile Include="View.fs" />
     <Compile Include="Controller.fs" />
+    <Compile Include="Mvc.fs" />
+    <Compile Include="Application.fs" />
     <Compile Include="Model.fs" />
     <Compile Include="Validation.fs" />
-    <Compile Include="Application.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />

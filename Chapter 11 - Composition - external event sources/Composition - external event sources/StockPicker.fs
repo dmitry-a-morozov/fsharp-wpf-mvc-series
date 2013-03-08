@@ -1,4 +1,4 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Globalization
@@ -6,8 +6,8 @@ open System.Windows.Data
 open System.Windows.Controls
 open System.Net
 open System.Linq
-open Mvc.Wpf
-open Mvc.Wpf.UIElements
+open FSharp.Windows
+open FSharp.Windows.UIElements
 
 [<AbstractClass>]
 type StockPickerModel() = 
@@ -40,8 +40,8 @@ type StockPickerView() as this =
                 this.Control.AddToChart.IsEnabled <- model.AddToChartEnabled
             @>
 
-type StockPickerController(view) = 
-    inherit SupervisingController<unit, StockPickerModel>(view)
+type StockPickerController() = 
+    inherit Controller<unit, StockPickerModel>()
 
     override this.InitModel _ = ()
     override this.Dispatcher = fun() ->

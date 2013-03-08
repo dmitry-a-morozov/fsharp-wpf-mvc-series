@@ -1,101 +1,56 @@
-﻿namespace Mvc.Wpf
+﻿namespace FSharp.Windows
 
-open System
-open System.Reactive.Linq
-open System.Reactive.Concurrency
-open System.Reactive
-open System.Threading
 open System.ComponentModel
 
-type EventHandler<'M> = 
-    | Sync of ('M -> unit)
-    | Async of ('M -> Async<unit>)
+type EventHandler<'Model> = 
+    | Sync of ('Model -> unit)
+    | Async of ('Model -> Async<unit>)
 
-[<AbstractClass>]
-type Controller<'Event, 'Model when 'Model :> INotifyPropertyChanged>() =
+type IController<'Events, 'Model when 'Model :> INotifyPropertyChanged> =
+
     abstract InitModel : 'Model -> unit
-    abstract Dispatcher : ('Event -> EventHandler<'Model>)
-
-exception PreserveStackTraceWrapper of exn
+    abstract Dispatcher : ('Events -> EventHandler<'Model>)
 
 [<AbstractClass>]
-type SupervisingController<'Event, 'Model when 'Model :> INotifyPropertyChanged>(view : IView<'Event, 'Model>) =
-    inherit Controller<'Event, 'Model>()
+type Controller<'Events, 'Model when 'Model :> INotifyPropertyChanged>() =
 
-    member this.Activate model =
-        this.InitModel model
-        view.SetBindings model
+    interface IController<'Events, 'Model> with
+        member this.InitModel model = this.InitModel model
+        member this.Dispatcher = this.Dispatcher
 
-        let observer = Observer.Create(fun e -> 
-            match this.Dispatcher e with
-            | Sync handler -> try handler model with e -> this.OnError e
-            | Async handler -> 
-                Async.StartWithContinuations(
-                    computation = handler model, 
-                    continuation = ignore, 
-                    exceptionContinuation = this.OnError, 
-                    cancellationContinuation = ignore))
+    abstract InitModel : 'Model -> unit
+    abstract Dispatcher : ('Events -> EventHandler<'Model>)
 
-#if DEBUG
-        let observer = observer.Checked()
-#endif
-        let nonReentrantobserver = Observer.Synchronize(observer, preventReentrancy = true)
+    static member Create callback = {
+        new IController<'Events, 'Model> with
+            member this.InitModel _ = ()
+            member this.Dispatcher = callback
+    } 
 
-        let scheduler = SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false)
+    static member Create callback = {
+        new IController<'Events, 'Model> with
+            member this.InitModel _ = ()
+            member this.Dispatcher = fun event -> Sync(callback event)
+    } 
 
-        let rec catchyView() = view.Catch(fun why ->
-                this.OnError why
-                catchyView()
-            ) 
+[<AbstractClass>]
+type AsyncInitController<'Events, 'Model when 'Model :> INotifyPropertyChanged>() =
+    inherit Controller<'Events, 'Model>()
 
-        catchyView()
-            .ObserveOn(scheduler)
-            .Subscribe(observer)
+    abstract InitModel : 'Model -> Async<unit>
+    override this.InitModel model = model |> this.InitModel |> Async.StartImmediate
 
-    member this.Start model =
-        use subcription = this.Activate model
-        view.ShowDialog()
+    static member inline Create(controller : ^Controller) = {
+        new IController<'Events, 'Model> with
+            member this.InitModel model = (^Controller : (member InitModel : 'Model -> Async<unit>) (controller, model)) |> Async.StartImmediate
+            member this.Dispatcher = (^Controller : (member Dispatcher : ('Events -> EventHandler<'Model>)) controller)
+    } 
 
-    member this.AsyncStart model =
-        async {
-            use subcription = this.Activate model
-            return! view.Show()
-        }
 
-    abstract OnError : exn -> unit
-    default this.OnError why = why |> PreserveStackTraceWrapper |> raise
+[<AbstractClass>]
+type SyncController<'Events, 'Model when 'Model :> INotifyPropertyChanged>(view) =
+    inherit Controller<'Events, 'Model>()
 
-    member parent.Compose(childController : Controller<'EX, 'MX>, childView : PartialView<'EX, 'MX, _>, childModelSelector : _ -> 'MX ) = 
-        let compositeView = view.Compose(childView, childModelSelector)
-        { 
-            new SupervisingController<_, _>(compositeView) with
-                member __.InitModel model = 
-                    parent.InitModel model
-                    model |> childModelSelector |> childController.InitModel
-                member __.Dispatcher = function 
-                    | Choice1Of2 e -> parent.Dispatcher e
-                    | Choice2Of2 e -> 
-                        match childController.Dispatcher e with
-                        | Sync handler -> Sync(childModelSelector >> handler)  
-                        | Async handler -> Async(childModelSelector >> handler) 
-                member __.OnError why = parent.OnError why
-        }
-
-    member parent.Compose(childController : Controller<_, _>, childView : PartialView<_, _, _>) = 
-        parent.Compose(childController, childView, id)
-
-    static member (<+>) (parent : SupervisingController<_, _>,  (childController, childView, childModelSelector)) = 
-        parent.Compose(childController, childView, childModelSelector)
-
-    member parent.Compose<'EX>(extension : 'EX -> EventHandler<_>, events : IObservable<'EX>) = 
-        let compositeView = view.Compose(events)
-        { 
-            new SupervisingController<_, _>(compositeView) with
-                member __.InitModel model = 
-                    parent.InitModel model
-                member __.Dispatcher = function 
-                    | Choice1Of2 e -> parent.Dispatcher e
-                    | Choice2Of2 e -> extension e 
-                member __.OnError why = parent.OnError why
-        }
+    abstract Dispatcher : ('Events -> 'Model -> unit)
+    override this.Dispatcher = fun e -> Sync(this.Dispatcher e)
 

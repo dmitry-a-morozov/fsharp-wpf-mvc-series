@@ -1,12 +1,12 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Diagnostics
 open System.Windows
 open System.Windows.Controls
 open System.Windows.Data
-open Mvc.Wpf
-open Mvc.Wpf.UIElements
+open FSharp.Windows
+open FSharp.Windows.UIElements
 
 [<AbstractClass>]
 type MainModel() = 
@@ -63,8 +63,8 @@ type MainView() as this =
             @>
         this.Control.RunningTime.SetBinding(TextBlock.TextProperty, Binding(path = "RunningTime", StringFormat = "Running time: {0:hh\:mm\:ss}")) |> ignore
 
-type MainController(view, stopWatch : StopWatchObservable) = 
-    inherit SupervisingController<MainEvents, MainModel>(view)
+type MainController(stopWatch : StopWatchObservable) = 
+    inherit Controller<MainEvents, MainModel>()
 
     override this.InitModel model = 
         model.ProcessName <- Process.GetCurrentProcess().ProcessName
@@ -92,4 +92,4 @@ type MainController(view, stopWatch : StopWatchObservable) =
         stopWatch.Restart()
         model.Paused <- Nullable false
     
-    override this.OnError why = Debug.WriteLine why.Message
+    //override this.OnException( why = Debug.WriteLine why.Message
