@@ -89,9 +89,7 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
 
     member this.Compose<'EX>(events : System.IObservable<'EX>, childController, onException : exn -> unit) = 
 
-        let rec catchyView() = events.Catch(fun why ->
-                onException why
-                catchyView()) 
+        let rec catchyView() = events.Catch(fun why -> onException why; catchyView()) 
         let view = catchyView()
         
         let childView = {

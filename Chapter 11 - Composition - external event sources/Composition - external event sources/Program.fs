@@ -15,7 +15,7 @@ let main _ =
     let view = MainView()
     let mvc = 
         Mvc(MainModel.Create(), view, MainController(stopWatch))
-            .Compose(stopWatch, stopWatchController, fun exn -> Debug.WriteLine(string exn))
+            .Compose(stopWatch, stopWatchController, fun(exn : exn) -> Debug.WriteLine exn.Message)
             <+> ((fun m -> m.Calculator), CalculatorView(view.Control.Calculator), CalculatorController())
             <+> ((fun m -> m.TempConveter), TempConveterView(view.Control.TempConveterControl), TempConveterController())
             <+> ((fun m -> m.StockPricesChart), StockPricesChartView(view.Control.StockPricesChart), StockPricesChartController())
