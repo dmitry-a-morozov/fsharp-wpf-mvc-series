@@ -7,7 +7,6 @@ open System.Reactive.Concurrency
 open System.Reactive
 open System.Threading
 open System.ComponentModel
-open System.Windows
 
 type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events, 'Model>, controller : IController<'Events, 'Model>) =
 
@@ -54,7 +53,7 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
     abstract OnException : 'Events * exn -> unit
     default this.OnException(_, exn) = defaultReraise exn 
 
-    member this.Compose(childModelSelector : _ -> 'MX, childView : IPartialView<'EX, 'MX>, childController : IController<'EX, 'MX>) = 
+    member this.Compose(childController : IController<'EX, 'MX>, childView : IPartialView<'EX, 'MX>, childModelSelector : _ -> 'MX) = 
         let compositeView = {
                 new IView<_, _> with
                     member __.Subscribe observer = (Observable.unify view childView).Subscribe(observer)
@@ -81,23 +80,17 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
 
         Mvc(model, compositeView, compositeController)
 
-    member this.Compose(childView : PartialView<_, _, _>, childController) = 
-        this.Compose(id,  childView, childController)
+    static member (<+>) (mvc : Mvc<_, _>,  (childController : #IController<_, _>, childView, childModelSelector)) = 
+        mvc.Compose(childController, childView, childModelSelector)
 
-    static member (<+>) (mvc : Mvc<_, _>,  (childModelSelector, childView, childController : #IController<_, _>)) = 
-        mvc.Compose(childModelSelector, childView, childController)
-
-    member this.Compose<'EX>(events : System.IObservable<'EX>, childController, onException : exn -> unit) = 
-
-        let rec catchyView() = events.Catch(fun why -> onException why; catchyView()) 
-        let view = catchyView()
-        
+    member this.Compose(childController : IController<_, _>, events : IObservable<_>) = 
         let childView = {
             new IPartialView<_, _> with
-                member __.Subscribe observer = view.Subscribe observer
+                member __.Subscribe observer = events.Subscribe observer
                 member __.SetBindings _ = () 
         }
+        this.Compose(childController, childView, id)
 
-        this.Compose(id, childView, childController)
+        
 
     

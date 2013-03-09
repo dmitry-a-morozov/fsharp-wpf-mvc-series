@@ -46,7 +46,7 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
     abstract OnException : 'Events * exn -> unit
     default this.OnException(_, exn) = defaultReraise exn 
 
-    member this.Compose(childModelSelector : _ -> 'MX, childView : IPartialView<'EX, 'MX>, childController : IController<'EX, 'MX>) = 
+    member this.Compose(childController : IController<'EX, 'MX>, childView : IPartialView<'EX, 'MX>, childModelSelector : _ -> 'MX) = 
         let compositeView = {
                 new IView<_, _> with
                     member __.Subscribe observer = (Observable.unify view childView).Subscribe(observer)
@@ -73,8 +73,5 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
 
         Mvc(model, compositeView, compositeController)
 
-    member this.Compose(childView : PartialView<_, _, _>, childController : Controller<_, _>) = 
-        this.Compose(id,  childView, childController)
-
-    static member (<+>) (mvc : Mvc<_, _>,  (childModelSelector, childView, childController)) = 
-        mvc.Compose(childModelSelector, childView, childController)
+    static member (<+>) (mvc : Mvc<_, _>,  (childController, childView, childModelSelector)) = 
+        mvc.Compose(childController, childView, childModelSelector)

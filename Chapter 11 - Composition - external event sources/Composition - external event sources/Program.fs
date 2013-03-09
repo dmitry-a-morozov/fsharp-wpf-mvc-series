@@ -4,6 +4,7 @@ open System.Diagnostics
 open System.Windows
 open FSharp.Windows.Sample
 open FSharp.Windows
+open System.Reactive.Linq
 
 [<STAThread>] 
 [<EntryPoint>]
@@ -12,13 +13,15 @@ let main _ =
     let stopWatchController = Controller.Create(fun (runningTime : TimeSpan) (model : MainModel) -> 
         model.RunningTime <- runningTime)
 
+    let rec safeStopWatchEventSource() = Observable.Catch(stopWatch, fun(exn : exn)-> Debug.WriteLine exn.Message; safeStopWatchEventSource()) 
+
     let view = MainView()
     let mvc = 
         Mvc(MainModel.Create(), view, MainController(stopWatch))
-            .Compose(stopWatch, stopWatchController, fun(exn : exn) -> Debug.WriteLine exn.Message)
-            <+> ((fun m -> m.Calculator), CalculatorView(view.Control.Calculator), CalculatorController())
-            <+> ((fun m -> m.TempConveter), TempConveterView(view.Control.TempConveterControl), TempConveterController())
-            <+> ((fun m -> m.StockPricesChart), StockPricesChartView(view.Control.StockPricesChart), StockPricesChartController())
+            .Compose(stopWatchController, safeStopWatchEventSource())
+            <+> (CalculatorController(), CalculatorView(view.Control.Calculator), fun m -> m.Calculator)
+            <+> (TempConveterController(), TempConveterView(view.Control.TempConveterControl), fun m -> m.TempConveter)
+            <+> (StockPricesChartController(), StockPricesChartView(view.Control.StockPricesChart), fun m -> m.StockPricesChart)
 
     let app = Application()
     app.DispatcherUnhandledException.Add <| fun args ->

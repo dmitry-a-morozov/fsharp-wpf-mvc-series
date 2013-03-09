@@ -2,6 +2,7 @@
 
 open System.Runtime.CompilerServices
 open System.Windows
+open System.Threading
 
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
@@ -10,7 +11,8 @@ module Application =
 
     [<Extension>] //for C#
     let StartImmediate(mvc : Mvc<_, _>) =
-        mvc.AsyncStart() |> Async.Ignore |> Async.StartImmediate
+        let cts = new CancellationTokenSource()
+        Async.StartImmediate(mvc.AsyncStart() |> Async.Ignore, cts.Token)
     
     type Application with 
         member this.Run(mvc, mainWindow) =
