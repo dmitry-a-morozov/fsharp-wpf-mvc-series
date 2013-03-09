@@ -50,6 +50,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FSharp.Windows\FSharp.Windows.fsproj">
+      <Name>FSharp.Windows</Name>
+      <Project>{fc53e577-bb90-44b9-847f-81ad097cf38e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\UIElements\UIElements.csproj">
       <Name>UIElements</Name>
       <Project>{fa52ee33-ecbe-4354-bcf2-caea2b9442df}</Project>
@@ -72,11 +77,6 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <ProjectReference Include="..\Mvc.Wpf\Mvc.Wpf.fsproj">
-      <Name>Mvc.Wpf</Name>
-      <Project>{fc53e577-bb90-44b9-847f-81ad097cf38e}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.

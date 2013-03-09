@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Mvc.Wpf.UIElements.Sample {
+namespace FSharp.Windows.UIElements.Sample {
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -35,7 +35,7 @@ namespace Mvc.Wpf.UIElements.Sample {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface TempConvertSoapChannel : Mvc.Wpf.UIElements.Sample.TempConvertSoap, System.ServiceModel.IClientChannel {
+    public interface TempConvertSoapChannel : FSharp.Windows.UIElements.Sample.TempConvertSoap, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -78,7 +78,7 @@ namespace Mvc.Wpf.UIElements.Sample {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class TempConvertSoapClient : System.ServiceModel.ClientBase<Mvc.Wpf.UIElements.Sample.TempConvertSoap>, Mvc.Wpf.UIElements.Sample.TempConvertSoap {
+    public partial class TempConvertSoapClient : System.ServiceModel.ClientBase<FSharp.Windows.UIElements.Sample.TempConvertSoap>, FSharp.Windows.UIElements.Sample.TempConvertSoap {
         
         private BeginOperationDelegate onBeginFahrenheitToCelsiusDelegate;
         

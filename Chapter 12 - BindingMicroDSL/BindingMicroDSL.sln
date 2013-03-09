@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Mvc.Wpf", "Mvc.Wpf\Mvc.Wpf.fsproj", "{FC53E577-BB90-44B9-847F-81AD097CF38E}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Windows", "FSharp.Windows\FSharp.Windows.fsproj", "{FC53E577-BB90-44B9-847F-81AD097CF38E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIElements", "UIElements\UIElements.csproj", "{FA52EE33-ECBE-4354-BCF2-CAEA2B9442DF}"
 EndProject

@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Mvc.Wpf.UIElements.CalculatorControl"
+﻿<UserControl x:Class="FSharp.Windows.UIElements.CalculatorControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
