@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIElements", "UIElements\UIElements.csproj", "{FA52EE33-ECBE-4354-BCF2-CAEA2B9442DF}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Mvc.Wpf", "Mvc.Wpf\Mvc.Wpf.fsproj", "{E1FCC7FE-8C2B-4B6E-9B30-D19016E059C8}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Windows", "FSharp.Windows\FSharp.Windows.fsproj", "{E1FCC7FE-8C2B-4B6E-9B30-D19016E059C8}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "VS2012-NET 4.5", "VS2012-NET 4.5\VS2012-NET 4.5.fsproj", "{B7516212-75A8-4FF5-9843-850998BBF68F}"
 EndProject
