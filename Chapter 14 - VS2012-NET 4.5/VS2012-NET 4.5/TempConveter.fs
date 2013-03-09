@@ -1,9 +1,9 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System.Threading
 open System.Windows.Data
-open Mvc.Wpf
-open Mvc.Wpf.UIElements
+open FSharp.Windows
+open FSharp.Windows.UIElements
 
 [<AbstractClass>]
 type TempConveterModel() = 

@@ -1,8 +1,8 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Windows
-open Mvc.Wpf
+open FSharp.Windows
 open FSharpx.TypeProviders.XamlProvider
 
 [<AbstractClass>]

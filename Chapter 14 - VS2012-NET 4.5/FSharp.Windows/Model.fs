@@ -1,4 +1,4 @@
-﻿namespace Mvc.Wpf
+﻿namespace FSharp.Windows
 
 open System
 open System.ComponentModel
@@ -196,15 +196,15 @@ and AbstractProperties() =
                 | _ -> invocation.Proceed()
 
 [<RequireQualifiedAccess>]
-module Controller = 
+module Mvc = 
 
-    let inline start(controller : SupervisingController<_, ^Model>) = 
-        let model = (^Model : (static member Create : unit -> ^Model) ())
-        if controller.Start model then Some model else None
+    let inline start(view, controller) = 
+        let model = (^Model : (static member Create : unit -> ^Model ) ())
+        if Mvc<'Events, ^Model>(model, view, controller).Start() then Some model else None
 
-    let inline asyncStart(controller : SupervisingController<_, ^Model>) = 
+    let inline asyncStart(view, controller) = 
         async {
             let model = (^Model : (static member Create : unit -> ^Model) ())
-            let! isOk = controller.AsyncStart model
+            let! isOk = Mvc<'Events, ^Model>(model, view, controller).AsyncStart()
             return if isOk then Some model else None
         }

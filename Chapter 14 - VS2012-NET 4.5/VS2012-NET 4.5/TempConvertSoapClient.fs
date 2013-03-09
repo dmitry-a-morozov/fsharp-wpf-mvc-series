@@ -1,6 +1,6 @@
 ﻿[<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Mvc.Wpf.Sample
+module FSharp.Windows.Sample
 
 open Microsoft.FSharp.Data.TypeProviders
 

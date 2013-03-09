@@ -1,9 +1,9 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Diagnostics
 open System.Reactive.Linq
-open Mvc.Wpf
+open FSharp.Windows
 
 type StopWatchObservable(frequency, failureFrequencyInSeconds) =
     let watch = Stopwatch.StartNew()

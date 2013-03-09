@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Mvc.Wpf.UIElements
+namespace FSharp.Windows.UIElements
 {
     /// <summary>
     /// Interaction logic for StockPricesChart.xaml

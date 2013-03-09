@@ -1,4 +1,4 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Collections.Generic
@@ -7,8 +7,8 @@ open System.Windows.Data
 open System.Windows.Controls
 open System.Net
 open System.Linq
-open Mvc.Wpf
-open Mvc.Wpf.UIElements
+open FSharp.Windows
+open FSharp.Windows.UIElements
 
 [<AbstractClass>]
 type StockInfoModel() = 
@@ -69,8 +69,8 @@ type StockPickerView(xaml : StockPickerWindow) as this =
                 addToChart.Visibility <- converter.Apply model.AddToChartEnabled
             @>
 
-type StockPickerController(view) = 
-    inherit SupervisingController<unit, StockInfoModel>(view)
+type StockPickerController() = 
+    inherit Controller<unit, StockInfoModel>()
 
     static let tags = [
             "n", "Name"

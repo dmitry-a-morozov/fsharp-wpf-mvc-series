@@ -2,27 +2,29 @@
 open System
 open System.Diagnostics
 open System.Windows
-open Mvc.Wpf.Sample
-open Mvc.Wpf
+open FSharp.Windows.Sample
+open FSharp.Windows
+open System.Reactive.Linq
 
 [<STAThread>] 
 [<EntryPoint>]
 let main _ = 
     let stopWatch = StopWatchObservable(frequency = TimeSpan.FromSeconds(1.), failureFrequencyInSeconds = 5.)
-    let stopWatchController(runningTime : TimeSpan) = 
-        Sync <| fun(model : MainModel) -> model.RunningTime <- runningTime
+    let stopWatchController = Controller.Create(fun (runningTime : TimeSpan) (model : MainModel) -> 
+        model.RunningTime <- runningTime)
+
+    let rec safeStopWatchEventSource() = Observable.Catch(stopWatch, fun(exn : exn)-> Debug.WriteLine exn.Message; safeStopWatchEventSource()) 
 
     let view = MainView()
-    let controller = 
-        MainController(view, stopWatch)
-            .Compose(stopWatchController, stopWatch)
+    let mvc = 
+        Mvc(MainModel.Create(), view, MainController(stopWatch))
+            .Compose(stopWatchController, safeStopWatchEventSource())
             <+> (CalculatorController(), CalculatorView(view.Control.Calculator), fun m -> m.Calculator)
             <+> (TempConveterController(), TempConveterView(view.Control.TempConveterControl), fun m -> m.TempConveter)
             <+> (StockPricesChartController(), StockPricesChartView(view.Control.StockPricesChart), fun m -> m.StockPricesChart)
 
     let app = Application()
     app.DispatcherUnhandledException.Add <| fun args ->
-        //have application specific "catch-all" logic like logging errors below
         Debug.Fail("DispatcherUnhandledException handler", string args.Exception)
 
-    app.Run(Model.Create(), view.Control, controller)
+    app.Run(mvc, mainWindow = view.Control)

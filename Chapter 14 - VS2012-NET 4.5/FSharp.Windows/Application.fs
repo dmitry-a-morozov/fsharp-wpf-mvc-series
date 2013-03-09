@@ -1,4 +1,4 @@
-﻿namespace Mvc.Wpf
+﻿namespace FSharp.Windows
 
 open System.Runtime.CompilerServices
 open System.Windows
@@ -10,19 +10,13 @@ open System.Threading
 module Application = 
 
     [<Extension>] //for C#
-    let AttachController(this : Application, model, mainWindow, controller : SupervisingController<_, _>) =
+    let StartImmediate(mvc : Mvc<_, _>) =
         let cts = new CancellationTokenSource()
-        this.Startup.Add <| fun _ ->
-            this.MainWindow <- mainWindow 
-            Async.StartImmediate(
-                controller.AsyncStart model |> Async.Ignore,
-                cts.Token
-            )     
-        this.Exit.Add(fun _ -> cts.Cancel())
-
+        Async.StartImmediate(mvc.AsyncStart() |> Async.Ignore, cts.Token)
+    
     type Application with 
-        member this.Run(model, mainWindow, controller) =
-            AttachController(this, model, mainWindow, controller)
+        member this.Run(mvc, mainWindow) =
+            this.Startup.Add <| fun _ -> StartImmediate mvc
             this.Run mainWindow
 
 

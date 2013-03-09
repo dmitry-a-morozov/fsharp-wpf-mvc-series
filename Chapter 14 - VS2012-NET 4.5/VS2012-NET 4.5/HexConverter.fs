@@ -1,10 +1,10 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Globalization
 open System.Windows.Data
-open Mvc.Wpf
-open Mvc.Wpf.UIElements
+open FSharp.Windows
+open FSharp.Windows.UIElements
 open System.Windows
 open System.Windows.Controls
 open FSharpx
@@ -13,9 +13,11 @@ module HexConverter =
 
     type HexConverterWindow = XAML<"View\HexConverterWindow.xaml">
 
+    type Events = ValueChanging of string * (unit -> unit)
+
     [<AbstractClass>]
     type Model() = 
-        inherit Mvc.Wpf.Model()
+        inherit FSharp.Windows.Model()
 
         abstract HexValue : string with get, set
         member this.Value 
@@ -27,31 +29,25 @@ module HexConverter =
         let value = window.Value
         value.ShowErrorInTooltip()
         let result = {
-            new View<unit, Model, Window>(window.Root) with 
+            new View<Events, Model, Window>(window.Root) with 
                 member this.EventStreams = 
                     [
-                        window.OK.Click |> Observable.mapTo()
+                        window.Value.PreviewTextInput |> Observable.map(fun args -> ValueChanging(args.Text, fun() -> args.Handled <- true))
                     ]
 
                 member this.SetBindings model = 
                     Binding.FromExpression 
                         <@ 
-                            value.Text <- model.HexValue
+                            window.Value.Text <- model.HexValue
                         @>
         }
         result.CancelButton <- window.Cancel
+        result.DefaultOKButton <- window.OK
         result
 
-    let controller view = {
-        new SupervisingController<unit, Model>(view) with
-            member this.InitModel _ = ()
-            member this.Dispatcher = fun() -> 
-                Sync <| fun(model : Model) ->
-                    try 
-                        let _ = model.Value
-                        view.OK()
-                    with :? FormatException as why ->  
-                        let errorMessage = sprintf "Cannot parse hex value %s because %s" model.HexValue why.Message
-                        model |> Validation.setError <@ fun m -> m.HexValue @> errorMessage
-    }
-
+    let controller() = 
+        Controller.Create(
+            fun(ValueChanging(text, cancel)) (model : Model) ->
+                let isValid, _ = Int32.TryParse(text, NumberStyles.HexNumber, null)
+                if not isValid then cancel()
+            )

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Mvc.Wpf.UIElements.Properties {
+namespace FSharp.Windows.UIElements.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
