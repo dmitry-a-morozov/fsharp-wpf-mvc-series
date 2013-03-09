@@ -1,5 +1,5 @@
 ﻿[<AutoOpen>]
-module Mvc.Wpf.Sample.Extensions 
+module FSharp.Windows.Sample.Extensions 
 
 let isNull x = x = null 
 let isNotNull x = x <> null

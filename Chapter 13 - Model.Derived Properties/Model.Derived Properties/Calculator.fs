@@ -1,10 +1,10 @@
-﻿namespace Mvc.Wpf.Sample
+﻿namespace FSharp.Windows.Sample
 
 open System
 open System.Windows.Data
 open Microsoft.FSharp.Reflection
-open Mvc.Wpf
-open Mvc.Wpf.UIElements
+open FSharp.Windows
+open FSharp.Windows.UIElements
 
 type Operations =
     | Add
@@ -109,18 +109,18 @@ type CalculatorController() =
         
     member this.Hex1 model = 
         let view = HexConverter.view()
-        let controller = HexConverter.controller view
-        let childModel : HexConverter.Model = Model.Create() 
+        let childModel = Model.Create() 
+        let controller = HexConverter.controller() 
+        let mvc = Mvc(childModel, view, controller)
         childModel.Value <- model.X
 
-        if controller.Start childModel
+        if mvc.Start()
         then 
             model.X <- childModel.Value 
 
     member this.Hex2 model = 
-        HexConverter.view()
-        |> HexConverter.controller 
-        |> Controller.start
+        (HexConverter.view(), HexConverter.controller())
+        |> Mvc.start
         |> Option.iter(fun resultModel ->
             model.Y <- resultModel.Value 
         )
