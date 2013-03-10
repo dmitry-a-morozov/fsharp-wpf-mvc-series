@@ -1,4 +1,4 @@
-﻿module Mvc.Wpf.Sample.Test
+﻿module FSharp.Windows.Sample.Test
 
 open System 
 open System.Diagnostics
