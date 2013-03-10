@@ -49,7 +49,3 @@ do
     )
 
     Application().Run view.Window |> ignore
-
-(*
-    IView<'Event> renamed  to IView<'Events>
-*)
