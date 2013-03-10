@@ -8,11 +8,12 @@ open FSharp.Windows
 open FSharp.Windows.Sample
 
 let controller = SampleController()
+let icontroller : IController<_, _> = upcast controller
 
 [<Fact>]
 let InitModel() = 
     let model = SampleModel.Create()
-    controller.EventHandler Clear model
+    icontroller.EventHandler Clear model
     model.X =? 0
     model.Y =? 0
     model.Result =? 0 
@@ -23,7 +24,7 @@ let Add() =
     let model : SampleModel = Model.Create()
     model.X <- 3
     model.Y <- 5
-    controller.EventHandler Add model
+    icontroller.EventHandler Add model
     test <@ model.Result = 8 @>
 
 [<Fact>]

@@ -8,11 +8,7 @@ open FSharp.Windows.Sample
 do 
     let model = SampleModel.Create()
     let view = SampleView()
-    let eventHandler = SampleController().EventHandler
-    let mvc = Mvc(model, view, eventHandler)
+    let controller = SampleController()
+    let mvc = Mvc(model, view, controller)
     mvc.Start() |> ignore
     Application().Run view.Window |> ignore
-
-(*
-    Mvc class introduction
-*)

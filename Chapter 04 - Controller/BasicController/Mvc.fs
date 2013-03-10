@@ -2,8 +2,9 @@
 
 open System.ComponentModel
 
-type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events>, eventHandler : 'Events -> 'Model -> unit) =
+type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events>, controller : IController<'Events, 'Model>) =
 
     member this.Start() =
+        controller.InitModel model
         view.SetBindings model
-        view.Subscribe (fun event -> eventHandler event model)
+        view.Subscribe(callback = fun event -> controller.EventHandler event model)

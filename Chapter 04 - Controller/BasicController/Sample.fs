@@ -40,16 +40,22 @@ type SampleView() =
 
 type SampleController() = 
 
-    member this.EventHandler = function
-        | Add -> this.Add
-        | Subtract(x, y) -> this.Subtract x y
-        | Clear -> fun(model : SampleModel) ->
+    interface IController<SampleEvents, SampleModel> with 
+        member this.InitModel model = 
             model.X <- 0
             model.Y <- 0
             model.Result <- 0
 
-    member this.Add model = 
+            model.Title <- 
+                sprintf "Process name: %s" <| System.Diagnostics.Process.GetCurrentProcess().ProcessName
+
+        member this.EventHandler = function
+            | Add -> this.Add
+            | Subtract(x, y) -> this.Subtract x y
+            | Clear -> (this :> IController<_, _>).InitModel
+    
+    member this.Add(model : SampleModel) = 
         model.Result <- model.X + model.Y
         
-    member this.Subtract x y model = 
+    member this.Subtract x y (model : SampleModel) =  
         model.Result <- x - y

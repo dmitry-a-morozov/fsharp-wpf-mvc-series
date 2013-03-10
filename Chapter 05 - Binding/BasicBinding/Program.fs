@@ -12,7 +12,5 @@ do
     Application().Run view.Window |> ignore
 
 (*
-    IController introduction
-    Controller.fromEventHandler
     Mvc.start with default model instance
 *)
