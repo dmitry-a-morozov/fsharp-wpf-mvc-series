@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using Castle.DynamicProxy;
-using System.Diagnostics;
 
 namespace System.Windows
 {
@@ -15,7 +14,6 @@ namespace System.Windows
                 var method = invocation.Method;
                 if (method.Name.StartsWith("set_"))
                 {
-                    Debug.Assert(method.IsSpecialName);
                     var viewModel = invocation.InvocationTarget as ViewModel;
                     viewModel.OnPropertyChanged(propertyName: method.Name.Substring(4));
                 }
