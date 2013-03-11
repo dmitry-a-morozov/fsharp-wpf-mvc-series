@@ -1,18 +1,16 @@
 ﻿namespace FSharp.Windows
 
-open System.ComponentModel
-
 type EventHandler<'Model> = 
     | Sync of ('Model -> unit)
     | Async of ('Model -> Async<unit>)
 
-type IController<'Events, 'Model when 'Model :> INotifyPropertyChanged> =
+type IController<'Events, 'Model> =
 
     abstract InitModel : 'Model -> unit
     abstract Dispatcher : ('Events -> EventHandler<'Model>)
 
 [<AbstractClass>]
-type Controller<'Events, 'Model when 'Model :> INotifyPropertyChanged>() =
+type Controller<'Events, 'Model>() =
 
     interface IController<'Events, 'Model> with
         member this.InitModel model = this.InitModel model
@@ -34,7 +32,7 @@ type Controller<'Events, 'Model when 'Model :> INotifyPropertyChanged>() =
     } 
 
 [<AbstractClass>]
-type AsyncInitController<'Events, 'Model when 'Model :> INotifyPropertyChanged>() =
+type AsyncInitController<'Events, 'Model>() =
     inherit Controller<'Events, 'Model>()
 
     abstract InitModel : 'Model -> Async<unit>

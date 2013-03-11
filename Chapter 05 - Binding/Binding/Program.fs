@@ -10,7 +10,3 @@ do
     let controller = SimpleController()
     Mvc.start(view, controller) |> ignore
     Application().Run view.Window |> ignore
-
-(*
-    Controller base class for better type inference and as place holder for static factories
-*)

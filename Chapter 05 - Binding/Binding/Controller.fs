@@ -1,14 +1,12 @@
 ﻿namespace FSharp.Windows
 
-open System.ComponentModel
-
-type IController<'Events, 'Model when 'Model :> INotifyPropertyChanged> =
+type IController<'Events, 'Model> =
 
     abstract InitModel : 'Model -> unit
     abstract EventHandler : ('Events -> 'Model -> unit)
 
 [<AbstractClass>]
-type Controller<'Events, 'Model when 'Model :> INotifyPropertyChanged>() =
+type Controller<'Events, 'Model>() =
 
     interface IController<'Events, 'Model> with
         member this.InitModel model = this.InitModel model

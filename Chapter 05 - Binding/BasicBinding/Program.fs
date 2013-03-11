@@ -10,7 +10,3 @@ do
     let controller = SimpleController()
     Mvc.start(view, controller) |> ignore
     Application().Run view.Window |> ignore
-
-(*
-    Mvc.start with default model instance
-*)
