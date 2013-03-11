@@ -45,7 +45,7 @@ type SampleView() =
                 this.Window.Result.Text <- string model.Result 
             @>
 
-type SimpleController(view) = 
+type SimpleController() = 
     inherit Controller<SampleEvents, SampleModel>()
 
     override this.InitModel model = 
