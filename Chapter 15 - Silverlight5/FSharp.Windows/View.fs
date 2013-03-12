@@ -24,6 +24,7 @@ type View<'Events, 'UserControl when 'UserControl :> UserControl and 'UserContro
         member this.Subscribe observer = 
             let xs = this.EventStreams |> List.reduce Observable.merge 
             xs.Subscribe observer
+            //this.EventStreams |> List.reduce Observable.merge |> Observable.subscribe observer.OnNext
         member this.SetBindings model = 
             control.DataContext <- model
             this.SetBindings model

@@ -57,10 +57,18 @@
     <Reference Include="System.Windows.Controls.Navigation, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Reactive.fs" />
     <Compile Include="Model.fs" />
     <Compile Include="View.fs" />
     <Compile Include="Controller.fs" />
     <Compile Include="Mvc.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\System.Reactive.Core\System.Reactive.Core.csproj">
+      <Name>System.Reactive.Core</Name>
+      <Project>{ec7e53e7-473d-4d24-83b9-321297095b8b}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

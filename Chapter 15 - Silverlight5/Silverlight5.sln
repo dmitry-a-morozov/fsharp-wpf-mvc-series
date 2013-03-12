@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp.Controls", "Sampl
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SampleApp.Mvc", "SampleApp.Mvc\SampleApp.Mvc.fsproj", "{145809B6-52C4-4923-AF34-435861A87F20}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Reactive.Core", "System.Reactive.Core\System.Reactive.Core.csproj", "{EC7E53E7-473D-4D24-83B9-321297095B8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{145809B6-52C4-4923-AF34-435861A87F20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{145809B6-52C4-4923-AF34-435861A87F20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{145809B6-52C4-4923-AF34-435861A87F20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC7E53E7-473D-4D24-83B9-321297095B8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC7E53E7-473D-4D24-83B9-321297095B8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC7E53E7-473D-4D24-83B9-321297095B8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC7E53E7-473D-4D24-83B9-321297095B8B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
