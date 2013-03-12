@@ -37,3 +37,11 @@ type AsyncInitController<'Events, 'Model>() =
             member this.InitModel model = (^Controller : (member InitModel : 'Model -> Async<unit>) (controller, model)) |> Async.StartImmediate
             member this.Dispatcher = (^Controller : (member Dispatcher : ('Events -> EventHandler<'Model>)) controller)
     } 
+
+[<AbstractClass>]
+type SyncController<'Events, 'Model>(view) =
+    inherit Controller<'Events, 'Model>()
+
+    abstract Dispatcher : ('Events -> 'Model -> unit)
+    override this.Dispatcher = fun e -> Sync(this.Dispatcher e)
+

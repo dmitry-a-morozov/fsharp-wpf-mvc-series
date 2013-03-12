@@ -39,8 +39,6 @@ do
         as base class for async init
         has static factory to create from static member constraints
 
-    SyncController base class moved to the next chapter
-
     Exception handling strategy
         - defualt one rethrow thru undocumented InternalPreserveStackTrace
         - event handler invocation always wrapper in try-with. Optimization can be done 

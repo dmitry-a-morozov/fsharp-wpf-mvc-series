@@ -44,7 +44,6 @@ type AsyncInitController<'Events, 'Model>() =
             member this.Dispatcher = (^Controller : (member Dispatcher : ('Events -> EventHandler<'Model>)) controller)
     } 
 
-
 [<AbstractClass>]
 type SyncController<'Events, 'Model>(view) =
     inherit Controller<'Events, 'Model>()
