@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.Web", "Application.Web\Application.Web.csproj", "{6D559E7D-6296-44E0-9FCE-ABE31AB44250}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Windows", "FSharp.Windows\FSharp.Windows.fsproj", "{D713993B-D795-4C85-85D0-5EC64D60AA21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controls", "Controls\Controls.csproj", "{CECE3E70-0701-48DC-9A3B-066613DEB91F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6D559E7D-6296-44E0-9FCE-ABE31AB44250}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D559E7D-6296-44E0-9FCE-ABE31AB44250}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D559E7D-6296-44E0-9FCE-ABE31AB44250}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D559E7D-6296-44E0-9FCE-ABE31AB44250}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D713993B-D795-4C85-85D0-5EC64D60AA21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D713993B-D795-4C85-85D0-5EC64D60AA21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D713993B-D795-4C85-85D0-5EC64D60AA21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D713993B-D795-4C85-85D0-5EC64D60AA21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CECE3E70-0701-48DC-9A3B-066613DEB91F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CECE3E70-0701-48DC-9A3B-066613DEB91F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CECE3E70-0701-48DC-9A3B-066613DEB91F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CECE3E70-0701-48DC-9A3B-066613DEB91F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
