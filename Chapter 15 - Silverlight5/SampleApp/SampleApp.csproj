@@ -69,6 +69,9 @@
     <Reference Include="System.Net" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Windows.Browser" />
+    <Reference Include="FSharp.Core">
+      <HintPath>$(MSBuildExtensionsPath32)\..\Reference Assemblies\Microsoft\FSharp\3.0\Runtime\.NETPortable\FSharp.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
@@ -86,13 +89,17 @@
     <None Include="Properties\AppManifest.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Controls\SampleApp.Controls.csproj">
-      <Project>{cece3e70-0701-48dc-9a3b-066613deb91f}</Project>
-      <Name>SampleApp.Controls</Name>
-    </ProjectReference>
     <ProjectReference Include="..\FSharp.Windows\FSharp.Windows.fsproj">
       <Project>{d713993b-d795-4c85-85d0-5ec64d60aa21}</Project>
       <Name>FSharp.Windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SampleApp.Controls\SampleApp.Controls.csproj">
+      <Project>{cece3e70-0701-48dc-9a3b-066613deb91f}</Project>
+      <Name>SampleApp.Controls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SampleApp.Mvc\SampleApp.Mvc.fsproj">
+      <Project>{145809b6-52c4-4923-af34-435861a87f20}</Project>
+      <Name>SampleApp.Mvc</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />

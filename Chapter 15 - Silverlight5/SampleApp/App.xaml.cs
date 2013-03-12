@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FSharp.Windows;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -26,7 +27,12 @@ namespace SampleApp
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            this.RootVisual = new MainPage();
+            var model = Model.Create<MainModel>();
+            var view = new MainView(new MainPage());
+            var controller = new MainController();
+            this.RootVisual = view.Control;
+            var mvc = new Mvc<MainPageEvents, MainModel>(model, view, controller);
+            mvc.Start();
         }
 
         private void Application_Exit(object sender, EventArgs e)

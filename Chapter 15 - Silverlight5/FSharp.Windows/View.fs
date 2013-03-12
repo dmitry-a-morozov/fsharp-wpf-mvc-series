@@ -10,14 +10,13 @@ type IView<'Events> =
     abstract SetBindings : obj -> unit
 
 [<AbstractClass>]
-type View<'Events, 'Page when 'Page :> Page and 'Page : (new : unit -> 'Page)>(?window) = 
+type View<'Events, 'UserControl when 'UserControl :> UserControl and 'UserControl : (new : unit -> 'UserControl)>(?window) = 
 
-    let window = defaultArg window (new 'Page())
+    let control = defaultArg window (new 'UserControl())
 
-    member this.Page = window
+    member this.Control = control
     static member (?) (view : View<_, _>, name) = 
-        let w : Page = view.Page
-        match view.Page.FindName name with
+        match view.Control.FindName name with
         | null -> invalidArg "Name" ("Cannot find child control named: " + name)
         | control -> unbox control
     
@@ -26,7 +25,7 @@ type View<'Events, 'Page when 'Page :> Page and 'Page : (new : unit -> 'Page)>(?
             let xs = this.EventStreams |> List.reduce Observable.merge 
             xs.Subscribe observer
         member this.SetBindings model = 
-            window.DataContext <- model
+            control.DataContext <- model
             this.SetBindings model
 
     abstract EventStreams : IObservable<'Events> list
@@ -34,6 +33,6 @@ type View<'Events, 'Page when 'Page :> Page and 'Page : (new : unit -> 'Page)>(?
 
 [<AbstractClass>]
 type XamlView<'Events>(resourceLocator) = 
-    inherit View<'Events, Page>(resourceLocator |> Application.LoadComponent |> unbox)
+    inherit View<'Events, UserControl>(resourceLocator |> Application.LoadComponent |> unbox)
 
 
