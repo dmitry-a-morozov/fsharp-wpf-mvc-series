@@ -31,7 +31,8 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
 #if DEBUG
         let observer = observer.Checked()
 #endif
-        view.Subscribe <| Observer.Synchronize(observer, preventReentrancy = true)
+        let observer = Observer.Synchronize(observer, preventReentrancy = true)
+        view.Subscribe observer
 
     member this.Start() =
         use subscription = this.Activate()

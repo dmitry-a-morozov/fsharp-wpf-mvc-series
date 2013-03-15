@@ -6,11 +6,11 @@ open FSharp.Windows
 open FSharpx.TypeProviders.XamlProvider
 
 [<AbstractClass>]
-type XamlProviderView<'Event, 'Model>(window : Window) = 
+type XamlProviderView<'Events, 'Model>(window : Window) = 
 
     let mutable isOK = false
 
-    interface IView<'Event, 'Model> with
+    interface IView<'Events, 'Model> with
         member this.Subscribe observer = 
             let xs = this.EventStreams |> List.reduce Observable.merge 
             xs.Subscribe observer
@@ -27,7 +27,7 @@ type XamlProviderView<'Event, 'Model>(window : Window) =
             isOK <- isOK'
             window.Close()
 
-    abstract EventStreams : IObservable<'Event> list
+    abstract EventStreams : IObservable<'Events> list
     abstract SetBindings : 'Model -> unit
 
 

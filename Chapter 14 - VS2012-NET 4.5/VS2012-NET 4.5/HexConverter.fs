@@ -11,8 +11,6 @@ open FSharpx
 
 module HexConverter =  
 
-    type HexConverterWindow = XAML<"View\HexConverterWindow.xaml">
-
     type Events = ValueChanging of string * (unit -> unit)
 
     [<AbstractClass>]
@@ -23,6 +21,8 @@ module HexConverter =
         member this.Value 
             with get() = Int32.Parse(this.HexValue, NumberStyles.HexNumber)
             and set value = this.HexValue <- sprintf "%X" value
+
+    type HexConverterWindow = XAML<"View\HexConverterWindow.xaml">
 
     let view() = 
         let window = HexConverterWindow()

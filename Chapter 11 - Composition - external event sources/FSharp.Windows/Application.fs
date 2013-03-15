@@ -10,13 +10,13 @@ open System.Threading
 module Application = 
 
     [<Extension>] //for C#
-    let StartImmediate(mvc : Mvc<_, _>) =
+    let AttachMvc(mvc : Mvc<_, _>) =
         let cts = new CancellationTokenSource()
         Async.StartImmediate(mvc.AsyncStart() |> Async.Ignore, cts.Token)
     
     type Application with 
         member this.Run(mvc, mainWindow) =
-            this.Startup.Add <| fun _ -> StartImmediate mvc
+            this.Startup.Add <| fun _ -> AttachMvc mvc
             this.Run mainWindow
 
 

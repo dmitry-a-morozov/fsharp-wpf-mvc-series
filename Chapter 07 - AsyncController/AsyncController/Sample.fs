@@ -96,11 +96,15 @@ type SampleController() =
         model.Title <- sprintf "Files in %s: ..." folderToSearch
 
         async {
-            let context = SynchronizationContext.Current
-            do! Async.SwitchToThreadPool()
-            let totalFiles = Directory.GetFiles(folderToSearch, "*.*", SearchOption.AllDirectories).Length
-            do! Async.SwitchToContext context
-            model.Title <- sprintf "Files in %s: - %i" folderToSearch totalFiles
+            try 
+                let context = SynchronizationContext.Current
+                do! Async.SwitchToThreadPool()
+                let totalFiles = Directory.GetFiles(folderToSearch, "*.*", SearchOption.AllDirectories).Length
+                do! Async.SwitchToContext context
+                model.Title <- sprintf "Files in %s: - %i" folderToSearch totalFiles
+            with e ->
+                System.Diagnostics.Debug.WriteLine e.Message
+                model.Title <- sprintf "Failed to count files in in %s." folderToSearch 
         }
 
     override this.Dispatcher = function

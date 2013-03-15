@@ -1,21 +1,15 @@
 ﻿namespace FSharp.Windows
 
 open System
-open System.Reflection
 open System.Reactive.Linq
 open System.Reactive.Concurrency
 open System.Reactive
 open System.Threading
 open System.ComponentModel
+open System.Runtime.ExceptionServices
 
 type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events, 'Model>, controller : IController<'Events, 'Model>) =
 
-    static let defaultReraise =  
-        let internalPreserveStackTrace = lazy typeof<Exception>.GetMethod("InternalPreserveStackTrace", BindingFlags.Instance ||| BindingFlags.NonPublic)
-        fun exn ->
-            internalPreserveStackTrace.Value.Invoke(exn, [||]) |> ignore
-            raise exn |> ignore
-    
     member this.Activate() =
         controller.InitModel model
         view.SetBindings model
@@ -51,7 +45,7 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
         }
 
     abstract OnException : 'Events * exn -> unit
-    default this.OnException(_, exn) = defaultReraise exn 
+    default this.OnException(_, exn) = ExceptionDispatchInfo.Capture(exn).Throw() 
 
     member this.Compose(childController : IController<'EX, 'MX>, childView : IPartialView<'EX, 'MX>, childModelSelector : _ -> 'MX) = 
         let compositeView = {

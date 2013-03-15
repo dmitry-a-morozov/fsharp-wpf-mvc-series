@@ -20,7 +20,7 @@ type IView<'Events, 'Model> =
 type PartialView<'Events, 'Model, 'Control when 'Control :> FrameworkElement>(control : 'Control) =
 
     member this.Control = control
-    static member (?) (view : PartialView<'Events, 'Model, 'Window>, name) = 
+    static member (?) (view : PartialView<'Events, 'Model, 'Control>, name) = 
         match view.Control.FindName name with
         | null -> 
             match view.Control.TryFindResource name with
