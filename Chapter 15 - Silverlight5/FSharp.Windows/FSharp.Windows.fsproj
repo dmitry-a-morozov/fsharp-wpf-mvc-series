@@ -57,8 +57,11 @@
     <Reference Include="System.Windows.Controls.Navigation, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions.fs" />
     <Compile Include="Reactive.fs" />
+    <Compile Include="Binding.fs" />
     <Compile Include="Model.fs" />
+    <Compile Include="Validation.fs" />
     <Compile Include="View.fs" />
     <Compile Include="Controller.fs" />
     <Compile Include="Mvc.fs" />

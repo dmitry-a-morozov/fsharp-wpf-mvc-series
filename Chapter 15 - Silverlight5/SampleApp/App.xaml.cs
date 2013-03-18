@@ -31,7 +31,7 @@ namespace SampleApp
             var view = new MainView(new MainPage());
             var controller = new MainController();
             this.RootVisual = view.Control;
-            var mvc = new Mvc<MainPageEvents, MainModel>(model, view, controller);
+            var mvc = new Mvc<MainEvents, MainModel>(model, view, controller);
             mvc.Start();
         }
 

@@ -8,6 +8,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp.Web", "SampleApp.Web\SampleApp.Web.csproj", "{46FEAB95-6607-41F7-BE7E-93BB3042F565}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp.Controls", "SampleApp.Controls\SampleApp.Controls.csproj", "{CECE3E70-0701-48DC-9A3B-066613DEB91F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{46FEAB95-6607-41F7-BE7E-93BB3042F565} = {46FEAB95-6607-41F7-BE7E-93BB3042F565}
+	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SampleApp.Mvc", "SampleApp.Mvc\SampleApp.Mvc.fsproj", "{145809B6-52C4-4923-AF34-435861A87F20}"
 EndProject
