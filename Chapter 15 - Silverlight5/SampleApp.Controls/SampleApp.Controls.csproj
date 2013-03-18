@@ -90,13 +90,13 @@
     </None>
     <None Include="Service References\Services\configuration.svcinfo" />
     <None Include="Service References\Services\configuration91.svcinfo" />
-    <Content Include="ServiceReferences.ClientConfig" />
     <None Include="Service References\Services\SampleApp.Services.CelsiusToFahrenheitResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\Services\SampleApp.Services.FahrenheitToCelsiusResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
+    <Content Include="ServiceReferences.ClientConfig" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

@@ -63,6 +63,7 @@ type MainView(control) =
         Binding.FromExpression 
             <@ 
                 this.Control.Operation.ItemsSource <- model.AvailableOperations 
+                this.Control.TempConverterHeader.Text <- model.TempConverterHeader
             @>
 
         Binding.TwoWay 
@@ -72,15 +73,12 @@ type MainView(control) =
                 this.Control.Y.Text <- string model.Y 
                 this.Control.Result.Text <- string model.Result 
 
-                //this.Control.TempConverterGroup.Header <- model.TempConverterHeader
                 this.Control.Celsius.Text <- string model.Celsius
                 this.Control.Fahrenheit.Text <- string model.Fahrenheit
                 this.Control.Delay.Text <- string model.Delay
 
             @>
 
-        //this.Control.SetBinding(Window.TitleProperty, "Title") |> ignore
-         
 type MainController() = 
     inherit Controller<MainEvents, MainModel>()
 

@@ -6,7 +6,7 @@
     xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk"
     mc:Ignorable="d"
     d:DesignHeight="300" d:DesignWidth="400"
-    Height="310" Width="400">
+    Height="350" Width="400">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -17,6 +17,7 @@
             <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -39,7 +40,8 @@
             <Button Content="=" Name="Calculate" Width="80" Height="25" Margin="5" x:FieldModifier="public"/>
             <Button Content="C" Name="Clear" Width="80" Height="25" Margin="5" x:FieldModifier="public"/>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Grid.Row="5"  Grid.ColumnSpan="2" Margin="5" Name="TempConverterGroup" x:FieldModifier="public">
+        <TextBlock Name="TempConverterHeader" x:FieldModifier="public" Text="Async operation ..." Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="0, 10"/> 
+        <StackPanel Orientation="Horizontal" Grid.Row="6"  Grid.ColumnSpan="2" Margin="5" Name="TempConverterGroup" x:FieldModifier="public">
             <sdk:Label Content="Celsius"/>
             <TextBox Name="Celsius" x:FieldModifier="public" Width="50"/>
             <Button Content="&lt;-" Name="FahrenheitToCelsius" x:FieldModifier="public" Margin="5,0"/>
@@ -48,9 +50,9 @@
             <TextBox Name="Fahrenheit" x:FieldModifier="public" Width="50"/>
             <Rectangle/>
         </StackPanel>
-        <StackPanel Grid.Row="6" Orientation="Horizontal" Grid.ColumnSpan="2" >
+        <StackPanel Grid.Row="7" Orientation="Horizontal" Grid.ColumnSpan="2" >
             <sdk:Label Content="Delay, sec:"/>
-            <TextBox Name="Delay" Width="50" Margin="5" x:FieldModifier="public"/>
+            <TextBox Name="Delay" Width="50" Margin="6" x:FieldModifier="public"/>
             <Button Content="Cancel Async" Width="100" Name="CancelAsync" x:FieldModifier="public" Margin="5"/>
         </StackPanel>
     </Grid>

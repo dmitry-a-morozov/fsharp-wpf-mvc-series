@@ -94,8 +94,10 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\SampleApp.Controls\ServiceReferences.ClientConfig">
+      <Link>ServiceReferences.ClientConfig</Link>
+    </Content>
     <None Include="Properties\AppManifest.xml" />
-    <Content Include="ServiceReferences.ClientConfig" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Windows\FSharp.Windows.fsproj">
