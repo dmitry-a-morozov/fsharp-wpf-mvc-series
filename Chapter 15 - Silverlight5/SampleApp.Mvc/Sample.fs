@@ -82,7 +82,6 @@ type MainView(control) =
 type MainController() = 
     inherit Controller<MainEvents, MainModel>()
 
-    let service = new TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
 
     override this.InitModel model = 
         model.AvailableOperations <- 
@@ -138,6 +137,7 @@ type MainController() =
 
     member this.CelsiusToFahrenheit model = 
         async {
+            let service = new TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
             let context = SynchronizationContext.Current
             use! cancelHandler = Async.OnCancel(fun() -> 
                 context.Post((fun _ -> model.TempConverterHeader <- "Async TempConverter. Request cancelled."), null)) 
@@ -151,13 +151,14 @@ type MainController() =
 
     member this.FahrenheitToCelsius model = 
         async {
-                let context = SynchronizationContext.Current
-                model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
-                do! Async.Sleep(model.Delay * 1000)
-                let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
-                do! Async.SwitchToContext context
-                model.TempConverterHeader <- "Async TempConverter. Response received."            
-                model.Celsius <- celsius
+            let service = new TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
+            let context = SynchronizationContext.Current
+            model.TempConverterHeader <- "Async TempConverter. Waiting for response ..."            
+            do! Async.Sleep(model.Delay * 1000)
+            let! celsius = service.AsyncFahrenheitToCelsius model.Fahrenheit
+            do! Async.SwitchToContext context
+            model.TempConverterHeader <- "Async TempConverter. Response received."            
+            model.Celsius <- celsius
         }
 
                 

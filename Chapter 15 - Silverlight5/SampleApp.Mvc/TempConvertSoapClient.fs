@@ -14,6 +14,7 @@ type SampleApp.Services.TempConvertSoapClient with
                 elif eventArgs.Error <> null then onError eventArgs.Error
                 else eventArgs.Result |> float |> onSuccess 
             celsius |> string |> this.CelsiusToFahrenheitAsync
+        
 
     member this.AsyncFahrenheitToCelsius(fahrenheit : float) = 
         Async.FromContinuations <| fun(onSuccess, onError, onCancel) ->
