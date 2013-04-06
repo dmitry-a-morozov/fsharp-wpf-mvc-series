@@ -57,7 +57,7 @@ module ModelExtensions =
             match getter with
             | PropertyGetter propertyName & MethodWithReflectedDefinition (Lambda (model, propertyBody)) -> 
                 let binding = MultiBinding()
-                let self = Binding(path = "", RelativeSource = RelativeSource.Self) 
+                let self = Binding(RelativeSource = RelativeSource.Self) 
                 binding.Bindings.Add self
 
                 propertyBody
