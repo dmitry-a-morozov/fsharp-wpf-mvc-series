@@ -16,9 +16,15 @@ module Extensions =
 
     type Exception with
         member this.Unwrap() = 
-            match this with
+            match this with 
             | PreserveStackTraceWrapper inner -> inner.Unwrap()
             | exn -> exn
+
+        member this.Rethrow() = 
+            raise <| 
+                match this with 
+                | PreserveStackTraceWrapper _ as wrapped -> wrapped 
+                | inner -> PreserveStackTraceWrapper inner
 
     type PropertySelector<'T, 'a> = Expr<('T -> 'a)>
 

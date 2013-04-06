@@ -24,8 +24,7 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
         )
 
     abstract OnException : 'Events * exn -> unit
-    default this.OnException(_, exn) = 
-        raise <| match exn with | PreserveStackTraceWrapper _ as wrapped -> wrapped | inner -> PreserveStackTraceWrapper inner
+    default this.OnException(_, exn) = exn.Rethrow()
 
 [<RequireQualifiedAccess>]
 module Mvc = 
