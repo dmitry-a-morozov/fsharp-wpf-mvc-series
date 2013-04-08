@@ -4,32 +4,29 @@ open System.ComponentModel
 open System
 open System.Reflection
 
-type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events, 'Model>, controller : IController<'Events, 'Model>) =
+type Mvc =
 
-    member this.Start() =
+    static member Start<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events, 'Model>, controller : IController<'Events, 'Model>, onException) =
         controller.InitModel model
         view.SetBindings model
-        view.Subscribe (fun event -> 
+        view.Subscribe(fun event -> 
             match controller.Dispatcher event with
             | Sync eventHandler ->
                 try eventHandler model 
-                with exn -> this.OnException(event, exn)
+                with exn -> onException event exn
             | Async eventHandler -> 
                 Async.StartWithContinuations(
                     computation = eventHandler model, 
                     continuation = ignore, 
-                    exceptionContinuation = (fun exn -> this.OnException(event, exn)),
+                    exceptionContinuation = onException event,
                     cancellationContinuation = ignore
                 )
         )
 
-    abstract OnException : 'Events * exn -> unit
-    default this.OnException(_, exn) = exn.Rethrow()
+    static member Start(model, view, controller : IController<'Events, 'Model>) = 
+        Mvc.Start(model, view, controller, onException = fun _ exn -> exn.Rethrow())
 
-[<RequireQualifiedAccess>]
-module Mvc = 
-
-    let inline start(view, controller) = 
+    static member inline Start(view : IView<'Events, 'Model>, controller) = 
         let model = (^Model : (static member Create : unit -> ^Model ) ())
-        Mvc<'Events, ^Model>(model, view, controller).Start()
+        Mvc.Start(model, view, controller)
 
