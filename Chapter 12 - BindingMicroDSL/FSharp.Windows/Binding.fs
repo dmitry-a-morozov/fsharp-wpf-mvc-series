@@ -33,7 +33,7 @@ type IValueConverter with
 
     member this.Apply _ = undefined
 
-module BindingPatterns = 
+module Patterns = 
 
     let (|Target|_|) expr = 
         let rec loop = function
