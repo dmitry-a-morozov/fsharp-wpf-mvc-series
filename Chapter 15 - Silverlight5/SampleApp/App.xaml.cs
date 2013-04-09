@@ -31,7 +31,7 @@ namespace SampleApp
             var view = new MainView(new MainPage());
             var controller = new MainController();
             this.RootVisual = view.Control;
-            Mvc.Start(model, view, controller);
+            Mvc.Activate(model, view, controller);
         }
 
         private void Application_Exit(object sender, EventArgs e)
