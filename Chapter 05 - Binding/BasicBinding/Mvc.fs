@@ -9,9 +9,4 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
         view.SetBindings model
         view.Subscribe(callback = fun event -> controller.EventHandler event model)
 
-[<RequireQualifiedAccess>]
-module Mvc = 
 
-    let inline start(view, controller) = 
-        let model = (^Model : (static member Create : unit -> ^Model ) ())
-        Mvc<'Events, ^Model>(model, view, controller).Start()
