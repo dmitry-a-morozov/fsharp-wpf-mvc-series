@@ -46,7 +46,7 @@ type MainEvents =
     | Kaboom
 
 type MainView(control) =
-    inherit View<MainEvents, MainModel, MainPage>(control)
+    inherit View<MainEvents, MainModel, MainWindow>(control)
 
     override this.EventStreams = 
         [

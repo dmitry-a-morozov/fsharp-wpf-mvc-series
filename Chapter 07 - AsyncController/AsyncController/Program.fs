@@ -13,18 +13,18 @@ do
     let app = Application()
 
     let mvc = Mvc(model, view, controller)
+
+    //Using DispatcherUnhandledException
     app.DispatcherUnhandledException.Add <| fun args ->
         let why = args.Exception
         Debug.Fail("DispatcherUnhandledException handler", string why.Message)
         args.Handled <- true
 
-//    // Using PreserveStackTraceWrapper wrapper
-//    let mvc = {
-//        new Mvc<_, _>(model, view, controller) with
-//            member this.OnException(_, exn) = 
-//                let wrapperExn = match exn with | PreserveStackTraceWrapper _  -> exn | inner -> PreserveStackTraceWrapper inner
-//                raise wrapperExn
-//    }
+    // Using PreserveStackTraceWrapper wrapper
+//    mvc.OnError <- fun _ exn ->
+//        let wrapperExn = match exn with | PreserveStackTraceWrapper _  -> exn | inner -> PreserveStackTraceWrapper inner
+//        raise wrapperExn
+//
 //    app.DispatcherUnhandledException.Add <| fun args ->
 //        let why = args.Exception.Unwrap()
 //        Debug.Fail("DispatcherUnhandledException handler", string why.Message)

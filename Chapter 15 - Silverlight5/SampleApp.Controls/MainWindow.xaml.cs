@@ -12,9 +12,9 @@ using System.Windows.Shapes;
 
 namespace SampleApp
 {
-    public partial class MainPage : UserControl
+    public partial class MainWindow : UserControl
     {
-        public MainPage()
+        public MainWindow()
         {
             InitializeComponent();
         }

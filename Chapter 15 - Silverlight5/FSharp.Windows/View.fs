@@ -9,7 +9,7 @@ type IView<'Events, 'Model> =
 
     abstract SetBindings : 'Model -> unit
 
-type IModalWindow<'T> =
+type IDialog<'T> =
     abstract Show : unit -> 'T
 
 [<AbstractClass>]
@@ -39,7 +39,7 @@ type View<'Events, 'Model, 'Control when 'Control :> FrameworkElement>(control :
 type Dialog<'Events, 'Model, 'ChildWindow when 'ChildWindow :> ChildWindow and 'ChildWindow : (new : unit -> 'ChildWindow)>(?childWindow) = 
     inherit View<'Events, 'Model, 'ChildWindow>(control = defaultArg childWindow (new 'ChildWindow()))
 
-    interface IModalWindow<bool> with
+    interface IDialog<bool> with
         member this.Show() = 
             this.Control.Show()
 

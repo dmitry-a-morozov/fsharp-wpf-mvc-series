@@ -25,6 +25,12 @@ type Controller<'Events, 'Model>() =
             member this.Dispatcher = callback
     } 
 
+    static member Create callback = {
+        new IController<'Events, 'Model> with
+            member this.InitModel _ = ()
+            member this.Dispatcher = fun event -> Sync(callback event)
+    } 
+
 [<AbstractClass>]
 type AsyncInitController<'Events, 'Model>() =
     inherit Controller<'Events, 'Model>()

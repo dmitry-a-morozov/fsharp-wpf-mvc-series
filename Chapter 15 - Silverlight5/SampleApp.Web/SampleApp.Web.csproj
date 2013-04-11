@@ -59,8 +59,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ClientBin\SampleApp.xap" />
-    <Content Include="SampleAppTestPage.aspx" />
-    <Content Include="SampleAppTestPage.html" />
+    <Content Include="index.aspx" />
+    <Content Include="index.html" />
     <Content Include="Silverlight.js" />
     <Content Include="TempConvert.asmx" />
     <Content Include="Web.config" />

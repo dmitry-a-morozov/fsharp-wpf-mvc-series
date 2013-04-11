@@ -27,11 +27,14 @@ namespace SampleApp
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            var model = Model.Create<MainModel>();
-            var view = new MainView(new MainPage());
-            var controller = new MainController();
-            this.RootVisual = view.Control;
-            Mvc.Activate(model, view, controller);
+            //var model = Model.Create<MainModel>();
+            //var view = new MainView(new MainWindow());
+            //var controller = new MainController();
+            var mainWindow = new MainWindow();
+            var mvc = MainController.Mvc(mainWindow);
+            this.RootVisual = mainWindow;
+            mvc.Activate();
+            //Mvc.activate(model, view, controller);
         }
 
         private void Application_Exit(object sender, EventArgs e)

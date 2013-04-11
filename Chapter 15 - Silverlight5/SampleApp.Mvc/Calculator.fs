@@ -1,10 +1,9 @@
-﻿namespace FSharp.Windows.Sample
+﻿namespace SampleApp
 
 open System
 open System.Windows.Data
 open Microsoft.FSharp.Reflection
 open FSharp.Windows
-open FSharp.Windows.UIElements
 
 type Operations =
     | Add
@@ -24,8 +23,12 @@ type Operations =
 type CalculatorModel() = 
     inherit Model()
 
-    abstract AvailableOperations : Operations[] with get, set
+    let mutable selectedOperation = Operations.Add
     abstract SelectedOperation : Operations with get, set
+    default this.SelectedOperation with get() = selectedOperation and set value = selectedOperation <- value
+
+    abstract AvailableOperations : Operations[] with get, set
+    //abstract SelectedOperation : Operations with get, set
     abstract X : int with get, set
     abstract Y : int with get, set
     abstract Result : int with get, set
@@ -36,10 +39,10 @@ type CalculatorEvents =
     | Hex1
     | Hex2
     | YChanged of string
-    | XotYChanging of string * (unit -> unit)
+    //| XotYChanging of string * (unit -> unit)
 
 type CalculatorView(control) =
-    inherit PartialView<CalculatorEvents, CalculatorModel, CalculatorControl>(control)
+    inherit View<CalculatorEvents, CalculatorModel, CalculatorControl>(control)
 
     override this.EventStreams = 
         [ 
@@ -53,8 +56,8 @@ type CalculatorView(control) =
                  
             yield this.Control.Y.TextChanged |> Observable.map(fun _ -> YChanged(this.Control.Y.Text))
 
-            yield this.Control.X.PreviewTextInput |> Observable.map(fun x -> XotYChanging(x.Text, fun() -> x.Handled <- true))
-            yield this.Control.Y.PreviewTextInput |> Observable.map(fun y -> XotYChanging(y.Text, fun() -> y.Handled <- true))
+//            yield this.Control.X.PreviewTextInput |> Observable.map(fun x -> XotYChanging(x.Text, fun() -> x.Handled <- true))
+//            yield this.Control.Y.PreviewTextInput |> Observable.map(fun y -> XotYChanging(y.Text, fun() -> y.Handled <- true))
         ] 
 
     override this.SetBindings model = 
@@ -62,9 +65,13 @@ type CalculatorView(control) =
             <@ 
                 this.Control.Operation.ItemsSource <- model.AvailableOperations 
                 this.Control.Operation.SelectedItem <- model.SelectedOperation
+                this.Control.Result.Text <- string model.Result 
+            @>
+            
+        Binding.TwoWay
+            <@ 
                 this.Control.X.Text <- string model.X
                 this.Control.Y.Text <- string model.Y 
-                this.Control.Result.Text <- string model.Result 
             @>
 
 type CalculatorController() = 
@@ -83,7 +90,7 @@ type CalculatorController() =
         | Hex1 -> this.Hex1
         | Hex2 -> this.Hex2
         | YChanged text -> this.YChanged text
-        | XotYChanging(text, cancel) -> this.EnsureDigitalInput(text, cancel)
+        //| XotYChanging(text, cancel) -> this.EnsureDigitalInput(text, cancel)
 
     member this.Calculate model = 
         model.ClearAllErrors()
@@ -107,23 +114,23 @@ type CalculatorController() =
             else
                 model.Result <- model.X / model.Y
         
-    member this.Hex1 model = 
-        let view = HexConverter.view()
-        let childModel = Model.Create() 
-        let controller = HexConverter.controller() 
-        let mvc = Mvc(childModel, view, controller)
-        childModel.Value <- model.X
+    member this.Hex1 model = ()
+//        let view = HexConverter.view()
+//        let childModel = Model.Create() 
+//        let controller = HexConverter.controller() 
+//        let mvc = Mvc(childModel, view, controller)
+//        childModel.Value <- model.X
+//
+//        if mvc.Start()
+//        then 
+//            model.X <- childModel.Value 
 
-        if mvc.Start()
-        then 
-            model.X <- childModel.Value 
-
-    member this.Hex2 model = 
-        (HexConverter.view(), HexConverter.controller())
-        |> Mvc.start
-        |> Option.iter(fun resultModel ->
-            model.Y <- resultModel.Value 
-        )
+    member this.Hex2 model = ()
+//        (HexConverter.view(), HexConverter.controller())
+//        |> Mvc.start
+//        |> Option.iter(fun resultModel ->
+//            model.Y <- resultModel.Value 
+//        )
 
     member this.YChanged text model = 
         if text <> "0"
@@ -132,7 +139,7 @@ type CalculatorController() =
         else 
             model.AvailableOperations <- Operations.Values |> Array.filter(fun op -> op <> Operations.Divide)
 
-    member this.EnsureDigitalInput(newValue, cancel) model =
-        match Int32.TryParse newValue with 
-        | false, _  ->  cancel()
-        | _ -> ()
+//    member this.EnsureDigitalInput(newValue, cancel) model =
+//        match Int32.TryParse newValue with 
+//        | false, _  ->  cancel()
+//        | _ -> ()
