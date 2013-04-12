@@ -6,11 +6,11 @@ open System.Reflection
 
 type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events, 'Model>, controller : IController<'Events, 'Model>) =
 
-    static let defaultReraise =  
-        let internalPreserveStackTrace = lazy typeof<Exception>.GetMethod("InternalPreserveStackTrace", BindingFlags.Instance ||| BindingFlags.NonPublic)
-        fun exn ->
-            internalPreserveStackTrace.Value.Invoke(exn, [||]) |> ignore
-            raise exn |> ignore
+    static let internalPreserveStackTrace = lazy typeof<Exception>.GetMethod("InternalPreserveStackTrace", BindingFlags.Instance ||| BindingFlags.NonPublic)
+    let mutable onError = fun _ exn -> 
+        internalPreserveStackTrace.Value.Invoke(exn, [||]) |> ignore
+        raise exn |> ignore
+   //on CLR 4.5 is replaced by ExceptionDispatchInfo.Capture(exn).Throw()
     
     member this.Start() =
         controller.InitModel model
@@ -19,24 +19,17 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
             match controller.Dispatcher event with
             | Sync eventHandler ->
                 try eventHandler model 
-                with exn -> this.OnException(event, exn)
+                with exn -> this.OnError event exn
             | Async eventHandler -> 
                 Async.StartWithContinuations(
                     computation = eventHandler model, 
                     continuation = ignore, 
-                    exceptionContinuation = (fun exn -> this.OnException(event, exn)),
+                    exceptionContinuation = this.OnError event,
                     cancellationContinuation = ignore
                 )
         )
 
-    abstract OnException : 'Events * exn -> unit
-    default this.OnException(_, exn) = defaultReraise exn 
-    //defaultReraise on CLR 4.5 is replaced by ExceptionDispatchInfo.Capture(exn).Throw()
+    abstract OnError : ('Events -> exn -> unit) with get, set
+    default this.OnError with get() = onError and set value = onError <- value
 
-[<RequireQualifiedAccess>]
-module Mvc = 
-
-    let inline start(view, controller) = 
-        let model = (^Model : (static member Create : unit -> ^Model ) ())
-        Mvc<'Events, ^Model>(model, view, controller).Start()
 

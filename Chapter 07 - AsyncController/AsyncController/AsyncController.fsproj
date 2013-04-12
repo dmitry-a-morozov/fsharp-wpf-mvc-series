@@ -39,11 +39,11 @@
   <ItemGroup>
     <Compile Include="Extensions.fs" />
     <Compile Include="Binding.fs" />
-    <Compile Include="Model.fs" />
     <Compile Include="Validation.fs" />
     <Compile Include="View.fs" />
     <Compile Include="Controller.fs" />
     <Compile Include="Mvc.fs" />
+    <Compile Include="Model.fs" />
     <Compile Include="TempConvertSoapClient.fs" />
     <Compile Include="Sample.fs" />
     <Compile Include="PreserveStackTraceWrapper.fs" />

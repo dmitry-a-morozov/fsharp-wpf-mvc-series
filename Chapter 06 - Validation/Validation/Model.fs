@@ -84,3 +84,9 @@ and AbstractProperties() =
 
                 | _ -> invocation.Proceed()
 
+[<RequireQualifiedAccess>]
+module Mvc = 
+
+    let inline start(view, controller) = 
+        let model = (^Model : (static member Create : unit -> ^Model ) ())
+        Mvc<'Event, ^Model>(model, view, controller).Start()
