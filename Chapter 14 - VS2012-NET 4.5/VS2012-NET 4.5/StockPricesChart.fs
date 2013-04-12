@@ -72,7 +72,7 @@ type StockPricesChartController() =
                 let window = StockPickerWindow()
                 let view = StockPickerView(window)
                 let controller = StockPickerController()
-                let! result = Mvc.asyncStart(view, controller)  
+                let! result = Mvc.startWindow(view, controller)  
                 result |> Option.iter(fun newItem -> 
                     model.StocksInfo.Add newItem
                     model.SelectedStock <- newItem

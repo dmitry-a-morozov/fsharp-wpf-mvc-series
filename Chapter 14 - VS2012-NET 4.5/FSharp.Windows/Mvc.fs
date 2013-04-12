@@ -1,51 +1,50 @@
 ﻿namespace FSharp.Windows
 
 open System
-open System.Reactive.Linq
-open System.Reactive.Concurrency
+open System.Reflection
 open System.Reactive
-open System.Threading
 open System.ComponentModel
 open System.Runtime.ExceptionServices
 
 type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events, 'Model>, controller : IController<'Events, 'Model>) =
 
-    member this.Activate() =
+    let mutable onError = fun _ exn -> ExceptionDispatchInfo.Capture(exn).Throw()
+    
+    member this.Start() =
         controller.InitModel model
         view.SetBindings model
 
-        let observer = Observer.Create(fun event -> 
+        Observer.create <| fun event -> 
             match controller.Dispatcher event with
             | Sync eventHandler ->
                 try eventHandler model 
-                with exn -> this.OnException(event, exn)
+                with exn -> this.OnError event exn
             | Async eventHandler -> 
                 Async.StartWithContinuations(
                     computation = eventHandler model, 
                     continuation = ignore, 
-                    exceptionContinuation = (fun exn -> this.OnException(event, exn)),
-                    cancellationContinuation = ignore))
-#if DEBUG
-        let observer = observer.Checked()
-#endif
-        view
-            .ObserveOn(
-                scheduler = SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false))
-            .Subscribe(
-                observer = Observer.Synchronize(observer, preventReentrancy = true))
+                    exceptionContinuation = this.OnError event,
+                    cancellationContinuation = ignore)
 
-    member this.Start() =
-        use subscription = this.Activate()
+        |> Observer.notifyOnCurrentSynchronizationContext
+        |> Observer.preventReentrancy
+#if DEBUG
+        |> Observer.Checked
+#endif
+        |> view.Subscribe
+
+    member this.StartDialog() =
+        use subscription = this.Start()
         view.ShowDialog()
 
-    member this.AsyncStart() =
+    member this.StartWindow() =
         async {
-            use subscription = this.Activate()
+            use subscription = this.Start()
             return! view.Show()
         }
 
-    abstract OnException : 'Events * exn -> unit
-    default this.OnException(_, exn) = ExceptionDispatchInfo.Capture(exn).Throw() 
+    abstract OnError : ('Events -> exn -> unit) with get, set
+    default this.OnError with get() = onError and set value = onError <- value
 
     member this.Compose(childController : IController<'EX, 'MX>, childView : IPartialView<'EX, 'MX>, childModelSelector : _ -> 'MX) = 
         let compositeView = {
@@ -56,7 +55,6 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
                         model |> childModelSelector |> childView.SetBindings
                     member __.Show() = view.Show()
                     member __.ShowDialog() = view.ShowDialog()
-                    member __.Close ok = view.Close ok
         }
 
         let compositeController = { 
@@ -74,7 +72,7 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
 
         Mvc(model, compositeView, compositeController)
 
-    static member (<+>) (mvc : Mvc<_, _>,  (childController : #IController<_, _>, childView, childModelSelector)) = 
+    static member (<+>) (mvc : Mvc<_, _>,  (childController, childView, childModelSelector)) = 
         mvc.Compose(childController, childView, childModelSelector)
 
     member this.Compose(childController : IController<_, _>, events : IObservable<_>) = 

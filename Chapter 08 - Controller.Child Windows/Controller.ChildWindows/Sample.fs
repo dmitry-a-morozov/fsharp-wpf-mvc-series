@@ -182,20 +182,20 @@ type SampleController() =
         let mvc = Mvc(childModel, view, controller)
         childModel.Value <- model.X
 
-        if mvc.Start()
+        if mvc.StartDialog()
         then 
             model.X <- childModel.Value 
 
     member this.Hex2 model = 
         (HexConverter.view(), HexConverter.controller())
-        |> Mvc.start
+        |> Mvc.startDialog
         |> Option.iter(fun resultModel ->
             model.Y <- resultModel.Value 
         )
 
     member this.AddStockToPriceChart model = 
         async {
-            let! result = (StockPriceView(), StockPriceController()) |> Mvc.asyncStart  
+            let! result = Mvc.startWindow(StockPriceView(), StockPriceController())
             result |> Option.iter (fun stockInfo ->
                 model.StockPrices.Add(stockInfo.Symbol, stockInfo.LastPrice)
             )

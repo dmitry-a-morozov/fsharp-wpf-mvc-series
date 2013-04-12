@@ -6,4 +6,4 @@ open FSharp.Windows
 
 [<STAThread>] 
 do 
-    (SampleView(), SampleController()) |> Mvc.start |> ignore
+    Mvc.startDialog(SampleView(), SampleController()) |> ignore

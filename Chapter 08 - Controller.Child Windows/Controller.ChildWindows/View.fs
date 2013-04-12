@@ -11,7 +11,6 @@ type IView<'Events, 'Model> =
 
     abstract ShowDialog : unit -> bool
     abstract Show : unit -> Async<bool>
-    abstract Close : bool -> unit
 
 [<AbstractClass>]
 type View<'Events, 'Model, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>(?window) = 
@@ -43,28 +42,24 @@ type View<'Events, 'Model, 'Window when 'Window :> Window and 'Window : (new : u
         member this.Show() = 
             this.Window.Show()
             this.Window.Closed |> Event.map (fun _ -> isOK) |> Async.AwaitEvent 
-        member this.Close isOK' = 
-            isOK <- isOK'
-            this.Window.Close()
 
     abstract EventStreams : IObservable<'Events> list
     abstract SetBindings : 'Model -> unit
+
+    member this.Close isOK' = 
+        isOK <- isOK'
+        this.Window.Close()
+
+    member this.OK() = this.Close true
+    member this.Cancel() = this.Close false
+
+    member this.CancelButton with set(value : Button) = value.Click.Add(ignore >> this.Cancel)
+    member this.DefaultOKButton 
+        with set(value : Button) = 
+            value.IsDefault <- true
+            value.Click.Add(ignore >> this.OK)
 
 [<AbstractClass>]
 type XamlView<'Events, 'Model>(resourceLocator) = 
     inherit View<'Events, 'Model, Window>(resourceLocator |> Application.LoadComponent |> unbox)
 
-[<AutoOpen>]
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module View = 
-
-    type IView<'Events, 'Model> with
-
-        member this.OK() = this.Close true
-        member this.Cancel() = this.Close false
-
-        member this.CancelButton with set(value : Button) = value.Click.Add(ignore >> this.Cancel)
-        member this.DefaultOKButton 
-            with set(value : Button) = 
-                value.IsDefault <- true
-                value.Click.Add(ignore >> this.OK)

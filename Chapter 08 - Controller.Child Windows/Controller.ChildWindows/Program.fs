@@ -5,4 +5,4 @@ open FSharp.Windows
 
 [<STAThread>] 
 do 
-    (SampleView(), SampleController()) |> Mvc.start |> ignore
+    (SampleView(), SampleController()) |> Mvc.startDialog |> ignore

@@ -6,39 +6,38 @@ open System.Reflection
 
 type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events, 'Model>, controller : IController<'Events, 'Model>) =
 
-    static let defaultReraise =  
-        let internalPreserveStackTrace = lazy typeof<Exception>.GetMethod("InternalPreserveStackTrace", BindingFlags.Instance ||| BindingFlags.NonPublic)
-        fun exn ->
-            internalPreserveStackTrace.Value.Invoke(exn, [||]) |> ignore
-            raise exn |> ignore
+    static let internalPreserveStackTrace = lazy typeof<Exception>.GetMethod("InternalPreserveStackTrace", BindingFlags.Instance ||| BindingFlags.NonPublic)
+    let mutable onError = fun _ exn -> 
+        internalPreserveStackTrace.Value.Invoke(exn, [||]) |> ignore
+        raise exn |> ignore
     
-    member this.Activate() =
+    member this.Start() =
         controller.InitModel model
         view.SetBindings model
         view.Subscribe (fun event -> 
             match controller.Dispatcher event with
             | Sync eventHandler ->
                 try eventHandler model 
-                with exn -> this.OnException(event, exn)
+                with exn -> this.OnError event exn
             | Async eventHandler -> 
                 Async.StartWithContinuations(
                     computation = eventHandler model, 
                     continuation = ignore, 
-                    exceptionContinuation = (fun exn -> this.OnException(event, exn)),
+                    exceptionContinuation = this.OnError event,
                     cancellationContinuation = ignore
                 )
         )
 
-    member this.Start() =
-        use subscription = this.Activate()
+    member this.StartDialog() =
+        use subscription = this.Start()
         view.ShowDialog()
 
-    member this.AsyncStart() =
+    member this.StartWindow() =
         async {
-            use subscription = this.Activate()
+            use subscription = this.Start()
             return! view.Show()
         }
 
-    abstract OnException : 'Events * exn -> unit
-    default this.OnException(_, exn) = defaultReraise exn 
+    abstract OnError : ('Events -> exn -> unit) with get, set
+    default this.OnError with get() = onError and set value = onError <- value
 

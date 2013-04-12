@@ -1,13 +1,13 @@
 ﻿namespace FSharp.Windows
  
 open System
-open LanguagePrimitives
-open Microsoft.FSharp.Quotations
-open Microsoft.FSharp.Quotations.Patterns
-
 
 [<AutoOpen>]
 module Extensions = 
+
+    open LanguagePrimitives
+    open Microsoft.FSharp.Quotations
+    open Microsoft.FSharp.Quotations.Patterns
 
     let inline undefined<'T> = raise<'T> <| NotImplementedException()
 
@@ -21,7 +21,6 @@ module Extensions =
             assert(arg.Name = selectOn.Name)
             property.Name, fun(this : 'T) -> property.GetValue(this, [||]) |> unbox<'a>
         | _ -> invalidArg "Property selector quotation" (string expr)
-
 
 [<RequireQualifiedAccess>]
 module Observable =
@@ -40,3 +39,17 @@ module Observable =
         member this.Select(source : IObservable<_>, [<ProjectionParameter>] selector : _ -> _) = source.Select(selector)
 
     let query = QueryBuilder()
+
+[<RequireQualifiedAccess>]
+module Observer =
+
+    open System.Reactive
+    open System.Threading
+    open System.Reactive.Concurrency
+
+    let create onNext = Observer.Create(Action<_>(onNext))
+
+    let notifyOnCurrentSynchronizationContext observer = 
+        Observer.NotifyOn(observer, SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false))
+
+    let preventReentrancy observer = Observer.Synchronize(observer, preventReentrancy = true)

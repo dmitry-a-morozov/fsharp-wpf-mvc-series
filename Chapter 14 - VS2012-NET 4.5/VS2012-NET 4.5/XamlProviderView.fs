@@ -23,9 +23,10 @@ type XamlProviderView<'Events, 'Model>(window : Window) =
         member this.Show() = 
             window.Show()
             window.Closed |> Event.map (fun _ -> isOK) |> Async.AwaitEvent 
-        member this.Close isOK' = 
-            isOK <- isOK'
-            window.Close()
+
+    member this.Close isOK' = 
+        isOK <- isOK'
+        window.Close()
 
     abstract EventStreams : IObservable<'Events> list
     abstract SetBindings : 'Model -> unit

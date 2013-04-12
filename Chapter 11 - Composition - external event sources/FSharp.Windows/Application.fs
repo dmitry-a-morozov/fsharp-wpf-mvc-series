@@ -1,8 +1,8 @@
 ﻿namespace FSharp.Windows
 
-open System.Runtime.CompilerServices
+open System
 open System.Windows
-open System.Threading
+open System.Runtime.CompilerServices
 
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
@@ -10,13 +10,15 @@ open System.Threading
 module Application = 
 
     [<Extension>] //for C#
-    let AttachMvc(mvc : Mvc<_, _>) =
-        let cts = new CancellationTokenSource()
-        Async.StartImmediate(mvc.AsyncStart() |> Async.Ignore, cts.Token)
-    
+    let AttachMvc(this : Application, mvc : Mvc<_, _>) = 
+        this.Startup.Add <| fun _ -> 
+            assert(this.MainWindow <> null)
+            let eventProcessing = mvc.Start()
+            this.MainWindow.Closed.Add <| fun _ -> eventProcessing.Dispose()
+
     type Application with 
-        member this.Run(mvc, mainWindow) =
-            this.Startup.Add <| fun _ -> AttachMvc mvc
+        member this.Run(mvc, mainWindow : #Window) =
+            AttachMvc(this, mvc)
             this.Run mainWindow
 
 

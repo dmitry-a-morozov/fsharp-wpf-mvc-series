@@ -103,7 +103,7 @@ module Patterns =
             binding
         | expr -> invalidArg "binding property path quotation" (string expr)
 
-open BindingPatterns
+open Patterns
 
 type Expr with
     member this.ToBindingExpr(?mode, ?updateSourceTrigger, ?fallbackValue, ?targetNullValue, ?validatesOnDataErrors, ?validatesOnExceptions) = 

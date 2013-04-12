@@ -6,6 +6,8 @@ open System.Reflection
 
 type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, view : IView<'Events, 'Model>, controller : IController<'Events, 'Model>) =
 
+    let mutable onError = fun _ (exn : exn) -> exn.Rethrow()
+
     member this.Activate() =
         controller.InitModel model
         view.SetBindings model
@@ -14,20 +16,20 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
             match controller.Dispatcher event with
             | Sync eventHandler ->
                 try eventHandler model 
-                with exn -> this.OnException(event, exn)
+                with exn -> this.OnError event exn
             | Async eventHandler -> 
                 Async.StartWithContinuations(
                     computation = eventHandler model, 
                     continuation = ignore, 
-                    exceptionContinuation = (fun exn -> this.OnException(event, exn)),
+                    exceptionContinuation = this.OnError event,
                     cancellationContinuation = ignore)
 
         |> Observer.notifyOnDispatcher 
         |> Observer.preventReentrancy 
         |> view.Subscribe 
 
-    abstract OnException : 'Events * exn -> unit
-    default this.OnException(_, exn) = exn.Rethrow()
+    abstract OnError : ('Events -> exn -> unit) with get, set
+    default this.OnError with get() = onError and set value = onError <- value
 
     member this.Compose(childController : IController<'EX, 'MX>, childView : IView<'EX, 'MX>, childModelSelector : _ -> 'MX) = 
         let compositeView = {
@@ -64,18 +66,14 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
         }
         this.Compose(childController, childView, id)
 
-    static member Start(model, dialog : #IDialog<_>, controller) = 
+    static member StartDialog(model, dialog : #IDialog<_>, controller) = 
         use subscription = Mvc<'Events, 'Model>(model, dialog, controller).Activate()
         dialog.Show()
 
-//[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
 module Mvc = 
 
-    let activate(model, view, controller) = 
-        Mvc<'Events, 'Model>(model, view, controller).Activate()
-
-    let inline start(view, controller) = 
+    let inline startDialog(view, controller) = 
         let model = (^Model : (static member Create : unit -> ^Model ) ())
-        if Mvc<'Events, ^Model>.Start(model, view, controller) then Some model else None
+        if Mvc<'Events, ^Model>.StartDialog(model, view, controller) then Some model else None
 
