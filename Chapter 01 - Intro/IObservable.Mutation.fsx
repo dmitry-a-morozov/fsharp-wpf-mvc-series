@@ -8,8 +8,8 @@ type Events =
 type View = IObservable<Events>  
 
 type Model = { mutable State : int }
-
-type Controller = Events -> Model -> unit
+type EventHandler = Model -> unit
+type Controller = Events -> EventHandler
 type Mvc = Controller -> Model -> IObservable<Events> -> IDisposable
 
 
@@ -24,7 +24,9 @@ let controller event model =
     | Add x -> model.State <- model.State + x 
     | Subtract x -> model.State <- model.State - x 
 
-let mvc : Mvc = fun controller model view -> view.Subscribe(fun event -> controller event model; printfn "Model: %A" model)
+let mvc : Mvc = fun controller model view -> 
+    view.Subscribe(fun event -> 
+        controller event model; printfn "Model: %A" model)
 
 let subscription = view |> mvc controller model
 

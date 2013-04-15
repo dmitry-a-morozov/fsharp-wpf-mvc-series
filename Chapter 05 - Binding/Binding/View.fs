@@ -12,7 +12,7 @@ type IView<'Events, 'Model> =
 type View<'Events, 'Model, 'Window when 'Window :> Window and 'Window : (new : unit -> 'Window)>(?window) = 
 
     let window = defaultArg window (new 'Window())
-
+    
     member this.Window = window
     static member (?) (view : View<'Events, 'Model, 'Window>, name) = 
         match view.Window.FindName name with

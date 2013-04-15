@@ -1,19 +1,19 @@
 ﻿namespace FSharp.Windows
 
-type IController<'Event, 'Model> =
+type IController<'Events, 'Model> =
 
     abstract InitModel : 'Model -> unit
-    abstract EventHandler : ('Event -> 'Model -> unit)
+    abstract EventHandler : ('Events -> 'Model -> unit)
 
 [<AbstractClass>]
-type Controller<'Event, 'Model>() =
+type Controller<'Events, 'Model>() =
 
-    interface IController<'Event, 'Model> with
+    interface IController<'Events, 'Model> with
         member this.InitModel model = this.InitModel model
         member this.EventHandler = this.EventHandler
 
     abstract InitModel : 'Model -> unit
-    abstract EventHandler : ('Event -> 'Model -> unit)
+    abstract EventHandler : ('Events -> 'Model -> unit)
 
     static member FromEventHandler callback = {
         new IController<'Event, 'Model> with
