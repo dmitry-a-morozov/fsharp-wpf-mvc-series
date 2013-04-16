@@ -23,12 +23,11 @@ type IEnumerable<'T> with
     member this.CurrentItem : 'T = undefined
 
 type IValueConverter with 
-    static member Create(convert : 'a -> 'b, convertBack : 'b -> 'a) =  
-        {
-            new IValueConverter with
-                member this.Convert(value, _, _, _) = try value |> unbox |> convert |> box with _ -> DependencyProperty.UnsetValue
-                member this.ConvertBack(value, _, _, _) = try value |> unbox |> convertBack |> box with _ -> DependencyProperty.UnsetValue
-        }
+    static member Create(convert : 'a -> 'b, convertBack : 'b -> 'a) =  {
+        new IValueConverter with
+            member this.Convert(value, _, _, _) = try value |> unbox |> convert |> box with _ -> DependencyProperty.UnsetValue
+            member this.ConvertBack(value, _, _, _) = try value |> unbox |> convertBack |> box with _ -> DependencyProperty.UnsetValue
+    }
     static member OneWay convert = IValueConverter.Create(convert, fun _ -> DependencyProperty.UnsetValue)
 
     member this.Apply _ = undefined

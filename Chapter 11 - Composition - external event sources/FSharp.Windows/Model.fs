@@ -26,14 +26,13 @@ type Model() =
 
     static let proxyFactory = ProxyGenerator()
 
-    static let notifyPropertyChanged = 
-        {
+    static let notifyPropertyChanged = {
             new StandardInterceptor() with
                 member this.PostProceed invocation = 
                     match invocation.Method, invocation.InvocationTarget with 
                         | PropertySetter propertyName, (:? Model as model) -> model.ClearError propertyName 
                         | _ -> ()
-        }
+    }
 
     let errors = Dictionary()
     let propertyChangedEvent = Event<_,_>()

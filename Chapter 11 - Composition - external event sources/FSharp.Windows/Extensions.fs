@@ -22,8 +22,6 @@ module Observer =
     open System.Threading
     open System.Reactive.Concurrency
 
-    let create onNext = Observer.Create(Action<_>(onNext))
-
     let notifyOnCurrentSynchronizationContext observer = 
         Observer.NotifyOn(observer, SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false))
 
