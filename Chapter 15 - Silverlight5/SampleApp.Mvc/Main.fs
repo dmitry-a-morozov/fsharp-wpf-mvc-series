@@ -13,7 +13,7 @@ type MainModel() =
     inherit Model()
 
     abstract Calculator : CalculatorModel with get, set
-//    abstract TempConveter : TempConveterModel with get, set
+    abstract TempConveter : TempConveterModel with get, set
 //    abstract StockPricesChart : StockPricesChartModel with get, set
 
     abstract ProcessName : string with get, set
@@ -77,7 +77,7 @@ type MainController(stopWatch : StopWatchObservable) =
         model.Fail <- false
 
         model.Calculator <- Model.Create()
-//        model.TempConveter <- Model.Create()
+        model.TempConveter <- Model.Create()
 //        model.StockPricesChart <- Model.Create()
 
     override this.Dispatcher = Sync << function
@@ -104,6 +104,6 @@ type MainController(stopWatch : StopWatchObservable) =
         Mvc(MainModel.Create(), view, MainController(stopWatch))
             .Compose(stopWatchController, stopWatch)
             <+> (CalculatorController(), CalculatorView(view.Control.Calculator), fun m -> m.Calculator)
-//            <+> (TempConveterController(), TempConveterView(view.Control.TempConveterControl), fun m -> m.TempConveter)
+            <+> (TempConveterController(), TempConveterView(view.Control.TempConveterControl), fun m -> m.TempConveter)
 //            <+> (StockPricesChartController(), StockPricesChartView(view.Control.StockPricesChart), fun m -> m.StockPricesChart)
         
