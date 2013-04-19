@@ -7,15 +7,7 @@ type View = IEvent<Events>
 
 type Model = { State : int }
 
-type Controller = (Events -> Model -> Model) -> Model -> IEvent<Events> -> Model
+type Controller = Events -> Model -> Model
 
-
-
-open Unchecked
-let view = defaultof<View>
-let model = defaultof<Model>
-let eventHandler = defaultof<Events -> Model -> Model>
-let controller = defaultof<Controller>
-
-let result = view |> controller eventHandler model
+type Mvc = Controller -> Model -> IEvent<Events> -> Model
 

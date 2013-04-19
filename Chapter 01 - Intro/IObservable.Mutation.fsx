@@ -1,18 +1,16 @@
 ﻿
 open System
 
+type View = IObservable<Events>  
+
 type Events = 
     | Add of int 
     | Subtract of int
-
-type View = IObservable<Events>  
 
 type Model = { mutable State : int }
 type EventHandler = Model -> unit
 type Controller = Events -> EventHandler
 type Mvc = Controller -> Model -> IObservable<Events> -> IDisposable
-
-
 
 let subject = new Event<Events>()
 let raiseEvents() = [Add 2; Subtract 1; Add 5] |> List.iter subject.Trigger
