@@ -27,12 +27,11 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
                     continuation = ignore, 
                     exceptionContinuation = this.OnError event,
                     cancellationContinuation = ignore))
-
-        |> Observer.notifyOnCurrentSynchronizationContext
-        |> Observer.preventReentrancy
 #if DEBUG
         |> Observer.Checked
 #endif
+        |> Observer.preventReentrancy
+        |> Observer.notifyOnCurrentSynchronizationContext
         |> view.Subscribe
 
     member this.StartDialog() =
