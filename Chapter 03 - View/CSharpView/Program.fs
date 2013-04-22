@@ -16,11 +16,8 @@ type SampleEvents =
     | Add
     | Clear
 
-type SampleView() as this =
+type SampleView() =
     inherit View<SampleEvents, SampleWindow>()
-
-    let x : TextBox = this ? LHS //dynamic lookup
-    let y : TextBox = this ? RHS //dynamic lookup
 
     override this.EventStreams = 
         [
@@ -29,9 +26,8 @@ type SampleView() as this =
         ]
 
     override this.SetBindings model = 
-        x.SetBinding(TextBox.TextProperty, "X") |> ignore
-        y.SetBinding(TextBox.TextProperty, "Y") |> ignore
-        //strong typed reference to this.Window.Result. Compare it with dynamically looked up x and y TextBoxes
+        this.Window.X.SetBinding(TextBox.TextProperty, "X") |> ignore
+        this.Window.Y.SetBinding(TextBox.TextProperty, "Y") |> ignore
         this.Window.Result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
 
 [<STAThread>] 
