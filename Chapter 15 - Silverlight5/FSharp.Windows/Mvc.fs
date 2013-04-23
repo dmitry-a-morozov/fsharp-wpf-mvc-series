@@ -24,8 +24,8 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
                     exceptionContinuation = this.OnError event,
                     cancellationContinuation = ignore)
 
-        |> Observer.notifyOnDispatcher 
         |> Observer.preventReentrancy 
+        |> Observer.notifyOnDispatcher 
         |> view.Subscribe 
 
     abstract OnError : ('Events -> exn -> unit) with get, set
@@ -66,7 +66,7 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
         }
         this.Compose(childController, childView, id)
 
-    static member StartDialog(model, dialog : #IDialog<_>, controller) = 
+    static member StartDialog(model, dialog : #IDialog<bool>, controller) = 
         use subscription = Mvc<'Events, 'Model>(model, dialog, controller).Activate()
         dialog.Show()
 
@@ -75,5 +75,8 @@ module Mvc =
 
     let inline startDialog(view, controller) = 
         let model = (^Model : (static member Create : unit -> ^Model ) ())
-        if Mvc<'Events, ^Model>.StartDialog(model, view, controller) then Some model else None
+        async {
+            let! result = Mvc<'Events, ^Model>.StartDialog(model, view, controller)
+            return if result then Some model else None
+        }
 

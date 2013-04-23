@@ -19,7 +19,7 @@ let main _ =
     let mvc = 
         Mvc(MainModel.Create(), view, MainController(stopWatch))
             .Compose(stopWatchController, safeStopWatchEventSource())
-            <+> (CalculatorController(), CalculatorView(view.Control.Calculator), fun m -> m.Calculator)
+            .Compose(CalculatorController(), CalculatorView(view.Control.Calculator), fun m -> m.Calculator)
             <+> (TempConveterController(), TempConveterView(view.Control.TempConveterControl), fun m -> m.TempConveter)
             <+> (StockPricesChartController(), StockPricesChartView(view.Control.StockPricesChart), fun m -> m.StockPricesChart)
 

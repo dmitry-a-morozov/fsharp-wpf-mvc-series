@@ -10,7 +10,7 @@ type IView<'Events, 'Model> =
     abstract SetBindings : 'Model -> unit
 
 type IDialog<'T> =
-    abstract Show : unit -> 'T
+    abstract Show : unit -> Async<'T>
 
 [<AbstractClass>]
 type View<'Events, 'Model, 'Control when 'Control :> FrameworkElement>(control : 'Control) =
@@ -46,7 +46,6 @@ type Dialog<'Events, 'Model, 'ChildWindow when 'ChildWindow :> ChildWindow and '
             this.Control.Closed 
             |> Event.map (fun _ -> if this.Control.DialogResult.HasValue then this.Control.DialogResult.Value else false) 
             |> Async.AwaitEvent 
-            |> Async.RunSynchronously
 
     member this.Close result = 
         this.Control.DialogResult <- Nullable result

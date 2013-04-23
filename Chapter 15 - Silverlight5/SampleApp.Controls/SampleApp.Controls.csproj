@@ -67,6 +67,9 @@
     <Compile Include="CalculatorControl.xaml.cs">
       <DependentUpon>CalculatorControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HexConverterWindow.xaml.cs">
+      <DependentUpon>HexConverterWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -82,6 +85,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="CalculatorControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="HexConverterWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

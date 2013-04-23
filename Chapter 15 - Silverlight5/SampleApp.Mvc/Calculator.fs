@@ -23,12 +23,8 @@ type Operations =
 type CalculatorModel() = 
     inherit Model()
 
-    let mutable selectedOperation = Operations.Add
-    abstract SelectedOperation : Operations with get, set
-    default this.SelectedOperation with get() = selectedOperation and set value = selectedOperation <- value
-
     abstract AvailableOperations : Operations[] with get, set
-    //abstract SelectedOperation : Operations with get, set
+    abstract SelectedOperation : Operations with get, set
     abstract X : int with get, set
     abstract Y : int with get, set
     abstract Result : int with get, set
@@ -39,7 +35,6 @@ type CalculatorEvents =
     | Hex1
     | Hex2
     | YChanged of string
-    //| XotYChanging of string * (unit -> unit)
 
 type CalculatorView(control) =
     inherit View<CalculatorEvents, CalculatorModel, CalculatorControl>(control)
@@ -55,9 +50,6 @@ type CalculatorView(control) =
             |> List.ofButtonClicks
                  
             yield this.Control.Y.TextChanged |> Observable.map(fun _ -> YChanged(this.Control.Y.Text))
-
-//            yield this.Control.X.PreviewTextInput |> Observable.map(fun x -> XotYChanging(x.Text, fun() -> x.Handled <- true))
-//            yield this.Control.Y.PreviewTextInput |> Observable.map(fun y -> XotYChanging(y.Text, fun() -> y.Handled <- true))
         ] 
 
     override this.SetBindings model = 
@@ -84,13 +76,12 @@ type CalculatorController() =
         model.Y <- 0
         model.Result <- 0
 
-    override this.Dispatcher = Sync << function
-        | Calculate -> this.Calculate
-        | Clear -> this.InitModel
-        | Hex1 -> this.Hex1
-        | Hex2 -> this.Hex2
-        | YChanged text -> this.YChanged text
-        //| XotYChanging(text, cancel) -> this.EnsureDigitalInput(text, cancel)
+    override this.Dispatcher = function
+        | Calculate -> Sync this.Calculate
+        | Clear -> Sync this.InitModel
+        | Hex1 -> Async this.Hex1
+        | Hex2 -> Sync this.Hex2
+        | YChanged text -> Sync(this.YChanged text)
 
     member this.Calculate model = 
         model.ClearAllErrors()
@@ -114,20 +105,20 @@ type CalculatorController() =
             else
                 model.Result <- model.X / model.Y
         
-    member this.Hex1 model = ()
-//        let view = HexConverter.view()
-//        let childModel = Model.Create() 
-//        let controller = HexConverter.controller() 
-//        let mvc = Mvc(childModel, view, controller)
-//        childModel.Value <- model.X
-//
-//        if mvc.Start()
-//        then 
-//            model.X <- childModel.Value 
+    member this.Hex1 model =
+        let view = HexConverter.view()
+        let childModel : HexConverter.Model = Model.Create() 
+        let controller = HexConverter.controller() 
+        childModel.Value <- model.X
+
+        async {
+            let! result = Mvc.StartDialog(childModel, view, controller)
+            if result then model.X <- childModel.Value 
+        }
 
     member this.Hex2 model = ()
 //        (HexConverter.view(), HexConverter.controller())
-//        |> Mvc.start
+//        |> Mvc.startDialog
 //        |> Option.iter(fun resultModel ->
 //            model.Y <- resultModel.Value 
 //        )

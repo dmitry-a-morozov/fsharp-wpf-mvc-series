@@ -69,9 +69,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TempConvertSoapClient.fs" />
-    <None Include="Sample.fs" />
+    <Compile Include="HexConverter.fs" />
     <Compile Include="Calculator.fs" />
+    <Compile Include="TempConvertSoapClient.fs" />
     <Compile Include="TempConveter.fs" />
     <Compile Include="StopWatchObservable.fs" />
     <Compile Include="Main.fs" />

@@ -43,7 +43,6 @@
     <Compile Include="TempConveter.fs" />
     <Compile Include="StockPicker.fs" />
     <Compile Include="StockPricesChart.fs" />
-    <Compile Include="StopWatchObservable.fs" />
     <Compile Include="Main.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />

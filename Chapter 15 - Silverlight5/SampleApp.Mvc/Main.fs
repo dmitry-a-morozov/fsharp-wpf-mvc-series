@@ -14,10 +14,12 @@ type MainModel() =
 
     abstract Calculator : CalculatorModel with get, set
     abstract TempConveter : TempConveterModel with get, set
-//    abstract StockPricesChart : StockPricesChartModel with get, set
 
-    abstract ProcessName : string with get, set
-    abstract ActiveTab : string with get, set
+//    abstract ProcessName : string with get, set
+//    abstract ActiveTab : string with get, set
+//    member this.Title = sprintf "%s - %s" this.ProcessName this.ActiveTab
+    abstract Title : string with get, set
+
     abstract RunningTime : TimeSpan with get, set
     abstract Paused : bool with get, set
     abstract Fail : bool with get, set
@@ -58,6 +60,8 @@ type MainView(control) as this =
 
         Binding.FromExpression 
             <@ 
+                this.Control.Header.Text <- model.Title
+
                 this.Control.PauseWatch.IsChecked <- Nullable model.Paused
                 this.Control.Fail.IsChecked <- Nullable model.Fail
                 //pause.IsChecked <- Nullable model.Paused 
@@ -70,15 +74,16 @@ type MainController(stopWatch : StopWatchObservable) =
     inherit Controller<MainEvents, MainModel>()
 
     override this.InitModel model = 
-        model.ProcessName <- HtmlPage.BrowserInformation.ProductName;
-        model.ActiveTab <- "Calculator"
+//        model.ProcessName <- HtmlPage.BrowserInformation.ProductName;
+//        model.ActiveTab <- "Calculator"
+        model.Title <- sprintf "%s - %s" HtmlPage.BrowserInformation.ProductName "Calculator"
+
         model.RunningTime <- TimeSpan.Zero
         model.Paused <- false
         model.Fail <- false
 
         model.Calculator <- Model.Create()
         model.TempConveter <- Model.Create()
-//        model.StockPricesChart <- Model.Create()
 
     override this.Dispatcher = Sync << function
         | ActiveTabChanged header -> this.ActiveTabChanged header
@@ -89,7 +94,8 @@ type MainController(stopWatch : StopWatchObservable) =
         | StopFailingWatch -> fun _ -> stopWatch.GenerateFailures <- false
 
     member this.ActiveTabChanged header model =
-        model.ActiveTab <- header
+        //model.ActiveTab <- header
+        model.Title <- sprintf "%s - %s" HtmlPage.BrowserInformation.ProductName header
 
     member this.RestartWatch model =
         stopWatch.Restart()
@@ -105,5 +111,4 @@ type MainController(stopWatch : StopWatchObservable) =
             .Compose(stopWatchController, stopWatch)
             <+> (CalculatorController(), CalculatorView(view.Control.Calculator), fun m -> m.Calculator)
             <+> (TempConveterController(), TempConveterView(view.Control.TempConveterControl), fun m -> m.TempConveter)
-//            <+> (StockPricesChartController(), StockPricesChartView(view.Control.StockPricesChart), fun m -> m.StockPricesChart)
         

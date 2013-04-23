@@ -1,14 +1,13 @@
-﻿namespace FSharp.Windows.Sample
+﻿namespace SampleApp
 
 open System
 open System.Globalization
 open System.Windows.Data
 open FSharp.Windows
-open FSharp.Windows.UIElements
 
 module HexConverter =  
 
-    type Events = ValueChanging of string * (unit -> unit)
+    type Events = OK of (unit -> unit)
 
     [<AbstractClass>]
     type Model() = 
@@ -21,25 +20,25 @@ module HexConverter =
 
     let view() = 
         let result = {
-            new View<Events, Model, HexConverterWindow>() with 
+            new Dialog<Events, Model, HexConverterWindow>() with 
                 member this.EventStreams = 
                     [
-                        this.Control.Value.PreviewTextInput |> Observable.map(fun args -> ValueChanging(args.Text, fun() -> args.Handled <- true))
+                        this.Control.OK.Click |> Observable.mapTo(OK(this.OK))
                     ]
 
                 member this.SetBindings model = 
-                    Binding.FromExpression 
+                    Binding.TwoWay 
                         <@ 
                             this.Control.Value.Text <- model.HexValue
                         @>
         }
         result.CancelButton <- result.Control.Cancel
-        result.DefaultOKButton <- result.Control.OK
         result
 
     let controller() = 
-        Controller.Create(
-            fun(ValueChanging(text, cancel)) (model : Model) ->
-                let isValid, _ = Int32.TryParse(text, NumberStyles.HexNumber, null)
-                if not isValid then cancel()
-            )
+        Controller.Create(fun(OK(close)) (model : Model) ->
+            let isValid, _ = Int32.TryParse(model.HexValue, NumberStyles.HexNumber, null)
+            if isValid 
+            then close()
+            else model |> Validation.setError <@ fun m -> m.HexValue @> (sprintf "Cannot parse hex value %s" model.HexValue)
+        )
