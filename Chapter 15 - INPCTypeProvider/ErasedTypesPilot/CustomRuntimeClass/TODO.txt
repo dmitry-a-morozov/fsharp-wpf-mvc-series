@@ -1,0 +1,9 @@
+﻿
+Shadow models
+Generated types to support
+	DataBinding micro DSL
+	Validation module
+	Support WinRT BindableAttribute/IXamlMetadataProvider interface
+
+Bring in dependent model types
+Support for C#/Class based proxies
