@@ -57,8 +57,9 @@ do
         then 
             if model.Y = 0 
             then
-                //model.AddError("Y", "Attempted to divide by zero.")
-                model |> Validation.setError <@ fun m -> m.X @> "Attempted to divide by zero."
+                model.AddError("Y", "Attempted to divide by zero.")
+                //Uncomment following line to see why erased types do not work with Validation module
+                //model |> Validation.setError <@ fun m -> m.X @> "Attempted to divide by zero."
             else
                 model.Result <- model.X / model.Y 
 
