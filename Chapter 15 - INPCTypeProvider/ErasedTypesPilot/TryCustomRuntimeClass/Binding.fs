@@ -8,6 +8,7 @@ open System.Windows.Data
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 open Microsoft.FSharp.Quotations.DerivedPatterns
+open System.ComponentModel
 
 type PropertyInfo with
     member this.DependencyProperty = 
@@ -20,6 +21,13 @@ let rec (|PropertyPath|_|) = function
     | PropertyGet( Some( Value _), sourceProperty, []) -> Some sourceProperty.Name
     | Coerce( PropertyPath path, _) 
     | SpecificCall <@ string @> (None, _, [ PropertyPath path ]) -> Some path
+    //Support for type provider erased types
+    | Call((Some (Value (:? ICustomTypeDescriptor as model, _))), method', [ Value(:? string as propertyName, _)]) 
+        when method'.Name = "get_Item" && model.GetProperties().Find(propertyName, ignoreCase = false) <> null -> Some propertyName
+    | Call((Some (Value (:? ICustomTypeDescriptor as model, _))), method', [ Value(:? string as propertyName, _)]) 
+        when method'.Name = "get_Item" && model.GetProperties().Find(propertyName, ignoreCase = false) <> null -> Some propertyName
+    | Call((Some (Value (:? ICustomTypeProvider as model, _))), method', [ Value(:? string as propertyName, _)]) when method'.Name = "get_Item" -> 
+        model.GetCustomType().GetProperties() |> Array.map(fun p -> p.Name) |> Array.tryFind propertyName.Equals
     | _ -> None
 
 type Expr with
@@ -27,12 +35,11 @@ type Expr with
         match this with
         | PropertySet
             (
-                Some( FieldGet( Some( PropertyGet( Some (Value( view, _)), window, [])), control)),
+                Some( Value(:? FrameworkElement as target, _)),
                 targetProperty, 
                 [], 
                 PropertyPath path
             ) ->
-                let target : FrameworkElement = (view, [||]) |> window.GetValue |> control.GetValue |> unbox
                 let binding = Binding(path, ValidatesOnDataErrors = true)
                 target.SetBinding(targetProperty.DependencyProperty, binding)
         | _ -> invalidArg "expr" (string this) 

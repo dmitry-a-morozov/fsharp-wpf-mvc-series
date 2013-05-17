@@ -31,14 +31,14 @@ do
 
     //Data bindings
 
-    //Uncomment following line to see why erased types do not work with Data Binding DSL
-    //Binding.FromExpression <@ x.Text <- string model.X @>
-
-    x.SetBinding(TextBox.TextProperty, "X") |> ignore
-    y.SetBinding(TextBox.TextProperty, "Y") |> ignore
-    result.SetBinding(TextBlock.TextProperty, "Result") |> ignore
-    operations.SetBinding(ComboBox.ItemsSourceProperty, "AvailableOperations") |> ignore
-    operations.SetBinding(ComboBox.SelectedItemProperty, "SelectedOperation") |> ignore
+    Binding.FromExpression 
+        <@ 
+            x.Text <- string model.X 
+            y.Text <- string model.Y
+            result.Text <- string model.Result
+            operations.ItemsSource <- model.AvailableOperations
+            operations.SelectedItem <- model.SelectedOperation
+        @>
 
     window.DataContext <- model
 
@@ -57,9 +57,9 @@ do
         then 
             if model.Y = 0 
             then
-                model.AddError("Y", "Attempted to divide by zero.")
+                //model.AddError("Y", "Attempted to divide by zero.")
                 //Uncomment following line to see why erased types do not work with Validation module
-                //model |> Validation.setError <@ fun m -> m.X @> "Attempted to divide by zero."
+                model |> Validation.setError <@ fun m -> m.Y @> "Attempted to divide by zero."
             else
                 model.Result <- model.X / model.Y 
 

@@ -12,6 +12,11 @@ let (|SingleStepPropertySelector|) (expr : PropertySelector<'T, 'a>) =
     | Lambda(arg, PropertyGet( Some (Var selectOn), property, [])) -> 
         assert(arg.Name = selectOn.Name)
         property.Name, fun(this : 'T) -> property.GetValue(this, [||]) |> unbox<'a>
+    | Lambda(arg, Coerce (Call (Some (Var selectOn), get_Item, [ Value(:? string as propertyName, _) ]), _)) when get_Item.Name = "get_Item" -> 
+        assert(arg = selectOn)
+        assert(typeof<ComponentModel.ICustomTypeDescriptor>.IsAssignableFrom(selectOn.Type)
+            || typeof<Reflection.ICustomTypeProvider>.IsAssignableFrom(selectOn.Type))
+        propertyName, fun(this : 'T) -> get_Item.Invoke(this, [| propertyName |]) |> unbox<'a>
     | _ -> invalidArg "Property selector quotation" (string expr)
 
 let inline setError( SingleStepPropertySelector(propertyName, _) : PropertySelector< ^Model, _>) message model = 
