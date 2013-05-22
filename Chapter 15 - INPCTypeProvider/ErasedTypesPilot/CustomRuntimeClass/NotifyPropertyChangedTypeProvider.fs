@@ -36,41 +36,6 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
             
             let prototypesAssembly = Assembly.LoadFrom assemblyFileName
 
-//            let prototypesAssembly =
-//                let setup = 
-//                    AppDomainSetup(
-//                        //ApplicationBase = Path.GetDirectoryName assemblyFileName,
-//                        ApplicationBase = Path.GetDirectoryName config.RuntimeAssembly,
-//                        ApplicationName = Guid.NewGuid().ToString(),
-//                        ShadowCopyFiles = "true"
-//                    )
-//                setup.CachePath <- Path.Combine(Path.GetTempPath(), setup.ApplicationName)
-//                setup.ShadowCopyDirectories <- setup.ApplicationBase
-//
-//                //setup.LoaderOptimization <- LoaderOptimization.
-//                let domain = AppDomain.CreateDomain(setup.ApplicationName, null, setup)
-//                let name = AssemblyName.GetAssemblyName(assemblyFileName)
-//                let myDomain = AppDomain.CurrentDomain.FriendlyName
-//                domain.DoCallBack(fun() -> 
-//                    let x = AppDomain.CurrentDomain.FriendlyName
-//                    let xs = AppDomain.CurrentDomain.GetAssemblies()
-//                    let prototypesAssembly = Assembly.LoadFrom assemblyFileName 
-//                    //Assembly.Load name |> ignore
-//                    let ys = AppDomain.CurrentDomain.GetAssemblies()
-//                    printfn "%A" ys)
-//
-//                domain.add_AssemblyResolve(fun _ args ->
-//                    System.Diagnostics.Debug.Fail("Not expected!!!");
-//                    null
-//                )
-//                AppDomain.CurrentDomain.add_AssemblyResolve(fun _ args ->
-//                    let path = Path.Combine(setup.CachePath, fileName)
-//                    let result = Assembly.LoadFrom path
-//                    result
-//                )
-//                let xs = domain.GetAssemblies()
-//                xs.[0]
-
             query {
                 for prototype in prototypesAssembly.GetTypes() do
                 where(FSharpType.IsRecord prototype)
