@@ -1,11 +1,11 @@
-﻿module MainApp
+﻿module App
 
 open CustomRuntimeClass.INPCTypeProvider
+open SampleModelPrototypes
+
 open System
 open System.Windows
 open System.Windows.Controls
-open SampleModelPrototypes
-
 open System.Windows.Data
 open FSharp.Windows
 
@@ -27,7 +27,6 @@ do
     //Create models
     let model = ViewModels.Calculator()
     model.AvailableOperations <- typeof<Operations> |> Enum.GetValues |> unbox
-    model.SelectedOperation <- model.AvailableOperations.[0]
 
     //Data bindings
     Binding.FromExpression 
