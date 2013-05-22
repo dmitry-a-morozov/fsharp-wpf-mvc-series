@@ -22,12 +22,8 @@ let rec (|PropertyPath|_|) = function
     | Coerce( PropertyPath path, _) 
     | SpecificCall <@ string @> (None, _, [ PropertyPath path ]) -> Some path
     //Support for type provider erased types
-    | Call((Some (Value (:? ICustomTypeDescriptor as model, _))), method', [ Value(:? string as propertyName, _)]) 
-        when method'.Name = "get_Item" && model.GetProperties().Find(propertyName, ignoreCase = false) <> null -> Some propertyName
-    | Call((Some (Value (:? ICustomTypeDescriptor as model, _))), method', [ Value(:? string as propertyName, _)]) 
-        when method'.Name = "get_Item" && model.GetProperties().Find(propertyName, ignoreCase = false) <> null -> Some propertyName
-    | Call((Some (Value (:? ICustomTypeProvider as model, _))), method', [ Value(:? string as propertyName, _)]) when method'.Name = "get_Item" -> 
-        model.GetCustomType().GetProperties() |> Array.map(fun p -> p.Name) |> Array.tryFind propertyName.Equals
+    | Call((Some (Value (:? ICustomTypeDescriptor as model, _))), get_Item, [ Value(:? string as propertyName, _)]) 
+        when get_Item.Name = "get_Item" && model.GetProperties().Find(propertyName, ignoreCase = false) <> null -> Some propertyName
     | _ -> None
 
 type Expr with
