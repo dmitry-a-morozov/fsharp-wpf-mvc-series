@@ -1389,7 +1389,7 @@ type AssemblyGenerator(assemblyFileName) =
             match ptd with 
             | None -> ()
             | Some ptd -> 
-            for cinfo in ptd.GetConstructors(BindingFlags.Public ||| BindingFlags.NonPublic) do
+            for cinfo in ptd.GetConstructors(BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Static ||| BindingFlags.Instance) do
                 match cinfo with 
                 | :? ProvidedConstructor as pcinfo when not (ctorMap.ContainsKey pcinfo)  -> 
                     let cb = tb.DefineConstructor(cinfo.Attributes, CallingConventions.Standard, [| for p in cinfo.GetParameters() -> convType p.ParameterType |])
@@ -1428,7 +1428,7 @@ type AssemblyGenerator(assemblyFileName) =
             defineCustomAttrs tb.SetCustomAttribute cattr
             // Allow at most one constructor, and use its arguments as the fields of the type
             let ctors =
-                ptd.GetConstructors(BindingFlags.Public ||| BindingFlags.NonPublic) 
+                ptd.GetConstructors(BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Static ||| BindingFlags.Instance) 
                 |> Seq.choose (function :? ProvidedConstructor as pcinfo -> Some pcinfo | _ -> None) 
                 |> Seq.toList
             let implictCtorArgs =
