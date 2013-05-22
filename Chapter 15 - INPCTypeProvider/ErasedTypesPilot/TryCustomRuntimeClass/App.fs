@@ -30,7 +30,6 @@ do
     model.SelectedOperation <- model.AvailableOperations.[0]
 
     //Data bindings
-
     Binding.FromExpression 
         <@ 
             x.Text <- string model.X 
@@ -44,24 +43,17 @@ do
 
     //Event handlers
     calculate.Click.Add  <| fun _ ->
-        if model.SelectedOperation = Operations.Add 
-        then 
-            model.Result <- model.X + model.Y
-        else if model.SelectedOperation = Operations.Subtract 
-        then 
-            model.Result <- model.X - model.Y 
-        else if model.SelectedOperation = Operations.Multiply
-        then 
-            model.Result <- model.X * model.Y 
-        else if model.SelectedOperation = Operations.Divide
-        then 
+        match model.SelectedOperation with
+        | Operations.Add -> model.Result <- model.X + model.Y
+        | Operations.Subtract -> model.Result <- model.X - model.Y 
+        | Operations.Multiply -> model.Result <- model.X * model.Y 
+        | Operations.Divide ->
             if model.Y = 0 
             then
-                //model.AddError("Y", "Attempted to divide by zero.")
-                //Uncomment following line to see why erased types do not work with Validation module
                 model |> Validation.setError <@ fun m -> m.Y @> "Attempted to divide by zero."
             else
                 model.Result <- model.X / model.Y 
+        | _ -> ()
 
 
     clear.Click.Add <| fun _ ->
@@ -69,4 +61,5 @@ do
         model.Y <- 0
         model.Result <- 0
 
+   //Start
     window.ShowDialog() |> ignore
