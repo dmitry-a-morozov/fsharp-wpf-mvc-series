@@ -4,6 +4,7 @@ module FSharp.Windows.Validation
 open System
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
+open System.ComponentModel
 
 type PropertySelector<'T, 'a> = Expr<('T -> 'a)>
 
@@ -14,8 +15,7 @@ let (|SingleStepPropertySelector|) (expr : PropertySelector<'T, 'a>) =
         property.Name, fun(this : 'T) -> property.GetValue(this, [||]) |> unbox<'a>
     | Lambda(arg, Coerce (Call (Some (Var selectOn), get_Item, [ Value(:? string as propertyName, _) ]), _)) when get_Item.Name = "get_Item" -> 
         assert(arg = selectOn)
-        assert(typeof<ComponentModel.ICustomTypeDescriptor>.IsAssignableFrom(selectOn.Type)
-            || typeof<Reflection.ICustomTypeProvider>.IsAssignableFrom(selectOn.Type))
+        assert(typeof<ICustomTypeDescriptor>.IsAssignableFrom(selectOn.Type))
         propertyName, fun(this : 'T) -> get_Item.Invoke(this, [| propertyName |]) |> unbox<'a>
     | _ -> invalidArg "Property selector quotation" (string expr)
 
