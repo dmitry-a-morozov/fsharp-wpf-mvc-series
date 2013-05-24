@@ -5,10 +5,10 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{30597be9-08f8-4832-8ab7-009c00a6a2f2}</ProjectGuid>
+    <ProjectGuid>{53296782-182f-459c-b511-6fbd43501f87}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>FSharpWpfEmptyTemplate.App</RootNamespace>
-    <AssemblyName>TryCustomRuntimeClass</AssemblyName>
+    <AssemblyName>TryCustomRuntimeClass - GenTypes</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Name>App</Name>
   </PropertyGroup>
@@ -42,8 +42,8 @@
     <Resource Include="MainWindow.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="CustomRuntimeClass">
-      <HintPath>..\CustomRuntimeClass\bin\Debug\CustomRuntimeClass.dll</HintPath>
+    <Reference Include="CustomRuntimeClass - GenTypes">
+      <HintPath>..\CustomRuntimeClass - GenTypes\bin\Debug\CustomRuntimeClass - GenTypes.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.Data.TypeProviders, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>

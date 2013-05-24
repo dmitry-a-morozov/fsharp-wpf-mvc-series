@@ -5,10 +5,10 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>6af9a230-2c55-45c2-a32d-c02be1a05cc8</ProjectGuid>
+    <ProjectGuid>{8a8f5e4d-8fce-445a-825e-41c483f228c5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>CustomRuntimeClass</RootNamespace>
-    <AssemblyName>CustomRuntimeClass</AssemblyName>
+    <AssemblyName>CustomRuntimeClass - GenTypes</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Name>CustomRuntimeClass</Name>
   </PropertyGroup>
