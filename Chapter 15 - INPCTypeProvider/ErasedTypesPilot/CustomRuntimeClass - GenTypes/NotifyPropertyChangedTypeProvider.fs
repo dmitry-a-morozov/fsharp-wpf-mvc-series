@@ -91,19 +91,18 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
         modelType.AddMember <| ProvidedConstructor([], IsImplicitCtor = true)
 
         for field in FSharpType.GetRecordFields prototype do
-            if not field.CanWrite then failwith "Record field %s is not marked as mutable." field.Name
-            let name = field.Name
-
             let backingField = ProvidedField(field.Name, field.PropertyType)
             modelType.AddMember backingField
 
             let property = ProvidedProperty(field.Name, field.PropertyType)
             property.GetterCode <- fun args -> Expr.FieldGet(args.[0], backingField)
-            property.SetterCode <- fun args -> 
-                let builder =
-                    let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("SetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
-                    mi.MakeGenericMethod(backingField.FieldType)
-                builder.Invoke(null, [|args.[0]; backingField; name; args.[1]|]) |> unbox
+            if field.CanWrite 
+            then 
+                property.SetterCode <- fun args -> 
+                    let builder =
+                        let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("SetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
+                        mi.MakeGenericMethod(backingField.FieldType)
+                    builder.Invoke(null, [|args.[0]; backingField; field.Name; args.[1]|]) |> unbox
             modelType.AddMember property
 
         modelType
