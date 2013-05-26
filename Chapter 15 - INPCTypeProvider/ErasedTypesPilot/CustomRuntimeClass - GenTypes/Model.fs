@@ -13,6 +13,7 @@ type Model() as this =
     let getErrorsOrEmpty propertyName = match errors.TryGetValue propertyName with | true, errors -> errors | false, _ -> []
     let triggerErrorsChanged propertyName = errorsChangedEvent.Trigger(this, DataErrorsChangedEventArgs propertyName)
 
+    [<EditorBrowsableAttribute(EditorBrowsableState.Never)>]
     member this.TriggerPropertyChanged propertyName = 
         propertyChangedEvent.Trigger(this, PropertyChangedEventArgs propertyName)
 

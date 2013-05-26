@@ -1085,6 +1085,7 @@ type ProvidedTypeDefinition(container:TypeContainer,className : string, baseType
     override this.FullName = fullName.Force()
     override this.Namespace = rootNamespace.Force()
     override this.BaseType = match baseType.Value with Some ty -> ty | None -> null
+    
     // Constructors
     override this.GetConstructors bindingAttr = 
         [| for m in this.GetMembers bindingAttr do                
@@ -1223,7 +1224,7 @@ type ProvidedTypeDefinition(container:TypeContainer,className : string, baseType
         | _                 -> false
 
     override this.GetGenericArguments() = [||] 
-    override this.ToString() = this.FullName
+    override this.ToString() = this.Name
     
 
     override this.Module : Module = notRequired "Module" this.Name
@@ -1268,11 +1269,11 @@ type AssemblyGenerator(assemblyFileName) =
     /// Emit the given provided type definitions into an assembly and adjust 'Assembly' property of all type definitions to return that
     /// assembly.
     member __.Generate(providedTypeDefinitions:(ProvidedTypeDefinition * string list option) list) = 
-
+        let ALL = BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Static ||| BindingFlags.Instance
         // phase 1 - set assembly fields and emit type definitions
         begin 
             let rec typeMembers (tb:TypeBuilder)  (td : ProvidedTypeDefinition) = 
-                for ntd in td.GetNestedTypes(BindingFlags.Public ||| BindingFlags.NonPublic) do
+                for ntd in td.GetNestedTypes(ALL) do
                     nestedType tb ntd
 
             and nestedType (tb:TypeBuilder)  (ntd : Type) = 
@@ -1349,7 +1350,7 @@ type AssemblyGenerator(assemblyFileName) =
             let rec typeMembers (ptd : ProvidedTypeDefinition) = 
                 let tb = typeMap.[ptd] 
                 f tb (Some ptd)
-                for ntd in ptd.GetNestedTypes(BindingFlags.Public ||| BindingFlags.NonPublic) do
+                for ntd in ptd.GetNestedTypes(ALL) do
                     nestedType ntd
 
             and nestedType (ntd : Type) = 
@@ -1369,7 +1370,7 @@ type AssemblyGenerator(assemblyFileName) =
                         fullName)
                 nestedType pt
         
-        let ALL = BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Static ||| BindingFlags.Instance
+        
         // phase 1b - emit base types
         iterateTypes (fun tb ptd -> 
             match ptd with 
@@ -1428,7 +1429,7 @@ type AssemblyGenerator(assemblyFileName) =
             defineCustomAttrs tb.SetCustomAttribute cattr
             // Allow at most one constructor, and use its arguments as the fields of the type
             let ctors =
-                ptd.GetConstructors(BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Static ||| BindingFlags.Instance) 
+                ptd.GetConstructors(ALL) 
                 |> Seq.choose (function :? ProvidedConstructor as pcinfo -> Some pcinfo | _ -> None) 
                 |> Seq.toList
             let implictCtorArgs =
@@ -1772,7 +1773,7 @@ type AssemblyGenerator(assemblyFileName) =
                 ilg.Emit(OpCodes.Ret)
                     
             // Emit the methods
-            for minfo in ptd.GetMethods(BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Static ||| BindingFlags.Instance) do
+            for minfo in ptd.GetMethods(ALL) do
               match minfo with 
               | :? ProvidedMethod as pminfo   -> 
                 let mb = methMap.[pminfo]

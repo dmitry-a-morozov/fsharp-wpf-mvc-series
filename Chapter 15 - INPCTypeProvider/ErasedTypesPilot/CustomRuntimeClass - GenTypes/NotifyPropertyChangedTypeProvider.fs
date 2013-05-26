@@ -3,6 +3,7 @@
 open System
 open System.Reflection
 open System.IO
+open System.Collections.Generic
 
 open Microsoft.FSharp.Core.CompilerServices
 open Microsoft.FSharp.Reflection
@@ -19,6 +20,8 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
     let tempAssembly = ProvidedAssembly(Path.ChangeExtension(Path.GetTempFileName(), ".dll"))
     let providerType = ProvidedTypeDefinition(assembly, nameSpace, "NotifyPropertyChanged", Some typeof<obj>, IsErased = false)
 
+    let cache = Dictionary()
+
     do 
         tempAssembly.AddTypes <| [ providerType ]
 
@@ -26,62 +29,84 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
             ProvidedStaticParameter("prototypesAssembly", typeof<string>)
         ]
 
-        providerType.DefineStaticParameters(parameters, this.GenerateTypes)
+        providerType.DefineStaticParameters(
+            parameters, 
+            instantiationFunction = (fun typeName args ->   
+                let fileName = string args.[0]
+                let key = typeName, fileName
+                match cache.TryGetValue(key) with
+                | false, _ ->
+                    try
+                        let v = this.GenerateTypes typeName fileName
+                        cache.[key] <- Choice1Of2 v
+                        v
+                    with e ->
+                        cache.[key] <- Choice2Of2 (System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture e)
+                        reraise()
+                | true, Choice1Of2 v -> v
+                | true, Choice2Of2 e -> e.Throw(); failwith "unreachable"
+            )
+        )
         this.AddNamespace(nameSpace, [ providerType ])
 
-    member internal this.GenerateTypes typeName parameters = 
+    member internal __.GenerateTypes typeName fileName = 
+
+        let prototypesAssembly = 
+            match config.ReferencedAssemblies |> Array.tryFind (fun fullPath -> Path.GetFileNameWithoutExtension fullPath = fileName) with
+            | Some assemblyFileName -> 
+                assemblyFileName |> File.ReadAllBytes |> Assembly.Load
+            | None -> 
+                failwithf "Invalid prototype assembly name %s. Pick from the list of referenced assemblies." fileName
+                
         let outerType = ProvidedTypeDefinition(assembly, nameSpace, typeName, Some typeof<obj>, IsErased = false)
         tempAssembly.AddTypes <| [ outerType ]
 
-        let fileName = string parameters.[0]
-        let assemblyFileName = config.ReferencedAssemblies |> Array.find (fun fullPath -> Path.GetFileNameWithoutExtension fullPath = fileName)
-        
         outerType.AddMembersDelayed <| fun() ->
             
-            let prototypesAssembly = Assembly.LoadFrom assemblyFileName
-
             query {
-                for prototype in prototypesAssembly.GetTypes() do
+                for prototype in prototypesAssembly.GetExportedTypes() do
                 where(FSharpType.IsRecord prototype)
-                select(this.MapRecordToModelClass prototype)
+                select(__.MapRecordToModelClass prototype)
             } 
             |> Seq.toList
 
         outerType
 
-    member internal this.MapRecordToModelClass (prototype : Type) = 
+    static member internal SetValue<'T when 'T : equality>(self, backingField, name, value) =
+        <@@
+            let oldValue = %%Expr.FieldGet(self, backingField) : 'T
+            if (%%value : 'T) <> oldValue
+            then
+                (%%Expr.FieldSet(self, backingField, value) : unit)
+                (%%Expr.Coerce(self, typeof<Model>) : Model).TriggerPropertyChanged name
+        @@>
 
-        let result = ProvidedTypeDefinition(prototype.Name, Some typeof<Model>, IsErased = false)
-        tempAssembly.AddTypes <| [ result ]
+
+    member internal __.MapRecordToModelClass (prototype : Type) = 
+
+        let modelType = ProvidedTypeDefinition(prototype.Name, Some typeof<Model>, IsErased = false)
+        tempAssembly.AddTypes <| [ modelType ]
 
         let prototypeName = prototype.AssemblyQualifiedName
-        result.AddMember <| ProvidedConstructor([], IsImplicitCtor = true)
+        modelType.AddMember <| ProvidedConstructor([], IsImplicitCtor = true)
 
         for field in FSharpType.GetRecordFields prototype do
             if not field.CanWrite then failwith "Record field %s is not marked as mutable." field.Name
             let name = field.Name
 
-            let backingField = ProvidedField("_" + field.Name, field.PropertyType)
-            result.AddMember backingField
+            let backingField = ProvidedField(field.Name, field.PropertyType)
+            modelType.AddMember backingField
 
             let property = ProvidedProperty(field.Name, field.PropertyType)
             property.GetterCode <- fun args -> Expr.FieldGet(args.[0], backingField)
-            property.SetterCode <- fun  [this; value] -> 
-                <@@ 
-                    //got lost here 
-//                    let cast = typeof<Expr>.GetMethod("Cast").MakeGenericMethod(  backingField.FieldType )
-//                    let oldValue = cast.Invoke(%%Expr.FieldGet(this, backingField), Array.empty)
-//                    if not(value.Equals oldValue) 
-//                    then
-//                        (%%Expr.FieldSet(this, backingField, value) : unit)
-//                        let inpc = %%this :> Model
-//                        inpc.TriggerPropertyChanged name
-                    ()
-                @@>
+            property.SetterCode <- fun args -> 
+                let builder =
+                    let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("SetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
+                    mi.MakeGenericMethod(backingField.FieldType)
+                builder.Invoke(null, [|args.[0]; backingField; name; args.[1]|]) |> unbox
+            modelType.AddMember property
 
-            result.AddMember property
-
-        result
+        modelType
 
 [<assembly:TypeProviderAssembly>] 
 do()
