@@ -27,6 +27,7 @@ do
     //Create models
     let model = ViewModels.Calculator()
     model.AvailableOperations <- typeof<Operations> |> Enum.GetValues |> unbox
+    model.SelectedOperation <- Operations.Add
 
     //Data bindings
     Binding.FromExpression 

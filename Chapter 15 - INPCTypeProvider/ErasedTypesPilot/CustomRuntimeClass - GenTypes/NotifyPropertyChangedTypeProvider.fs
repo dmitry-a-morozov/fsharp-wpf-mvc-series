@@ -72,15 +72,11 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
 
         outerType
 
-    static member internal SetValue<'T when 'T : equality>(self, backingField, name, value) =
+    static member internal GetValue<'T>(model, propertyName) =
         <@@
-            let oldValue = %%Expr.FieldGet(self, backingField) : 'T
-            if (%%value : 'T) <> oldValue
-            then
-                (%%Expr.FieldSet(self, backingField, value) : unit)
-                (%%Expr.Coerce(self, typeof<Model>) : Model).TriggerPropertyChanged name
+            let model : Model = %%Expr.Coerce(model, typeof<Model>)
+            unbox<'T> model.[propertyName] 
         @@>
-
 
     member internal __.MapRecordToModelClass (prototype : Type) = 
 
@@ -88,22 +84,33 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
         tempAssembly.AddTypes <| [ modelType ]
 
         let prototypeName = prototype.AssemblyQualifiedName
-        modelType.AddMember <| ProvidedConstructor([], IsImplicitCtor = true)
+        let ctor = ProvidedConstructor([], IsImplicitCtor = true)
+        let baseCtor = typeof<Model>.GetConstructor([| typeof<Type> |])
+        ctor.BaseConstructorCall <- fun _ -> baseCtor, [ <@@ Type.GetType prototypeName @@> ]
+        modelType.AddMember ctor
 
         for field in FSharpType.GetRecordFields prototype do
-            let backingField = ProvidedField(field.Name, field.PropertyType)
-            modelType.AddMember backingField
+            let propertyName = field.Name
+            let property = ProvidedProperty(propertyName, field.PropertyType)
+            let propertyType = field.PropertyType.AssemblyQualifiedName
+            property.GetterCode <- fun args -> 
+                let builder = 
+                    let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("GetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
+                    mi.MakeGenericMethod field.PropertyType
+                builder.Invoke(null, [| args.[0]; propertyName |]) |> unbox
 
-            let property = ProvidedProperty(field.Name, field.PropertyType)
-            property.GetterCode <- fun args -> Expr.FieldGet(args.[0], backingField)
             if field.CanWrite 
             then 
                 property.SetterCode <- fun args -> 
-                    let builder =
-                        let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("SetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
-                        mi.MakeGenericMethod(backingField.FieldType)
-                    builder.Invoke(null, [|args.[0]; backingField; field.Name; args.[1]|]) |> unbox
+                    <@@ 
+                        let model : Model = %%Expr.Coerce(args.[0], typeof<Model>)
+                        model.[propertyName] <- %%(Expr.Coerce(args.[1], typeof<obj>)) 
+                    @@>
+
             modelType.AddMember property
+
+        //for prop in prototype.GetProperties() do
+            
 
         modelType
 

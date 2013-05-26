@@ -2,9 +2,17 @@
 
 open System
 open System.ComponentModel
+open System.Reflection
 open System.Collections.Generic
 
-type Model() as this = 
+open Microsoft.FSharp.Reflection
+
+type Model(prototype) as this = 
+
+    do assert(FSharpType.IsRecord prototype)
+    let prototypeInstance = 
+        let defaultValues = Array.zeroCreate <| FSharpType.GetRecordFields(prototype).Length
+        FSharpValue.MakeRecord(prototype, defaultValues)
 
     let propertyChangedEvent = Event<_, _>()
 
@@ -13,9 +21,7 @@ type Model() as this =
     let getErrorsOrEmpty propertyName = match errors.TryGetValue propertyName with | true, errors -> errors | false, _ -> []
     let triggerErrorsChanged propertyName = errorsChangedEvent.Trigger(this, DataErrorsChangedEventArgs propertyName)
 
-    [<EditorBrowsableAttribute(EditorBrowsableState.Never)>]
-    member this.TriggerPropertyChanged propertyName = 
-        propertyChangedEvent.Trigger(this, PropertyChangedEventArgs propertyName)
+    let properties = dict <| seq { for p in FSharpType.GetRecordFields prototype -> p.Name, p } 
 
     interface INotifyPropertyChanged with
         [<CLIEvent>]
@@ -26,6 +32,15 @@ type Model() as this =
         member this.GetErrors propertyName = upcast getErrorsOrEmpty propertyName
         [<CLIEvent>]
         member this.ErrorsChanged = errorsChangedEvent.Publish
+
+    member this.Item 
+        with get propertyName = 
+            properties.[propertyName].GetValue prototypeInstance
+        and set propertyName value = 
+            if value <> this.[propertyName]
+            then 
+                properties.[propertyName].SetValue(prototypeInstance, value)
+                propertyChangedEvent.Trigger(this, PropertyChangedEventArgs propertyName)
 
     member this.AddErrors(propertyName, [<ParamArray>] messages) = 
         errors.[propertyName] <- getErrorsOrEmpty propertyName @ List.ofArray messages 
