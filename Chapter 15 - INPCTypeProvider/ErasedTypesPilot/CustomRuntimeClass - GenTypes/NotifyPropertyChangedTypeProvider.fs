@@ -62,13 +62,12 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
         tempAssembly.AddTypes <| [ outerType ]
 
         outerType.AddMembersDelayed <| fun() ->
-            
-            query {
+            [
                 for prototype in prototypesAssembly.GetExportedTypes() do
-                where(FSharpType.IsRecord prototype)
-                select(__.MapRecordToModelClass prototype)
-            } 
-            |> Seq.toList
+                    if FSharpType.IsRecord prototype 
+                    then 
+                        yield __.MapRecordToModelClass prototype
+            ] 
 
         outerType
 
@@ -89,28 +88,27 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
         ctor.BaseConstructorCall <- fun _ -> baseCtor, [ <@@ Type.GetType prototypeName @@> ]
         modelType.AddMember ctor
 
-        for field in FSharpType.GetRecordFields prototype do
-            let propertyName = field.Name
-            let property = ProvidedProperty(propertyName, field.PropertyType)
-            let propertyType = field.PropertyType.AssemblyQualifiedName
-            property.GetterCode <- fun args -> 
-                let builder = 
-                    let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("GetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
-                    mi.MakeGenericMethod field.PropertyType
-                builder.Invoke(null, [| args.[0]; propertyName |]) |> unbox
+        modelType.AddMembersDelayed <| fun () -> 
+            [
+                for p in prototype.GetProperties() do
+                    let propertyName = p.Name
+                    let property = ProvidedProperty(propertyName, p.PropertyType)
+                    let builder = 
+                        let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("GetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
+                        mi.MakeGenericMethod p.PropertyType
 
-            if field.CanWrite 
-            then 
-                property.SetterCode <- fun args -> 
-                    <@@ 
-                        let model : Model = %%Expr.Coerce(args.[0], typeof<Model>)
-                        model.[propertyName] <- %%(Expr.Coerce(args.[1], typeof<obj>)) 
-                    @@>
+                    property.GetterCode <- fun args -> builder.Invoke(null, [| args.[0]; propertyName |]) |> unbox
 
-            modelType.AddMember property
+                    if p.CanWrite 
+                    then 
+                        property.SetterCode <- fun args -> 
+                            <@@ 
+                                let model : Model = %%Expr.Coerce(args.[0], typeof<Model>)
+                                model.[propertyName] <- %%(Expr.Coerce(args.[1], typeof<obj>)) 
+                            @@>
 
-        //for prop in prototype.GetProperties() do
-            
+                    yield property                   
+            ]
 
         modelType
 

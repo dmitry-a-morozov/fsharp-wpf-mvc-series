@@ -37,6 +37,7 @@ do
             result.Text <- string model.Result
             operations.ItemsSource <- model.AvailableOperations
             operations.SelectedItem <- model.SelectedOperation
+            window.Title <- model.Title
         @>
 
     window.DataContext <- model
