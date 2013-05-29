@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{53296782-182f-459c-b511-6fbd43501f87}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>FSharpWpfEmptyTemplate.App</RootNamespace>
     <AssemblyName>TryCustomRuntimeClass - GenTypes</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
