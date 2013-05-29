@@ -5,9 +5,6 @@ open System.Windows.Data
 open Microsoft.FSharp.Reflection
 open FSharp.Windows
 open FSharp.Windows.UIElements
-open FSharp.Windows.INPCTypeProvider
-
-type ViewModels = NotifyPropertyChanged<"ModelPrototypes">
 
 type CalculatorEvents = 
     | Calculate
@@ -18,7 +15,7 @@ type CalculatorEvents =
     | XotYChanging of string * (unit -> unit)
 
 type CalculatorView(control) =
-    inherit PartialView<CalculatorEvents, ViewModels.CalculatorModel, CalculatorControl>(control)
+    inherit PartialView<CalculatorEvents, CalculatorModel, CalculatorControl>(control)
 
     override this.EventStreams = 
         [ 
@@ -47,7 +44,7 @@ type CalculatorView(control) =
             @>
 
 type CalculatorController() = 
-    inherit Controller<CalculatorEvents, ViewModels.CalculatorModel>()
+    inherit Controller<CalculatorEvents, CalculatorModel>()
 
     override this.InitModel model = 
         model.AvailableOperations <- Models.Operations.Values |> Array.filter(fun op -> op <>  Models.Divide)
@@ -68,12 +65,12 @@ type CalculatorController() =
         model.ClearAllErrors()
         match model.SelectedOperation with
         |  Models.Add -> 
-            //model |> Validation.positive <@ fun m -> m.Y @>
+            model |> Validation.positive <@ fun m -> m.Y @>
             if not model.HasErrors
             then 
                 model.Result <- model.X + model.Y
         | Models.Subtract -> 
-            //model |> Validation.positive <@ fun m -> m.Y @>
+            model |> Validation.positive <@ fun m -> m.Y @>
             if not model.HasErrors
             then 
                 model.Result <- model.X - model.Y
@@ -82,8 +79,8 @@ type CalculatorController() =
         | Models.Divide -> 
             if model.Y = 0 
             then
-                //model |> Validation.setError <@ fun m -> m.Y @> "Attempted to divide by zero."
-                model.AddError("Y", "Attempted to divide by zero.")
+                model |> Validation.setError <@ fun m -> m.Y @> "Attempted to divide by zero."
+                //model.AddError("Y", "Attempted to divide by zero.")
             else
                 model.Result <- model.X / model.Y
         

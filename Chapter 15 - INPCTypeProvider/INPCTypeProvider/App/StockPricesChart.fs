@@ -69,10 +69,11 @@ type StockPricesChartController() =
     override this.Dispatcher = fun() -> 
         Async <| fun model ->
             async {
-                let! result = Mvc.startWindow(StockPickerView(), StockPickerController())  
-                result |> Option.iter(fun newItem -> 
-                    model.StocksInfo.Add newItem
-                    model.SelectedStock <- newItem
-                )
+                let childModel, view, contoller = StockInfoModel(), StockPickerView(), StockPickerController()
+                let! result = Mvc(childModel, view, contoller).StartWindow()  
+                if result 
+                then
+                    model.StocksInfo.Add childModel
+                    model.SelectedStock <- childModel
             }
 

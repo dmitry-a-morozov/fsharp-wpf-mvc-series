@@ -5,15 +5,6 @@ open System.Windows.Data
 open FSharp.Windows
 open FSharp.Windows.UIElements
 
-[<AbstractClass>]
-type TempConveterModel() = 
-    inherit Model()
-
-    abstract Celsius : float<celsius> with get, set
-    abstract Fahrenheit : float<fahrenheit> with get, set
-    abstract ResponseStatus : string with get, set
-    abstract Delay : int with get, set
-
 type TempConveterEvents = 
     | CelsiusToFahrenheit
     | FahrenheitToCelsius

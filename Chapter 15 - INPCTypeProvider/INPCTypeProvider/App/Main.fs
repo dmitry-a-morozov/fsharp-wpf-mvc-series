@@ -12,7 +12,7 @@ open FSharp.Windows.UIElements
 type MainModel() = 
     inherit Model()
 
-    abstract Calculator : ViewModels.CalculatorModel with get, set
+    abstract Calculator : CalculatorModel with get, set
     abstract TempConveter : TempConveterModel with get, set
     abstract StockPricesChart : StockPricesChartModel with get, set
 
@@ -67,8 +67,8 @@ type MainController(stopWatch : StopWatchObservable) =
         model.Paused <- false
         model.Fail <- false
 
-        model.Calculator <- ViewModels.CalculatorModel()
-        model.TempConveter <- Model.Create()
+        model.Calculator <- CalculatorModel()
+        model.TempConveter <- TempConveterModel()
         model.StockPricesChart <- Model.Create()
 
     override this.Dispatcher = Sync << function

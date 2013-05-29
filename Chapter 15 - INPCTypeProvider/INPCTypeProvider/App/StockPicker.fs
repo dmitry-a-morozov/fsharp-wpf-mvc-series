@@ -10,27 +10,6 @@ open System.Linq
 open FSharp.Windows
 open FSharp.Windows.UIElements
 
-[<AbstractClass>]
-type StockInfoModel() = 
-    inherit Model()
-
-    abstract Symbol : string with get, set
-    abstract CompanyName : string with get, set
-    abstract LastPrice : decimal with get, set
-    abstract DaysLow : decimal with get, set
-    abstract DaysHigh : decimal with get, set
-    abstract Volume : decimal with get, set
-
-    abstract AddToChartEnabled : bool with get, set
-
-    [<NotifyDependencyChanged>]
-    member this.AccDist = 
-        if this.DaysLow = 0M && this.DaysHigh = 0M then "Accumulation/Distribution: N/A"
-        else
-            let moneyFlowMultiplier = (this.LastPrice - this.DaysLow) - (this.DaysHigh - this.LastPrice) / (this.DaysHigh - this.DaysLow)
-            let moneyFlowVolume  = moneyFlowMultiplier * this.Volume
-            sprintf "Accumulation/Distribution: %M" <| Decimal.Round(moneyFlowVolume, 2)
-
 type StockPickerView() as this =
     inherit View<unit, StockInfoModel, StockPickerWindow>()
 

@@ -42,6 +42,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <Compile Include="Extensions.fs" />
+    <Compile Include="ViewModels.fs" />
     <Compile Include="HexConverter.fs" />
     <Compile Include="Calculator.fs" />
     <Compile Include="TempConvertSoapClient.fs" />
