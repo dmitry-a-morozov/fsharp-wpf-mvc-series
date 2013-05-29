@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "INPC.TypeProvider", "INPC.TypeProvider\INPC.TypeProvider.fsproj", "{F43E228E-4E54-4986-B08C-DAD298C9756D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F43E228E-4E54-4986-B08C-DAD298C9756D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F43E228E-4E54-4986-B08C-DAD298C9756D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F43E228E-4E54-4986-B08C-DAD298C9756D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F43E228E-4E54-4986-B08C-DAD298C9756D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

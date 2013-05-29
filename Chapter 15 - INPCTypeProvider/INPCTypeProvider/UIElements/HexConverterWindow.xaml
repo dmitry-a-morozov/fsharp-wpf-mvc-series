@@ -1,0 +1,19 @@
+﻿<Window x:Class="FSharp.Windows.UIElements.HexConverterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="HexConverterWindow" Height="150" Width="300">
+    <Window.Resources>
+        <ResourceDictionary Source="Styles.xaml"/>
+    </Window.Resources>
+    <DockPanel>
+        <StackPanel Orientation="Horizontal" Margin="5" DockPanel.Dock="Top">
+            <Label Content="Hex Value"/>
+            <TextBox Name="Value" Width="100" x:FieldModifier="public" CharacterCasing="Upper" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" Margin="5, 10">
+            <Button Name="OK" Content="OK" Width="120" Height="25" x:FieldModifier="public" Margin="10,0"/>
+            <Button Name="Cancel" Content="Cancel" Width="120" Height="25" x:FieldModifier="public"/>
+        </StackPanel>
+        <Rectangle/>
+    </DockPanel>
+</Window>
