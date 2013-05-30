@@ -6,3 +6,6 @@ type Person = {
     mutable DateOfBirth : System.DateTime
 }
 
+type Company = {
+    mutable People : Person[] 
+}

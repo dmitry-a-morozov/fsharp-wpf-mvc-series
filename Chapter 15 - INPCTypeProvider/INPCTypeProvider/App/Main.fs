@@ -69,7 +69,7 @@ type MainController(stopWatch : StopWatchObservable) =
 
         model.Calculator <- CalculatorModel()
         model.TempConveter <- TempConveterModel()
-        model.StockPricesChart <- Model.Create()
+        model.StockPricesChart <- StockPricesChartModel()
 
     override this.Dispatcher = Sync << function
         | StopWatch -> ignore >> stopWatch.Pause

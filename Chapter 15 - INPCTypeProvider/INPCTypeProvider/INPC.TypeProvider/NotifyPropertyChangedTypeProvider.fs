@@ -63,10 +63,13 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
 
         outerType.AddMembersDelayed <| fun() ->
             [
+                let proccesedTypes = Dictionary<Type, ProvidedTypeDefinition>()
                 for prototype in prototypesAssembly.GetExportedTypes() do
                     if FSharpType.IsRecord prototype 
                     then 
-                        yield __.MapRecordToModelClass prototype
+                        let modelType = __.MapRecordToModelClass(prototype, proccesedTypes)
+                        proccesedTypes.Add(prototype, modelType)
+                        yield modelType
             ] 
 
         outerType
@@ -77,7 +80,7 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
             unbox<'T> model.[propertyName] 
         @@>
 
-    member internal __.MapRecordToModelClass (prototype : Type) = 
+    member internal __.MapRecordToModelClass(prototype : Type, processedTypes) = 
 
         let modelType = ProvidedTypeDefinition(prototype.Name, Some typeof<Model>, IsErased = false)
         tempAssembly.AddTypes <| [ modelType ]
@@ -92,12 +95,35 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
             [
                 for p in prototype.GetProperties() do
                     let propertyName = p.Name
-                    let property = ProvidedProperty(propertyName, p.PropertyType)
+                    let originalPropertyType = p.PropertyType
+                    let propertyType = 
+                        if originalPropertyType.IsGenericType 
+                        then 
+                            let genericTypeDef = originalPropertyType.GetGenericTypeDefinition()
+                            let xs = 
+                                originalPropertyType.GetGenericArguments()
+                                |> Array.map (fun t -> 
+                                    match processedTypes.TryGetValue t with
+                                    | false, _ -> t
+                                    | true, t' -> upcast t'
+                                )
+                            //How to make generic type def with replaced gen type?
+                            genericTypeDef.MakeGenericType xs
+                            //ProvidedTypeBuilder.MakeGenericType(genericTypeDef, List.ofArray xs)
+                        else
+                            match processedTypes.TryGetValue(originalPropertyType) with
+                            | false, _ -> originalPropertyType
+                            | true, t -> upcast t
+                    let property = ProvidedProperty(propertyName, propertyType)
                     let builder = 
                         let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("GetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
-                        mi.MakeGenericMethod p.PropertyType
+                        //How to make generic type def with replaced gen type?
+                        mi.MakeGenericMethod originalPropertyType
+                        //ProvidedTypeBuilder.MakeGenericMethod(mi, [ propertyType ])
 
-                    property.GetterCode <- fun args -> builder.Invoke(null, [| args.[0]; propertyName |]) |> unbox
+                    property.GetterCode <- fun args -> 
+                        let x = builder.Invoke(null, [| args.[0]; propertyName |]) 
+                        x |> unbox
 
                     if p.CanWrite 
                     then 
