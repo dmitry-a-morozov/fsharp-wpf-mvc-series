@@ -33,12 +33,13 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
         let assemblyName = config.ReferencedAssemblies |> Array.find(fun fullPath -> Path.GetFileNameWithoutExtension fullPath = fileName)
         let prototypesAssembly = Assembly.LoadFrom assemblyName
 
-        query {
-            for prototype in prototypesAssembly.GetTypes() do
-            where(FSharpType.IsRecord prototype)
-            select(this.MapRecordToModelClass prototype)
-        } 
-        |> Seq.iter outerType.AddMember
+        outerType.AddMembersDelayed <| fun() ->
+            [
+                for prototype in prototypesAssembly.GetTypes() do
+                    if FSharpType.IsRecord prototype 
+                    then
+                        yield this.MapRecordToModelClass prototype
+            ]
 
         outerType
 

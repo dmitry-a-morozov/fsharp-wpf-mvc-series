@@ -4,6 +4,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2D8F757F-83F7-45F8-AC28-3B0C8928009A}"
 	ProjectSection(SolutionItems) = preProject
 		TryExpando.fsx = TryExpando.fsx
+		TryGenTypesCrossRef.fsx = TryGenTypesCrossRef.fsx
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SampleModelPrototypes", "SampleModelPrototypes\SampleModelPrototypes.fsproj", "{67D7D094-05E5-4530-9546-E8E3333E828E}"

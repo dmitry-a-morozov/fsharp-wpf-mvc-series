@@ -7,5 +7,6 @@ type Person = {
 }
 
 type Company = {
-    mutable People : Person[] 
+    mutable Employees : System.Collections.ObjectModel.ObservableCollection<Person> 
+    mutable Managers : Person[] 
 }
