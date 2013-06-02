@@ -13,7 +13,3 @@ type ViewModels = NotifyPropertyChanged<"SampleModelPrototypes">
 
 let company = ViewModels.Company()
 
-let inpc : INotifyPropertyChanged = upcast company
-inpc.PropertyChanged.Add(fun args -> printfn "Property %s. Model: %A" args.PropertyName model)
-
-//company.People <- 

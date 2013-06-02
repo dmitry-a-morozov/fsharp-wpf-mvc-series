@@ -74,10 +74,12 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
 
         outerType
 
-    static member internal GetValue<'T>(model, propertyName) =
+    static member internal SetValue<'T when 'T : equality>(self, backingField, name, value) =
         <@@
-            let model : Model = %%Expr.Coerce(model, typeof<Model>)
-            unbox<'T> model.[propertyName] 
+            let oldValue = %%Expr.FieldGet(self, backingField) : 'T
+            if (%%value : 'T) <> oldValue
+            then
+                (%%Expr.FieldSet(self, backingField, value) : unit)
         @@>
 
     member internal __.MapRecordToModelClass(prototype : Type, processedTypes) = 
@@ -86,17 +88,15 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
         tempAssembly.AddTypes <| [ modelType ]
 
         let prototypeName = prototype.AssemblyQualifiedName
-        let ctor = ProvidedConstructor([], IsImplicitCtor = true)
-        let baseCtor = typeof<Model>.GetConstructor([| typeof<Type> |])
-        ctor.BaseConstructorCall <- fun _ -> baseCtor, [ <@@ Type.GetType prototypeName @@> ]
-        modelType.AddMember ctor
+        modelType.AddMember <| ProvidedConstructor([], IsImplicitCtor = true)
+        modelType.SuppressRelocation <- true
 
         modelType.AddMembersDelayed <| fun () -> 
             [
                 for p in prototype.GetProperties() do
-                    let propertyName = p.Name
-                    let originalPropertyType = p.PropertyType
+
                     let propertyType = 
+                        let originalPropertyType = p.PropertyType
                         if originalPropertyType.IsGenericType 
                         then 
                             let genericTypeDef = originalPropertyType.GetGenericTypeDefinition()
@@ -107,34 +107,22 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
                                     | false, _ -> t
                                     | true, t' -> upcast t'
                                 )
-                            if typeof<Array>.IsAssignableFrom(originalPropertyType) 
-                            then
-                                assert (xs.Length = 1)
-                                xs.[0].MakeArrayType()
-                            else 
-                                genericTypeDef.MakeGenericType xs
+                            genericTypeDef.MakeGenericType xs
                         else
                             match processedTypes.TryGetValue(originalPropertyType) with
                             | false, _ -> originalPropertyType
                             | true, t -> upcast t
-                    let property = ProvidedProperty(propertyName, propertyType)
-                    let builder = 
-                        let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("GetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
-                        //How to make generic type def with replaced gen type?
-                        mi.MakeGenericMethod originalPropertyType
-                        //ProvidedTypeBuilder.MakeGenericMethod(mi, [ propertyType ])
+                        
+                    let backingField = ProvidedField(p.Name, propertyType)
+                    modelType.AddMember backingField
 
-                    property.GetterCode <- fun args -> 
-                        let x = builder.Invoke(null, [| args.[0]; propertyName |]) 
-                        x |> unbox
-
-                    if p.CanWrite 
-                    then 
-                        property.SetterCode <- fun args -> 
-                            <@@ 
-                                let model : Model = %%Expr.Coerce(args.[0], typeof<Model>)
-                                model.[propertyName] <- %%(Expr.Coerce(args.[1], typeof<obj>)) 
-                            @@>
+                    let property = ProvidedProperty(p.Name, propertyType)
+                    property.GetterCode <- fun args -> Expr.FieldGet(args.[0], backingField)
+                    property.SetterCode <- fun args -> 
+                        let builder =
+                            let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("SetValue", BindingFlags.NonPublic  ||| BindingFlags.Static)
+                            mi.MakeGenericMethod(backingField.FieldType)
+                        builder.Invoke(null, [|args.[0]; backingField; p.Name; args.[1]|]) |> unbox
 
                     yield property                   
             ]

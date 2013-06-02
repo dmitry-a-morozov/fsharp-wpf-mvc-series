@@ -8,5 +8,4 @@ type Person = {
 
 type Company = {
     mutable Employees : System.Collections.ObjectModel.ObservableCollection<Person> 
-    mutable Managers : Person[] 
 }

@@ -16,7 +16,7 @@ let (|SingleStepPropertySelector|) (expr : PropertySelector<'T, 'a>) =
     | _ -> invalidArg "Property selector quotation" (string expr)
 
 let inline setError( SingleStepPropertySelector(propertyName, _) : PropertySelector< ^Model, _>) message model = 
-    (^Model : (member AddError : string * string -> unit) (model, propertyName, message))
+    (^Model : (member SetErrors : string * seq<string> -> unit) (model, propertyName, [ message ]))
 
 let inline clearError expr = setError expr null
 

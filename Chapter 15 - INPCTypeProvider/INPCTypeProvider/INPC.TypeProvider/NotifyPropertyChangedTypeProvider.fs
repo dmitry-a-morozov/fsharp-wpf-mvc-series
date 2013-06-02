@@ -77,7 +77,13 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
     static member internal GetValue<'T>(model, propertyName) =
         <@@
             let model : Model = %%Expr.Coerce(model, typeof<Model>)
-            unbox<'T> model.[propertyName] 
+            unbox<'T> model.[propertyName]      
+        @@>
+
+    static member internal SetValue<'T>(model, propertyName, value) =
+        <@@
+            let model : Model = %%Expr.Coerce(model, typeof<Model>)
+            model.[propertyName] <- box(%%value : 'T)
         @@>
 
     member internal __.MapRecordToModelClass(prototype : Type, processedTypes) = 
@@ -107,31 +113,30 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
                                     | false, _ -> t
                                     | true, t' -> upcast t'
                                 )
-                            //How to make generic type def with replaced gen type?
                             genericTypeDef.MakeGenericType xs
-                            //ProvidedTypeBuilder.MakeGenericType(genericTypeDef, List.ofArray xs)
                         else
                             match processedTypes.TryGetValue(originalPropertyType) with
                             | false, _ -> originalPropertyType
                             | true, t -> upcast t
                     let property = ProvidedProperty(propertyName, propertyType)
-                    let builder = 
-                        let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("GetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
-                        //How to make generic type def with replaced gen type?
-                        mi.MakeGenericMethod originalPropertyType
-                        //ProvidedTypeBuilder.MakeGenericMethod(mi, [ propertyType ])
 
                     property.GetterCode <- fun args -> 
-                        let x = builder.Invoke(null, [| args.[0]; propertyName |]) 
-                        x |> unbox
+                        let builder = 
+                            let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("GetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
+                            mi.MakeGenericMethod propertyType
+                        builder.Invoke(null, [| args.[0]; propertyName |]) :?> _
 
                     if p.CanWrite 
                     then 
                         property.SetterCode <- fun args -> 
-                            <@@ 
-                                let model : Model = %%Expr.Coerce(args.[0], typeof<Model>)
-                                model.[propertyName] <- %%(Expr.Coerce(args.[1], typeof<obj>)) 
-                            @@>
+                            let builder = 
+                                let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("SetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
+                                mi.MakeGenericMethod propertyType
+                            builder.Invoke(null, [| args.[0]; propertyName; args.[1] |]) |> unbox
+//                            <@@ 
+//                                let model : Model = %%Expr.Coerce(args.[0], typeof<Model>)
+//                                model.[propertyName] <- %%(Expr.Coerce(args.[1], typeof<obj>)) 
+//                            @@>
 
                     yield property                   
             ]
