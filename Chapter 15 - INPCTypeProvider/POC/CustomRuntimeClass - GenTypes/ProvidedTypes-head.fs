@@ -26,6 +26,8 @@ type internal ExpectedStackState =
 
 [<AutoOpen>]
 module internal Misc =
+    let TypeBuilderInstantiationType = typeof<TypeBuilder>.Assembly.GetType("System.Reflection.Emit.TypeBuilderInstantiation")
+    let GetTypeFromHandleMethod = typeof<Type>.GetMethod("GetTypeFromHandle")
     
     let isEmpty s = s = ExpectedStackState.Empty
     let isAddress s = s = ExpectedStackState.Address
@@ -334,9 +336,14 @@ type ProvidedConstructor(parameters : ProvidedParameter list) =
     let mutable declaringType = null : System.Type
     let mutable invokeCode    = None : option<Quotations.Expr list -> Quotations.Expr>
     let mutable isImplicitCtor  = false
+    let mutable ctorAttributes = MethodAttributes.Public ||| MethodAttributes.RTSpecialName
     let nameText () = sprintf "constructor for %s" (if declaringType=null then "<not yet known type>" else declaringType.FullName)
 
     let customAttributesImpl = CustomAttributesImpl()
+    member this.IsTypeInitializer 
+        with get() = ctorAttributes.HasFlag(MethodAttributes.Static)
+        and set(v) = ctorAttributes <- if v then ctorAttributes ||| MethodAttributes.Static else ctorAttributes &&& ~~~MethodAttributes.Static
+
     member this.AddXmlDocComputed xmlDoc                    = customAttributesImpl.AddXmlDocComputed xmlDoc
     member this.AddXmlDocDelayed xmlDoc                     = customAttributesImpl.AddXmlDocDelayed xmlDoc
     member this.AddXmlDoc xmlDoc                            = customAttributesImpl.AddXmlDoc xmlDoc
@@ -379,7 +386,7 @@ type ProvidedConstructor(parameters : ProvidedParameter list) =
 
     // Implement overloads
     override this.GetParameters() = parameters |> List.toArray 
-    override this.Attributes = MethodAttributes.Public ||| MethodAttributes.RTSpecialName
+    override this.Attributes = ctorAttributes
     override this.Name = if this.IsStatic then ".cctor" else ".ctor"
     override this.DeclaringType = declaringType |> nonNull "ProvidedConstructor.DeclaringType"                                   
     override this.IsDefined(_attributeType, _inherit) = true 
@@ -624,6 +631,7 @@ type ProvidedField(fieldName:string,fieldType:Type) =
     let mutable declaringType = null
 
     let customAttributesImpl = CustomAttributesImpl()
+    let mutable fieldAttrs = FieldAttributes.Private
     member this.AddXmlDocComputed xmlDoc                    = customAttributesImpl.AddXmlDocComputed xmlDoc
     member this.AddXmlDocDelayed xmlDoc                     = customAttributesImpl.AddXmlDocDelayed xmlDoc
     member this.AddXmlDoc xmlDoc                            = customAttributesImpl.AddXmlDoc xmlDoc
@@ -637,11 +645,11 @@ type ProvidedField(fieldName:string,fieldType:Type) =
 
     member this.DeclaringTypeImpl with set x = declaringType <- x // check: not set twice
 
-
+    member this.SetFieldAttributes attrs = fieldAttrs <- attrs
     // Implement overloads
     override this.FieldType = fieldType
     override this.GetRawConstantValue()  = null
-    override this.Attributes = FieldAttributes.Private
+    override this.Attributes = fieldAttrs
     override this.Name = fieldName
     override this.DeclaringType = declaringType |> nonNull "ProvidedField.DeclaringType"
     override this.MemberType : MemberTypes = MemberTypes.Field
@@ -713,6 +721,18 @@ type ProvidedSymbolType(kind: SymbolKind, args: Type list) =
         | SymbolKind.FSharpTypeAbbreviation _,_ -> null
         | _ -> failwith "unreachable"
 
+    override this.IsAssignableFrom(otherTy) = 
+        match kind with
+        | Generic gtd ->
+            if otherTy.IsGenericType then
+                let otherGtd = otherTy.GetGenericTypeDefinition()
+                let otherArgs = otherTy.GetGenericArguments()
+                let yes = gtd.Equals(otherGtd) && Seq.forall2 (=) args otherArgs
+                yes
+                else
+                    base.IsAssignableFrom(otherTy)
+        | _ -> base.IsAssignableFrom(otherTy)
+
     override this.Name =
         match kind,args with 
         | SymbolKind.SDArray,[arg] -> arg.Name + "[]" 
@@ -774,7 +794,12 @@ type ProvidedSymbolType(kind: SymbolKind, args: Type list) =
         | _ -> false
 
     override this.GetConstructors _bindingAttr                                                      = notRequired "GetConstructors" this.Name
-    override this.GetMethodImpl(_name, _bindingAttr, _binderBinder, _callConvention, _types, _modifiers) = notRequired "GetMethodImpl" this.Name
+    override this.GetMethodImpl(_name, _bindingAttr, _binderBinder, _callConvention, _types, _modifiers) = 
+        match kind with
+        | Generic gtd -> 
+            let ty = gtd.GetGenericTypeDefinition().MakeGenericType(Array.ofList args)
+            ty.GetMethod(_name, _bindingAttr)
+        | _ -> notRequired "GetMethodImpl" this.Name
     override this.GetMembers _bindingAttr                                                           = notRequired "GetMembers" this.Name
     override this.GetMethods _bindingAttr                                                           = notRequired "GetMethods" this.Name
     override this.GetField(_name, _bindingAttr)                                                      = notRequired "GetField" this.Name
@@ -1393,10 +1418,16 @@ type AssemblyGenerator(assemblyFileName) =
             | Some ptd -> 
             for cinfo in ptd.GetConstructors(ALL) do
                 match cinfo with 
-                | :? ProvidedConstructor as pcinfo when not (ctorMap.ContainsKey pcinfo)  -> 
-                    let cb = tb.DefineConstructor(cinfo.Attributes, CallingConventions.Standard, [| for p in cinfo.GetParameters() -> convType p.ParameterType |])
-                    for (i,p) in cinfo.GetParameters() |> Seq.mapi (fun i x -> (i,x)) do
-                        cb.DefineParameter(i+1, ParameterAttributes.None, p.Name) |> ignore
+                | :? ProvidedConstructor as pcinfo when not (ctorMap.ContainsKey pcinfo)  ->
+                    let cb =
+                        if pcinfo.IsTypeInitializer then
+                            if (cinfo.GetParameters()).Length <> 0 then failwith "Type initializer should not have parameters"
+                            tb.DefineTypeInitializer()
+                        else 
+                            let cb = tb.DefineConstructor(cinfo.Attributes, CallingConventions.Standard, [| for p in cinfo.GetParameters() -> convType p.ParameterType |])
+                            for (i,p) in cinfo.GetParameters() |> Seq.mapi (fun i x -> (i,x)) do
+                                cb.DefineParameter(i+1, ParameterAttributes.None, p.Name) |> ignore
+                            cb
                     ctorMap.[pcinfo] <- cb
                 | _ -> () 
                     
@@ -1429,8 +1460,8 @@ type AssemblyGenerator(assemblyFileName) =
             defineCustomAttrs tb.SetCustomAttribute cattr
             // Allow at most one constructor, and use its arguments as the fields of the type
             let ctors =
-                ptd.GetConstructors(ALL) 
-                |> Seq.choose (function :? ProvidedConstructor as pcinfo -> Some pcinfo | _ -> None) 
+                ptd.GetConstructors(ALL) // exclude type initializer
+                |> Seq.choose (function :? ProvidedConstructor as pcinfo when not pcinfo.IsTypeInitializer -> Some pcinfo | _ -> None) 
                 |> Seq.toList
             let implictCtorArgs =
                 match ctors  |> List.filter (fun x -> x.IsImplicitCtor)  with
@@ -1536,7 +1567,14 @@ type AssemblyGenerator(assemblyFileName) =
                           ilg.Emit(OpCodes.Box, argTy)
                         elif not argTy.IsValueType && targetTy.IsValueType then
                           ilg.Emit(OpCodes.Unbox_Any, targetTy)
-                        elif not (targetTy.IsAssignableFrom(argTy)) then
+                        // emit castclass if 
+                        // - targettype is not obj (assume this is always possible for ref types)
+                        // AND 
+                        // - HACK: targettype is TypeBuilderInstantiationType 
+                        //   (its implementation of IsAssignableFrom raises NotSupportedException so it will be safer to always emit castclass)
+                        // OR
+                        // - not (argTy :> targetTy)
+                        elif targetTy <> typeof<obj> && (Misc.TypeBuilderInstantiationType.Equals(targetTy.GetType()) || not (targetTy.IsAssignableFrom(argTy))) then
                           ilg.Emit(OpCodes.Castclass, targetTy)
                               
                         popIfEmptyExpected expectedState
@@ -1670,6 +1708,9 @@ type AssemblyGenerator(assemblyFileName) =
 #else
                             | :? System.Enum as x when x.GetType().GetEnumUnderlyingType() = typeof<int32> -> ilg.Emit(OpCodes.Ldc_I4, unbox<int32> v)
 #endif
+                            | :? Type as ty ->
+                                ilg.Emit(OpCodes.Ldtoken, ty)
+                                ilg.Emit(OpCodes.Call, Misc.GetTypeFromHandleMethod)
                             | null -> ilg.Emit(OpCodes.Ldnull)
                             | _ -> failwithf "unknown constant '%A' in generated method" v
                         if isEmpty expectedState then ()
@@ -1771,7 +1812,18 @@ type AssemblyGenerator(assemblyFileName) =
                     ilg.Emit(OpCodes.Stfld, ctorArgsAsField)
                     
                 ilg.Emit(OpCodes.Ret)
-                    
+            
+            match ptd.GetConstructors(ALL) |> Seq.tryPick (function :? ProvidedConstructor as pc when pc.IsTypeInitializer -> Some pc | _ -> None) with
+            | None -> ()
+            | Some pc ->
+                let cb = ctorMap.[pc]
+                let ilg = cb.GetILGenerator()
+                let cattr = pc.GetCustomAttributesDataImpl() 
+                defineCustomAttrs cb.SetCustomAttribute cattr
+                let expr = pc.GetInvokeCodeInternal true [||]
+                emitExpr(ilg, new Dictionary<_, _>(), [||]) ExpectedStackState.Empty expr
+                ilg.Emit OpCodes.Ret
+
             // Emit the methods
             for minfo in ptd.GetMethods(ALL) do
               match minfo with 

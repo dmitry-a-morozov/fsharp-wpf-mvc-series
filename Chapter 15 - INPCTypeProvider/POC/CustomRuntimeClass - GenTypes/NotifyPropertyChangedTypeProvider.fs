@@ -11,6 +11,8 @@ open Microsoft.FSharp.Quotations
 
 open Samples.FSharp.ProvidedTypes
 
+type PCEH = System.ComponentModel.PropertyChangedEventHandler
+
 [<TypeProvider>]
 type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as this = 
     inherit TypeProviderForNamespaces()
@@ -84,12 +86,14 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
 
     member internal __.MapRecordToModelClass(prototype : Type, processedTypes) = 
 
-        let modelType = ProvidedTypeDefinition(prototype.Name, Some typeof<Model>, IsErased = false)
+        let modelType = ProvidedTypeDefinition(prototype.Name, Some typeof<obj>, IsErased = false)
         tempAssembly.AddTypes <| [ modelType ]
 
         let prototypeName = prototype.AssemblyQualifiedName
         modelType.AddMember <| ProvidedConstructor([], IsImplicitCtor = true)
-        modelType.SuppressRelocation <- true
+
+        let handler = ProvidedField("handler", typeof<PCEH>)
+        modelType.AddMember handler
 
         modelType.AddMembersDelayed <| fun () -> 
             [
@@ -107,7 +111,7 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
                                     | false, _ -> t
                                     | true, t' -> upcast t'
                                 )
-                            genericTypeDef.MakeGenericType xs
+                            ProvidedTypeBuilder.MakeGenericType(genericTypeDef, List.ofArray xs)
                         else
                             match processedTypes.TryGetValue(originalPropertyType) with
                             | false, _ -> originalPropertyType
@@ -116,17 +120,46 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
                     let backingField = ProvidedField(p.Name, propertyType)
                     modelType.AddMember backingField
 
+                    let propName = p.Name
                     let property = ProvidedProperty(p.Name, propertyType)
                     property.GetterCode <- fun args -> Expr.FieldGet(args.[0], backingField)
+
                     property.SetterCode <- fun args -> 
-                        let builder =
-                            let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("SetValue", BindingFlags.NonPublic  ||| BindingFlags.Static)
-                            mi.MakeGenericMethod(backingField.FieldType)
-                        builder.Invoke(null, [|args.[0]; backingField; p.Name; args.[1]|]) |> unbox
+                        <@@
+                            let newValue = %%Expr.Coerce(args.[1], typeof<obj>)
+                            let oldValue = %%Expr.Coerce(Expr.FieldGet(args.[0], backingField), typeof<obj>)
+                            if not(newValue.Equals(oldValue))
+                            then
+                                (%%Expr.FieldSet(args.[0], backingField, args.[1]) : unit)
+                                let h = (%%Expr.FieldGet(args.[0], handler) : PCEH)
+                                if h <> null 
+                                then
+                                    h.Invoke(null, ComponentModel.PropertyChangedEventArgs(propName))                        
+                        @@>
 
                     yield property                   
             ]
 
+        modelType.AddInterfaceImplementation typeof<System.ComponentModel.INotifyPropertyChanged>
+        let evt = ProvidedEvent("PropertyChanged", typeof<System.ComponentModel.PropertyChangedEventHandler>)
+        modelType.AddMember evt
+        evt.AdderCode <- 
+            fun [this; value] ->
+                Expr.FieldSet(this, handler, <@@ System.Delegate.Combine((%%Expr.FieldGet(this, handler) : PCEH), (%%value : PCEH)) :?> PCEH @@>)
+        evt.RemoverCode <- 
+            fun [this; value] -> 
+                Expr.FieldSet(this, handler, <@@ System.Delegate.Remove((%%Expr.FieldGet(this, handler) : PCEH), (%%value : PCEH)) :?> PCEH @@>)
+        let addDecl = typeof<System.ComponentModel.INotifyPropertyChanged>.GetMethod "add_PropertyChanged"
+        let removeDecl = typeof<System.ComponentModel.INotifyPropertyChanged>.GetMethod "remove_PropertyChanged"
+                         
+        let addMethod = evt.AddMethod :?> ProvidedMethod
+        addMethod.SetMethodAttrs (addMethod.Attributes ||| MethodAttributes.Virtual)
+
+        let removeMethod = evt.RemoveMethod :?> ProvidedMethod
+        removeMethod.SetMethodAttrs (removeMethod.Attributes ||| MethodAttributes.Virtual)
+
+        modelType.DefineMethodOverride(addMethod, addDecl)
+        modelType.DefineMethodOverride(removeMethod, removeDecl)
 
         modelType
 
