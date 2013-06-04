@@ -74,35 +74,23 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
 
         outerType
 
-    static member internal GetValue<'T>(model, propertyName) =
-        <@@
-            let model : Model = %%Expr.Coerce(model, typeof<Model>)
-            unbox<'T> model.[propertyName]      
-        @@>
-
-    static member internal SetValue<'T>(model, propertyName, value) =
-        <@@
-            let model : Model = %%Expr.Coerce(model, typeof<Model>)
-            model.[propertyName] <- box(%%value : 'T)
-        @@>
-
     member internal __.MapRecordToModelClass(prototype : Type, processedTypes) = 
 
-        let modelType = ProvidedTypeDefinition(prototype.Name, Some typeof<Model>, IsErased = false)
+        let modelType = ProvidedTypeDefinition(prototype.Name, Some typeof<obj>, IsErased = false)
         tempAssembly.AddTypes <| [ modelType ]
 
         let prototypeName = prototype.AssemblyQualifiedName
-        let ctor = ProvidedConstructor([], IsImplicitCtor = true)
-        let baseCtor = typeof<Model>.GetConstructor([| typeof<Type> |])
-        ctor.BaseConstructorCall <- fun _ -> baseCtor, [ <@@ Type.GetType prototypeName @@> ]
-        modelType.AddMember ctor
+        modelType.AddMember <| ProvidedConstructor([], IsImplicitCtor = true)
+
+        let pceh = ProvidedField("propertyChangedEvent", typeof<PCEH>)
+        modelType.AddMember pceh
 
         modelType.AddMembersDelayed <| fun () -> 
             [
                 for p in prototype.GetProperties() do
-                    let propertyName = p.Name
-                    let originalPropertyType = p.PropertyType
+
                     let propertyType = 
+                        let originalPropertyType = p.PropertyType
                         if originalPropertyType.IsGenericType 
                         then 
                             let genericTypeDef = originalPropertyType.GetGenericTypeDefinition()
@@ -113,33 +101,54 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
                                     | false, _ -> t
                                     | true, t' -> upcast t'
                                 )
-                            genericTypeDef.MakeGenericType xs
+                            ProvidedTypeBuilder.MakeGenericType(genericTypeDef, List.ofArray xs)
                         else
                             match processedTypes.TryGetValue(originalPropertyType) with
                             | false, _ -> originalPropertyType
                             | true, t -> upcast t
-                    let property = ProvidedProperty(propertyName, propertyType)
+                        
+                    let backingField = ProvidedField(p.Name, propertyType)
+                    modelType.AddMember backingField
 
-                    property.GetterCode <- fun args -> 
-                        let builder = 
-                            let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("GetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
-                            mi.MakeGenericMethod propertyType
-                        builder.Invoke(null, [| args.[0]; propertyName |]) :?> _
+                    let propName = p.Name
+                    let property = ProvidedProperty(p.Name, propertyType)
+                    property.GetterCode <- fun args -> Expr.FieldGet(args.[0], backingField)
 
-                    if p.CanWrite 
-                    then 
-                        property.SetterCode <- fun args -> 
-                            let builder = 
-                                let mi = typeof<NotifyPropertyChangedTypeProvider>.GetMethod("SetValue", BindingFlags.NonPublic ||| BindingFlags.Static)
-                                mi.MakeGenericMethod propertyType
-                            builder.Invoke(null, [| args.[0]; propertyName; args.[1] |]) |> unbox
-//                            <@@ 
-//                                let model : Model = %%Expr.Coerce(args.[0], typeof<Model>)
-//                                model.[propertyName] <- %%(Expr.Coerce(args.[1], typeof<obj>)) 
-//                            @@>
+                    property.SetterCode <- fun args -> 
+                        <@@
+                            let newValue = %%Expr.Coerce(args.[1], typeof<obj>)
+                            let oldValue = %%Expr.Coerce(Expr.FieldGet(args.[0], backingField), typeof<obj>)
+                            if not(newValue.Equals(oldValue))
+                            then
+                                (%%Expr.FieldSet(args.[0], backingField, args.[1]) : unit)
+                                let notifyPropertyChanged = (%%Expr.FieldGet(args.[0], pceh) : PCEH)
+                                if notifyPropertyChanged <> null 
+                                then
+                                    notifyPropertyChanged.Invoke(null, PropertyChangedEventArgs propName)                        
+                        @@>
 
                     yield property                   
             ]
+
+        modelType.AddInterfaceImplementation typeof<System.ComponentModel.INotifyPropertyChanged>
+        let event = ProvidedEvent("PropertyChanged", typeof<PCEH>)
+        event.AdderCode <- fun args ->
+            let this, handler = args.[0], args.[1]
+            Expr.FieldSet(this, pceh, <@@ Delegate.Combine((%%Expr.FieldGet(this, pceh) : PCEH), (%%handler : PCEH)) :?> PCEH @@>)
+        event.RemoverCode <- fun args -> 
+            let this, handler = args.[0], args.[1]
+            Expr.FieldSet(this, pceh, <@@ Delegate.Remove((%%Expr.FieldGet(this, pceh) : PCEH), (%%handler : PCEH)) :?> PCEH @@>)
+
+        modelType.AddMember event
+                         
+        let addMethod = event.AddMethod :?> ProvidedMethod
+        addMethod.AddMethodAttrs MethodAttributes.Virtual
+
+        let removeMethod = event.RemoveMethod :?> ProvidedMethod
+        removeMethod.AddMethodAttrs MethodAttributes.Virtual
+
+        modelType.DefineMethodOverride(addMethod, typeof<INotifyPropertyChanged>.GetMethod "add_PropertyChanged")
+        modelType.DefineMethodOverride(removeMethod, typeof<INotifyPropertyChanged>.GetMethod "remove_PropertyChanged")
 
         modelType
 

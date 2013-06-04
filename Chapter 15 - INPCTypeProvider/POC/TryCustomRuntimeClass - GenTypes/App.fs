@@ -37,7 +37,7 @@ do
             result.Text <- string model.Result
             operations.ItemsSource <- model.AvailableOperations
             operations.SelectedItem <- model.SelectedOperation
-            window.Title <- model.Title
+            //window.Title <- model.Title
         @>
 
     window.DataContext <- model
@@ -51,7 +51,7 @@ do
         | Operations.Divide ->
             if model.Y = 0 
             then
-                model |> Validation.setError <@ fun m -> m.Y @> "Attempted to divide by zero."
+                model |> Validation.addError <@ fun m -> m.Y @> "Attempted to divide by zero."
             else
                 model.Result <- model.X / model.Y 
         | _ -> ()

@@ -79,7 +79,7 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
 
     member internal __.MapRecordToModelClass(prototype : Type, processedTypes) = 
 
-        let modelType = ProvidedTypeDefinition(prototype.Name, Some typeof<obj>, IsErased = false)
+        let modelType = ProvidedTypeDefinition(prototype.Name, Some typeof<Model>, IsErased = false)
         tempAssembly.AddTypes <| [ modelType ]
 
         let prototypeName = prototype.AssemblyQualifiedName
@@ -116,18 +116,18 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
                     let propName = p.Name
                     let property = ProvidedProperty(p.Name, propertyType)
                     property.GetterCode <- fun args -> Expr.FieldGet(args.[0], backingField)
-
                     property.SetterCode <- fun args -> 
+                        let this, value = args.[0], args.[1]
                         <@@
-                            let newValue = %%Expr.Coerce(args.[1], typeof<obj>)
-                            let oldValue = %%Expr.Coerce(Expr.FieldGet(args.[0], backingField), typeof<obj>)
+                            let newValue = %%Expr.Coerce(value, typeof<obj>)
+                            let oldValue = %%Expr.Coerce(Expr.FieldGet(this, backingField), typeof<obj>)
                             if not(newValue.Equals(oldValue))
                             then
-                                (%%Expr.FieldSet(args.[0], backingField, args.[1]) : unit)
-                                let notifyPropertyChanged = (%%Expr.FieldGet(args.[0], pceh) : PCEH)
+                                (%%Expr.FieldSet(this, backingField, value) : unit)
+                                let notifyPropertyChanged = (%%Expr.FieldGet(this, pceh) : PCEH)
                                 if notifyPropertyChanged <> null 
                                 then
-                                    notifyPropertyChanged.Invoke(null, PropertyChangedEventArgs propName)                        
+                                    notifyPropertyChanged.Invoke(%%Expr.Coerce(this, typeof<obj>), PropertyChangedEventArgs propName)                        
                         @@>
 
                     yield property                   

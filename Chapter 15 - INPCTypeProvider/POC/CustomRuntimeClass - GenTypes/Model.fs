@@ -11,12 +11,13 @@ type Model() as this =
     let errors = Dictionary()
     let errorsChangedEvent = Event<_,_>()
     let triggerErrorsChanged propertyName = errorsChangedEvent.Trigger(this, DataErrorsChangedEventArgs propertyName)
+    let getErrorsOrEmpty propertyName = match errors.TryGetValue propertyName with | true, errors -> errors | false, _ -> []
 
     interface INotifyDataErrorInfo with
         member this.HasErrors = 
             errors.Values |> Seq.collect id |> Seq.exists (not << String.IsNullOrEmpty)
         member this.GetErrors propertyName = 
-            upcast (match errors.TryGetValue propertyName with | true, errors -> errors | false, _ -> Seq.empty)
+            upcast getErrorsOrEmpty propertyName
         [<CLIEvent>]
         member this.ErrorsChanged = errorsChangedEvent.Publish
 
@@ -24,5 +25,8 @@ type Model() as this =
         errors.[propertyName] <- messages
         triggerErrorsChanged propertyName
 
+    member this.AddError(propertyName, message) = 
+        errors.[propertyName] <- message :: getErrorsOrEmpty propertyName 
+        triggerErrorsChanged propertyName
 
 

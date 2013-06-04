@@ -15,10 +15,10 @@ let (|SingleStepPropertySelector|) (expr : PropertySelector<'T, 'a>) =
         property.Name, fun(this : 'T) -> property.GetValue(this, [||]) |> unbox<'a>
     | _ -> invalidArg "Property selector quotation" (string expr)
 
-let inline setError( SingleStepPropertySelector(propertyName, _) : PropertySelector< ^Model, _>) message model = 
-    (^Model : (member SetErrors : string * seq<string> -> unit) (model, propertyName, [ message ]))
+let inline addError( SingleStepPropertySelector(propertyName, _) : PropertySelector< ^Model, _>) message model = 
+    (^Model : (member AddError : string * string -> unit) (model, propertyName, message))
 
-let inline clearError expr = setError expr null
+let inline clearError expr = addError expr null
 
 let inline invalidIf( SingleStepPropertySelector(propertyName, getValue : ^Model -> _)) predicate message model = 
     if model |> getValue |> predicate 

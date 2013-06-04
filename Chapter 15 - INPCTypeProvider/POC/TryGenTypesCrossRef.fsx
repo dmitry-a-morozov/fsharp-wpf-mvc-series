@@ -19,6 +19,8 @@ model.FirstName <- "Dmitry"
 model.LastName <- "Morozov"
 model.DateOfBirth <- DateTime.Parse("1974-01-01")
 
+printfn "%s-%s-%A" model.FirstName model.LastName model.DateOfBirth
+
 let company = ViewModels.Company()
 let me = ViewModels.Person(FirstName = "Dmitry", LastName = "Morozov", DateOfBirth = DateTime.Parse("1974-08-23"))
 
