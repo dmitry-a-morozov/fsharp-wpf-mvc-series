@@ -19,10 +19,10 @@ model.FirstName <- "Dmitry"
 model.LastName <- "Morozov"
 model.DateOfBirth <- DateTime.Parse("1974-01-01")
 
-//let company = ViewModels.Company()
-//let me = ViewModels.Person(FirstName = "Dmitry", LastName = "Morozov", DateOfBirth = DateTime.Parse("1974-08-23"))
-//
-//company.Employees <- ObservableCollection [| me; ViewModels.Person(FirstName = "Ekaterina", LastName = "Blokhina", DateOfBirth = DateTime.Parse("1983-12-29")) |]
-//
-//printfn "%A" company.Employees
+let company = ViewModels.Company()
+let me = ViewModels.Person(FirstName = "Dmitry", LastName = "Morozov", DateOfBirth = DateTime.Parse("1974-08-23"))
+
+company.Employees <- ObservableCollection [| me; ViewModels.Person(FirstName = "Ekaterina", LastName = "Blokhina", DateOfBirth = DateTime.Parse("1983-12-29")) |]
+
+printfn "%A" company.Employees
 
