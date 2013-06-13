@@ -55,6 +55,7 @@ type internal ProvidedConstructor =
     /// Add definition location information to the provided constructor.
     member AddDefinitionLocation : line:int * column:int * filePath:string -> unit
     
+    member IsTypeInitializer : bool with get,set
 
 type internal ProvidedMethod = 
     inherit System.Reflection.MethodInfo
@@ -199,6 +200,7 @@ type internal ProvidedField =
     /// Add definition location information to the provided field definition.
     member AddDefinitionLocation : line:int * column:int * filePath:string -> unit
 
+    member SetFieldAttributes : attributes : FieldAttributes -> unit
 
 /// Provides symbolic provided types
 [<Class>]

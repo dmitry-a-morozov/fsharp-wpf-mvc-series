@@ -8,13 +8,6 @@ open System.Collections.ObjectModel
 open FSharp.Windows
 open FSharp.Windows.UIElements
 
-//[<AbstractClass>]
-//type StockPricesChartModel() = 
-//    inherit Model()
-//
-//    abstract StocksInfo : ObservableCollection<StockInfoModel> with get, set
-//    abstract SelectedStock : StockInfoModel with get, set
-
 type StockPricesChartView(control) as this =
     inherit PartialView<unit, StockPricesChartModel, StockPricesChartControl>(control)
 

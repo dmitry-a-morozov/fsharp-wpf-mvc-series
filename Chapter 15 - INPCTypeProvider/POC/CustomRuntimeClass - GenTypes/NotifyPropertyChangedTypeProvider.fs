@@ -5,10 +5,15 @@ open System.Reflection
 open System.IO
 open System.Collections.Generic
 open System.ComponentModel
+open System.Windows
+open System.Windows.Data
 
 open Microsoft.FSharp.Core.CompilerServices
 open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Quotations
+open Microsoft.FSharp.Quotations.Patterns
+open Microsoft.FSharp.Quotations.DerivedPatterns
+open Microsoft.FSharp.Quotations.ExprShape
 
 open Samples.FSharp.ProvidedTypes
 
@@ -77,46 +82,52 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
 
         outerType
 
-    member internal __.MapRecordToModelClass(prototype : Type, processedTypes) = 
+    member internal this.MapRecordToModelClass(prototype, processedTypes) = 
 
         let modelType = ProvidedTypeDefinition(prototype.Name, Some typeof<Model>, IsErased = false)
-        tempAssembly.AddTypes <| [ modelType ]
+        tempAssembly.AddTypes [ modelType ]
 
-        let prototypeName = prototype.AssemblyQualifiedName
-        modelType.AddMember <| ProvidedConstructor([], IsImplicitCtor = true)
+        let mutableProperties = this.AddMutableProperties(prototype, modelType, processedTypes)
+        this.AddDerivedProperties(prototype, modelType, mutableProperties)
 
+        modelType
+
+    member internal this.AddMutableProperties(prototype, modelType, processedTypes) = 
         let pceh = ProvidedField("propertyChangedEvent", typeof<PCEH>)
         modelType.AddMember pceh
 
-        modelType.AddMembersDelayed <| fun () -> 
-            [
-                for p in prototype.GetProperties() do
+        let proccesedProperties = Dictionary()
+        
+        modelType.AddMembers [
+            for p in FSharpType.GetRecordFields prototype do
 
-                    let propertyType = 
-                        let originalPropertyType = p.PropertyType
-                        if originalPropertyType.IsGenericType 
-                        then 
-                            let genericTypeDef = originalPropertyType.GetGenericTypeDefinition()
-                            let xs = 
-                                originalPropertyType.GetGenericArguments()
-                                |> Array.map (fun t -> 
-                                    match processedTypes.TryGetValue t with
-                                    | false, _ -> t
-                                    | true, t' -> upcast t'
-                                )
-                            ProvidedTypeBuilder.MakeGenericType(genericTypeDef, List.ofArray xs)
-                        else
-                            match processedTypes.TryGetValue(originalPropertyType) with
-                            | false, _ -> originalPropertyType
-                            | true, t -> upcast t
+                let propertyType = 
+                    let originalPropertyType = p.PropertyType
+                    if originalPropertyType.IsGenericType 
+                    then 
+                        let genericTypeDef = originalPropertyType.GetGenericTypeDefinition()
+                        let xs = 
+                            originalPropertyType.GetGenericArguments()
+                            |> Array.map (fun t -> 
+                                match processedTypes.TryGetValue t with
+                                | false, _ -> t
+                                | true, t' -> upcast t'
+                            )
+                        ProvidedTypeBuilder.MakeGenericType(genericTypeDef, List.ofArray xs)
+                    else
+                        match processedTypes.TryGetValue(originalPropertyType) with
+                        | false, _ -> originalPropertyType
+                        | true, t -> upcast t
                         
-                    let backingField = ProvidedField(p.Name, propertyType)
-                    modelType.AddMember backingField
+                let backingField = ProvidedField(p.Name, propertyType)
+                modelType.AddMember backingField
 
-                    let propName = p.Name
-                    let property = ProvidedProperty(p.Name, propertyType)
-                    property.GetterCode <- fun args -> Expr.FieldGet(args.[0], backingField)
-                    property.SetterCode <- fun args -> 
+                let propName = p.Name
+                let property = ProvidedProperty(p.Name, propertyType)
+                property.GetterCode <- fun args -> Expr.FieldGet(args.[0], backingField)
+                if p.CanWrite
+                then 
+                    property.SetterCode <- (fun args -> 
                         let this, value = args.[0], args.[1]
                         <@@
                             let newValue = %%Expr.Coerce(value, typeof<obj>)
@@ -128,10 +139,11 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
                                 if notifyPropertyChanged <> null 
                                 then
                                     notifyPropertyChanged.Invoke(%%Expr.Coerce(this, typeof<obj>), PropertyChangedEventArgs propName)                        
-                        @@>
+                        @@>)
 
-                    yield property                   
-            ]
+                proccesedProperties.Add(p.Name, property)
+                yield property                   
+        ]
 
         modelType.AddInterfaceImplementation typeof<System.ComponentModel.INotifyPropertyChanged>
         let event = ProvidedEvent("PropertyChanged", typeof<PCEH>)
@@ -153,7 +165,62 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
         modelType.DefineMethodOverride(addMethod, typeof<INotifyPropertyChanged>.GetMethod "add_PropertyChanged")
         modelType.DefineMethodOverride(removeMethod, typeof<INotifyPropertyChanged>.GetMethod "remove_PropertyChanged")
 
-        modelType
+        proccesedProperties
+
+    member internal this.AddDerivedProperties(prototype, modelType, processeProperties) = 
+
+        let typeInitCode = ResizeArray()
+        let ctorParams = ResizeArray()
+
+        modelType.AddMembers [
+            for p in prototype.GetProperties() do
+                match p with
+                | PropertyGetterWithReflectedDefinition (Lambda (model, Lambda(unitVar, propertyBody))) when not p.CanWrite ->
+                    assert(unitVar.Type = typeof<unit>)
+
+                    let propName, propType = p.Name, p.PropertyType                        
+                    let derivedProperty = ProvidedProperty(propName, propType)
+                    derivedProperty.GetterCode <- fun args ->
+                        let replacement = args.[0]
+                        this.RewriteTargetInstance(model, replacement, processeProperties, propertyBody)
+
+                    let dp = ProvidedField(propName, typeof<DependencyProperty>)
+                    dp.SetFieldAttributes(FieldAttributes.InitOnly ||| FieldAttributes.Static)
+                    modelType.AddMember dp
+
+                    typeInitCode.Add <| Expr.FieldSet(dp, <@@ DependencyProperty.Register(propName, propType, modelType) @@>)
+                    let propertyDependecies = DerivedProperties.getPropertyDependencies model propertyBody |> Seq.toList
+                    ctorParams.Add <| <@@ (%%Expr.FieldGet(dp) : DependencyProperty), propertyDependecies @@>
+
+                    yield derivedProperty
+
+                | _ -> ()
+        ]
+
+        if typeInitCode.Count > 0
+        then
+            let typeInit = ProvidedConstructor([], IsTypeInitializer = true)
+            typeInit.InvokeCode <- fun _ ->
+                typeInitCode |> Seq.reduce (fun x y -> Expr.Sequential(x, y))
+            modelType.AddMember typeInit
+
+        let ctor = ProvidedConstructor([], IsImplicitCtor = true)
+        //let baseCtor = typeof<Model>.GetConstructors().[0]
+        let baseCtor = typeof<Model>.GetConstructor([| typeof<(DependencyProperty * string list)[]> |])
+        ctor.BaseConstructorCall <- fun args -> baseCtor, [ Expr.NewArray(typeof<DependencyProperty * string list>, List.ofSeq ctorParams) ]
+        modelType.AddMember ctor
+
+    member internal this.RewriteTargetInstance(target, replacement, processeProperties, expr) = 
+        let rec loop(target, replacement, expr) = 
+            match expr with 
+            | PropertyGet (Some(Var obj), prop, []) when obj = target -> 
+                assert(processeProperties.ContainsKey prop.Name)
+                Expr.PropertyGet(replacement, processeProperties.[prop.Name])
+            | ShapeVar var -> Expr.Var(var)
+            | ShapeLambda(var, body) -> Expr.Lambda(var, loop(target, replacement, body))  
+            | ShapeCombination(shape, exprs) -> ExprShape.RebuildShapeCombination(shape, exprs |> List.map(fun e -> loop(target, replacement, e)))
+        loop(target, replacement, expr)
+
 
 [<assembly:TypeProviderAssembly>] 
 do()
