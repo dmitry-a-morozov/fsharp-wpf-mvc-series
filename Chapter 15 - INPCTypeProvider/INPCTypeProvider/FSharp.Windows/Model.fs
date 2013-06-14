@@ -195,16 +195,16 @@ and AbstractProperties() =
 
                 | _ -> invocation.Proceed()
 
-[<RequireQualifiedAccess>]
-module Mvc = 
-
-    let inline startDialog(view, controller) = 
-        let model = (^Model : (static member Create : unit -> ^Model ) ())
-        if Mvc<'Events, ^Model>(model, view, controller).StartDialog() then Some model else None
-
-    let inline startWindow(view, controller) = 
-        async {
-            let model = (^Model : (static member Create : unit -> ^Model) ())
-            let! isOk = Mvc<'Events, ^Model>(model, view, controller).StartWindow()
-            return if isOk then Some model else None
-        }
+//[<RequireQualifiedAccess>]
+//module Mvc = 
+//
+//    let inline startDialog(view, controller) = 
+//        let model = (^Model : (static member Create : unit -> ^Model ) ())
+//        if Mvc<'Events, ^Model>(model, view, controller).StartDialog() then Some model else None
+//
+//    let inline startWindow(view, controller) = 
+//        async {
+//            let model = (^Model : (static member Create : unit -> ^Model) ())
+//            let! isOk = Mvc<'Events, ^Model>(model, view, controller).StartWindow()
+//            return if isOk then Some model else None
+//        }

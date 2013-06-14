@@ -3,6 +3,7 @@
 open System
 open System.Reflection
 open System.Reactive
+open System.Reactive.Linq
 open System.ComponentModel
 open System.Runtime.ExceptionServices
 
@@ -26,11 +27,11 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
                     exceptionContinuation = this.OnError event,
                     cancellationContinuation = ignore)
 
-        |> Observer.notifyOnCurrentSynchronizationContext
-        |> Observer.preventReentrancy
 #if DEBUG
         |> Observer.Checked
 #endif
+        |> Observer.preventReentrancy
+        |> Observer.notifyOnDispatcher
         |> view.Subscribe
 
     member this.StartDialog() =

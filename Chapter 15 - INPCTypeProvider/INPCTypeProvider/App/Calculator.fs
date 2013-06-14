@@ -62,16 +62,15 @@ type CalculatorController() =
         | XotYChanging(text, cancel) -> this.EnsureDigitalInput(text, cancel)
 
     member this.Calculate model = 
-        model.ClearAllErrors()
         match model.SelectedOperation with
         |  Models.Add -> 
             model |> Validation.positive <@ fun m -> m.Y @>
-            if not model.HasErrors
+            if not(Validation.hasErrors model)
             then 
                 model.Result <- model.X + model.Y
         | Models.Subtract -> 
             model |> Validation.positive <@ fun m -> m.Y @>
-            if not model.HasErrors
+            if  not(Validation.hasErrors model)
             then 
                 model.Result <- model.X - model.Y
         | Models.Multiply -> 
@@ -79,14 +78,13 @@ type CalculatorController() =
         | Models.Divide -> 
             if model.Y = 0 
             then
-                model |> Validation.setError <@ fun m -> m.Y @> "Attempted to divide by zero."
-                //model.AddError("Y", "Attempted to divide by zero.")
+                model |> Validation.addError <@ fun m -> m.Y @> "Attempted to divide by zero."
             else
                 model.Result <- model.X / model.Y
         
     member this.Hex1 model = 
         let view = HexConverter.view()
-        let childModel = Model.Create() 
+        let childModel = HexConverterModel()
         let controller = HexConverter.controller() 
         let mvc = Mvc(childModel, view, controller)
         childModel.Value <- model.X

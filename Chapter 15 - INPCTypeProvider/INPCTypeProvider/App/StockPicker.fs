@@ -61,7 +61,7 @@ type StockPickerController() =
                 | [| name; lastPrice; high; low; volume |] ->
                     if name = sprintf "\"%s\"" model.Symbol && lastPrice = "0.00"
                     then
-                        model |> Validation.setError <@ fun m -> m.Symbol @> "Invalid security symbol."
+                        model |> Validation.addError <@ fun m -> m.Symbol @> "Invalid security symbol."
                     else
                         model.CompanyName <- name
                         let zeroIfNa = function | "N/A" -> 0M | value -> decimal value

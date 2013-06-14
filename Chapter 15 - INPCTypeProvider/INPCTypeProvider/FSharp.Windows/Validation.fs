@@ -1,12 +1,16 @@
-﻿[<AutoOpen>]
+﻿[<RequireQualifiedAccess>]
 module FSharp.Windows.Validation
 
 open System
+open System.ComponentModel
 
-let inline setError( SingleStepPropertySelector(propertyName, _) : PropertySelector< ^Model, _>) message model = 
+let hasErrors (model : #INotifyDataErrorInfo) = model.HasErrors
+
+let inline addError( SingleStepPropertySelector(propertyName, _) : PropertySelector< ^Model, _>) message (model : #INotifyDataErrorInfo) = 
     (^Model : (member AddError : string * string -> unit) (model, propertyName, message))
 
-let inline clearError expr = setError expr null
+let inline clearError(SingleStepPropertySelector(propertyName, _) : PropertySelector< ^Model, _>) message model = 
+    (^Model : (member SetErrors : string * string list -> unit) (model, propertyName, []))
 
 let inline invalidIf( SingleStepPropertySelector(propertyName, getValue : ^Model -> _)) predicate message model = 
     if model |> getValue |> predicate 

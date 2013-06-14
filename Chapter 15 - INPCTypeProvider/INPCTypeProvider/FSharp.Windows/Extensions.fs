@@ -49,7 +49,17 @@ module Observer =
 
     let create onNext = Observer.Create(Action<_>(onNext))
 
-    let notifyOnCurrentSynchronizationContext observer = 
-        Observer.NotifyOn(observer, SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false))
-
+//    let notifyOnCurrentSynchronizationContext observer = 
+//        Observer.NotifyOn(observer, SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false))
+//
     let preventReentrancy observer = Observer.Synchronize(observer, preventReentrancy = true)
+
+    let notifyOnDispatcher(observer : IObserver<_>) = 
+        let dispatcher = System.Windows.Application.Current.Dispatcher 
+        let invokeOnDispatcher f = if dispatcher.CheckAccess() then f() else dispatcher.BeginInvoke(Action(f), Array.empty) |> ignore 
+        { 
+            new IObserver<_> with 
+                member __.OnNext value = invokeOnDispatcher(fun() -> observer.OnNext value)
+                member __.OnError error = invokeOnDispatcher(fun() -> observer.OnError error)
+                member __.OnCompleted() = invokeOnDispatcher observer.OnCompleted
+        }  
