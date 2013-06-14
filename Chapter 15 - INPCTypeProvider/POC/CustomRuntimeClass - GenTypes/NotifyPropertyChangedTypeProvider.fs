@@ -138,7 +138,8 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
                                 let notifyPropertyChanged = (%%Expr.FieldGet(this, pceh) : PCEH)
                                 if notifyPropertyChanged <> null 
                                 then
-                                    notifyPropertyChanged.Invoke(%%Expr.Coerce(this, typeof<obj>), PropertyChangedEventArgs propName)                        
+                                    notifyPropertyChanged.Invoke(%%Expr.Coerce(this, typeof<obj>), PropertyChangedEventArgs propName)   
+                                    (%%Expr.Coerce(this, typeof<Model>) : Model).SetErrors(propName, [])                     
                         @@>)
 
                 proccesedProperties.Add(p.Name, property)
@@ -205,8 +206,7 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
             modelType.AddMember typeInit
 
         let ctor = ProvidedConstructor([], IsImplicitCtor = true)
-        //let baseCtor = typeof<Model>.GetConstructors().[0]
-        let baseCtor = typeof<Model>.GetConstructor([| typeof<(DependencyProperty * string list)[]> |])
+        let baseCtor = typeof<Model>.GetConstructor(BindingFlags.NonPublic ||| BindingFlags.Instance, null, [| typeof<(DependencyProperty * string list)[]> |], null)
         ctor.BaseConstructorCall <- fun args -> baseCtor, [ Expr.NewArray(typeof<DependencyProperty * string list>, List.ofSeq ctorParams) ]
         modelType.AddMember ctor
 

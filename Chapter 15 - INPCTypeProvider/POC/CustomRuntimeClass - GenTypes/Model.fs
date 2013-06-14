@@ -6,7 +6,7 @@ open System.Collections.Generic
 open System.Windows
 open System.Windows.Data
 
-//[<AbstractClass>]
+[<AbstractClass>]
 type Model(derivedProperties : (DependencyProperty * string list)[]) as this = 
     inherit DependencyObject()
     
