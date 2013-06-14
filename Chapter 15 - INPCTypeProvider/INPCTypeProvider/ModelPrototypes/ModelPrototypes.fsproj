@@ -50,7 +50,7 @@
     <Compile Include="StockInfoModel.fs" />
     <Compile Include="StockPricesChartModel.fs" />
     <Compile Include="HexConverterModel.fs" />
-    <None Include="MainModel.fs" />
+    <Compile Include="MainModel.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
