@@ -8,23 +8,6 @@ open System.Windows.Data
 open FSharp.Windows
 open FSharp.Windows.UIElements
 
-[<AbstractClass>]
-type MainModel() = 
-    inherit Model()
-
-    abstract Calculator : CalculatorModel with get, set
-    abstract TempConveter : TempConveterModel with get, set
-    abstract StockPricesChart : StockPricesChartModel with get, set
-
-    abstract ProcessName : string with get, set
-    abstract ActiveTab : TabItem with get, set
-    [<NotifyDependencyChanged>]
-    member this.Title = sprintf "%s-%O" this.ProcessName this.ActiveTab.Header
-
-    abstract RunningTime : TimeSpan with get, set
-    abstract Paused : bool with get, set
-    abstract Fail : bool with get, set
-
 type MainEvents = 
     | StopWatch
     | StartWatch

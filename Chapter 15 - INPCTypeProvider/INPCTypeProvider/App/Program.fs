@@ -17,7 +17,7 @@ let main _ =
 
     let view = MainView()
     let mvc = 
-        Mvc(MainModel.Create(), view, MainController(stopWatch))
+        Mvc(MainModel(), view, MainController(stopWatch))
             .Compose(stopWatchController, safeStopWatchEventSource())
             <+> (CalculatorController(), CalculatorView(view.Control.Calculator), fun m -> m.Calculator)
             <+> (TempConveterController(), TempConveterView(view.Control.TempConveterControl), fun m -> m.TempConveter)

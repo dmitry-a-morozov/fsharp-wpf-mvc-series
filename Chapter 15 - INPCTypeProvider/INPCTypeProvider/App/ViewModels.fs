@@ -10,7 +10,7 @@ type TempConveterModel = ViewModels.TempConveterModel
 type StockInfoModel = ViewModels.StockInfoModel
 type StockPricesChartModel = ViewModels.StockPricesChartModel
 type HexConverterModel = ViewModels.HexConverterModel
-//type MainModel = ViewModels.MainModel
+type MainModel = ViewModels.MainModel
 
 [<RequireQualifiedAccess>]
 module Mvc = 

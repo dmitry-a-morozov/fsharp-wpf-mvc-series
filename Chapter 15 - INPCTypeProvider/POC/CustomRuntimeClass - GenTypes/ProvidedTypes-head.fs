@@ -1301,6 +1301,13 @@ type AssemblyGenerator(assemblyFileName) =
 #endif
     let typeMap = Dictionary<ProvidedTypeDefinition,TypeBuilder>(HashIdentity.Reference)
     let typeMapExtra = Dictionary<string,TypeBuilder>(HashIdentity.Structural)
+    let uniqueLambdaTypeName = 
+        let counter = ref 0
+        fun () -> 
+            let n = !counter 
+            incr counter 
+            sprintf "Lambda%d" n
+
     member __.Assembly = assembly :> Assembly
     /// Emit the given provided type definitions into an assembly and adjust 'Assembly' property of all type definitions to return that
     /// assembly.
@@ -1484,12 +1491,6 @@ type AssemblyGenerator(assemblyFileName) =
                 [ for ctorArg in implictCtorArgs -> 
                       tb.DefineField(ctorArg.Name, convType ctorArg.ParameterType, FieldAttributes.Private) ]
             
-            let uniqueLambdaTypeName = 
-                let counter = ref 0
-                fun () -> 
-                    let n = !counter 
-                    incr counter 
-                    sprintf "Lambda%d" n
             let rec emitLambda(callSiteIlg : ILGenerator, v : Quotations.Var, body : Quotations.Expr, freeVars : seq<Quotations.Var>, locals : Dictionary<_, LocalBuilder>) =
                 let lambda = assemblyMainModule.DefineType(uniqueLambdaTypeName(), TypeAttributes.Class)
                 let baseType = typedefof<FSharpFunc<_, _>>.MakeGenericType(v.Type, body.Type)
@@ -1531,6 +1532,15 @@ type AssemblyGenerator(assemblyFileName) =
             and emitExpr (ilg: ILGenerator, locals:Dictionary<Quotations.Var,LocalBuilder>, parameterVars) expectedState expr = 
                 let pop () = ilg.Emit(OpCodes.Pop)
                 let popIfEmptyExpected s = if isEmpty s then pop()
+                let emitConvIfNecessary t1 = 
+                    if t1 = typeof<int16> then
+                        ilg.Emit(OpCodes.Conv_I2)
+                    elif t1 = typeof<uint16> then
+                        ilg.Emit(OpCodes.Conv_U2)
+                    elif t1 = typeof<sbyte> then
+                        ilg.Emit(OpCodes.Conv_I1)
+                    elif t1 = typeof<byte> then
+                        ilg.Emit(OpCodes.Conv_U1)
                 /// emits given expression to corresponding IL
                 let rec emit (expectedState : ExpectedStackState) (expr: Quotations.Expr) = 
                     match expr with 
@@ -1633,6 +1643,37 @@ type AssemblyGenerator(assemblyFileName) =
                           ilg.Emit(OpCodes.Castclass, targetTy)
                               
                         popIfEmptyExpected expectedState
+                    | Quotations.DerivedPatterns.SpecificCall <@ (-) @>(None, [t1; t2; t3], [a1; a2]) ->
+                        assert(t1 = t2)
+                        emit ExpectedStackState.Value a1
+                        emit ExpectedStackState.Value a2
+                        if t1 = typeof<decimal> then
+                            ilg.Emit(OpCodes.Call, typeof<decimal>.GetMethod "op_Subtraction")
+                        else
+                            ilg.Emit(OpCodes.Sub)
+                            emitConvIfNecessary t1
+
+                        popIfEmptyExpected expectedState
+
+                    | Quotations.DerivedPatterns.SpecificCall <@ (/) @> (None, [t1; t2; t3], [a1; a2]) ->
+                        assert (t1 = t2)
+                        emit ExpectedStackState.Value a1
+                        emit ExpectedStackState.Value a2
+                        if t1 = typeof<decimal> then
+                            ilg.Emit(OpCodes.Call, typeof<decimal>.GetMethod "op_Division")
+                        else
+                            match Type.GetTypeCode t1 with
+                            | TypeCode.UInt32
+                            | TypeCode.UInt64
+                            | TypeCode.UInt16
+                            | TypeCode.Byte
+                            | _ when t1 = typeof<unativeint> -> ilg.Emit (OpCodes.Div_Un)
+                            | _ -> ilg.Emit(OpCodes.Div)
+
+                            emitConvIfNecessary t1
+
+                        popIfEmptyExpected expectedState
+
                     | Quotations.DerivedPatterns.SpecificCall <@ int @>(None, [sourceTy], [v]) ->
                         emit ExpectedStackState.Value v
                         match Type.GetTypeCode(sourceTy) with
