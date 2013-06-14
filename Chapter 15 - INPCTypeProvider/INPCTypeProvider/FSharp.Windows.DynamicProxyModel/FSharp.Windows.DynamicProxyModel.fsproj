@@ -5,12 +5,12 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>e1fcc7fe-8c2b-4b6e-9b30-d19016e059c8</ProjectGuid>
+    <ProjectGuid>e1c0f0d1-3674-4a1a-8c3b-aa4fe28f01a1</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Mvc.Wpf</RootNamespace>
-    <AssemblyName>Mvc.Wpf</AssemblyName>
+    <RootNamespace>FSharp.Windows.DynamicProxyModel</RootNamespace>
+    <AssemblyName>FSharp.Windows.DynamicProxyModel</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>FSharp.Windows</Name>
+    <Name>FSharp.Windows.DynamicProxyModel</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,7 +20,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Mvc.Wpf.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\FSharp.Windows.DynamicProxyModel.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,9 +29,12 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Mvc.Wpf.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\FSharp.Windows.DynamicProxyModel.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core">
+      <HintPath>..\References\Castle.Core.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
@@ -39,36 +42,20 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Reactive.Core">
-      <HintPath>..\References\System.Reactive.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Interfaces">
-      <HintPath>..\References\System.Reactive.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Linq">
-      <HintPath>..\References\System.Reactive.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.PlatformServices">
-      <HintPath>..\References\System.Reactive.PlatformServices.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Threading" />
-    <Reference Include="System.Threading.Tasks" />
     <Reference Include="System.Xaml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions.fs" />
-    <Compile Include="Binding.fs" />
-    <Compile Include="View.fs" />
-    <Compile Include="Controller.fs" />
-    <Compile Include="Mvc.fs" />
-    <Compile Include="Validation.fs" />
-    <Compile Include="Application.fs" />
+    <Compile Include="Model.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FSharp.Windows\FSharp.Windows.fsproj">
+      <Name>FSharp.Windows</Name>
+      <Project>{e1fcc7fe-8c2b-4b6e-9b30-d19016e059c8}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

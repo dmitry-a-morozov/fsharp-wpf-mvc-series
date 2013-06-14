@@ -5,13 +5,11 @@ open System
 [<AutoOpen>]
 module Extensions = 
 
-    open LanguagePrimitives
     open Microsoft.FSharp.Quotations
     open Microsoft.FSharp.Quotations.Patterns
 
     let inline undefined<'T> = raise<'T> <| NotImplementedException()
 
-    let inline positive x = GenericGreaterThan x GenericZero
 
     type PropertySelector<'T, 'a> = Expr<('T -> 'a)>
 
@@ -22,6 +20,12 @@ module Extensions =
             property.Name, fun(this : 'T) -> property.GetValue(this, [||]) |> unbox<'a>
         | _ -> invalidArg "Property selector quotation" (string expr)
 
+[<RequireQualifiedAccess>]
+module Number = 
+    open LanguagePrimitives
+
+    let inline positive x = GenericGreaterThan x GenericZero
+    
 [<RequireQualifiedAccess>]
 module Observable =
     let mapTo value = Observable.map(fun _ -> value)
@@ -44,14 +48,9 @@ module Observable =
 module Observer =
 
     open System.Reactive
-    open System.Threading
-    open System.Reactive.Concurrency
 
     let create onNext = Observer.Create(Action<_>(onNext))
 
-//    let notifyOnCurrentSynchronizationContext observer = 
-//        Observer.NotifyOn(observer, SynchronizationContextScheduler(SynchronizationContext.Current, alwaysPost = false))
-//
     let preventReentrancy observer = Observer.Synchronize(observer, preventReentrancy = true)
 
     let notifyOnDispatcher(observer : IObserver<_>) = 

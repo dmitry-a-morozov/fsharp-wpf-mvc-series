@@ -14,8 +14,6 @@ open Microsoft.FSharp.Quotations.ExprShape
 
 open Castle.DynamicProxy
 
-open Binding.Patterns
-
 type NotifyDependencyChangedAttribute = ReflectedDefinitionAttribute
 
 module ModelExtensions = 
@@ -32,24 +30,39 @@ module ModelExtensions =
 
     let (|Abstract|_|) (m : MethodInfo) = if m.IsAbstract then Some() else None
 
-    type Expr with
+    type MemberInfo with
+        member internal this.IsNullableValue =  
+            this.DeclaringType.IsGenericType && this.DeclaringType.GetGenericTypeDefinition() = typedefof<Nullable<_>> && this.Name = "get_Value"
 
-        member this.ExpandLetBindings() = 
-            match this with 
-            | Let(binding, expandTo, tail) -> 
-                tail.Substitute(fun var -> if var = binding then Some expandTo else None).ExpandLetBindings() 
-            | ShapeVar var -> Expr.Var(var)
-            | ShapeLambda(var, body) -> Expr.Lambda(var, body.ExpandLetBindings())  
-            | ShapeCombination(shape, exprs) -> ExprShape.RebuildShapeCombination(shape, exprs |> List.map(fun e -> e.ExpandLetBindings()))
+    let (|PropertyPathOfDependency|_|) this expr = 
+        let rec loop e acc = 
+            match e with
+            | PropertyGet( Some tail, property, []) -> 
+                if property.IsNullableValue 
+                then loop tail acc 
+                else loop tail (property.Name :: acc)
+            | Var x when x = this -> acc
+            | _ -> []
 
-        member this.Dependencies = 
-            seq {
-                match this with 
-                | SourceAndPropertyPath x -> yield x
-                | ShapeVar _ -> ()
-                | ShapeLambda(_, body) -> yield! body.Dependencies   
-                | ShapeCombination(_, exprs) -> for subExpr in exprs do yield! subExpr.Dependencies 
-            }
+        match loop expr [] with
+        | [] -> None
+        | xs -> xs |> String.concat "." |> Some
+
+    let rec expandLetBindings = function
+        | Let(binding, expandTo, tail) -> 
+            tail.Substitute(fun var -> if var = binding then Some expandTo else None) |> expandLetBindings
+        | ShapeVar var -> Expr.Var(var)
+        | ShapeLambda(var, body) -> Expr.Lambda(var, expandLetBindings body)  
+        | ShapeCombination(shape, exprs) -> ExprShape.RebuildShapeCombination(shape, exprs |> List.map expandLetBindings)
+
+    let rec extractDependencies this propertyBody = 
+        seq {
+            match propertyBody with 
+            | PropertyPathOfDependency this path -> yield path
+            | ShapeVar _ -> ()
+            | ShapeLambda(_, body) -> yield! extractDependencies this body   
+            | ShapeCombination(_, exprs) -> for subExpr in exprs do yield! extractDependencies this subExpr
+        }
 
     let (|DependentProperty|_|) (memberInfo : MemberInfo) = 
         match memberInfo with
@@ -61,13 +74,10 @@ module ModelExtensions =
                 binding.Bindings.Add self
 
                 propertyBody
-                    .ExpandLetBindings()
-                    .Dependencies
+                    |> expandLetBindings
+                    |> extractDependencies model
                     |> Seq.distinct 
-                    |> Seq.choose(function 
-                        | Some source, path when source = model -> Some(Binding(path, RelativeSource = RelativeSource.Self))
-                        | _ -> None)
-                    |> Seq.iter binding.Bindings.Add
+                    |> Seq.iter (fun path -> binding.Bindings.Add <| Binding(path, RelativeSource = RelativeSource.Self))
 
                 binding.Converter <- {
                     new IMultiValueConverter with
@@ -93,15 +103,18 @@ module ModelExtensions =
 open ModelExtensions
 
 [<AbstractClass>]
-type Model() = 
+type Model() as this = 
     inherit DependencyObject()
 
-    static let dependentProperties = Dictionary()
     static let proxyFactory = ProxyGenerator()
-    let errors = Dictionary()
-    let propertyChangedEvent = Event<_,_>()
-    let errorsChanged = Event<_,_>()
 
+    static let dependentProperties = Dictionary()
+
+    let propertyChangedEvent = Event<_,_>()
+
+    let errors = Dictionary()
+    let errorsChangedEvent = Event<_,_>()
+    let triggerErrorsChanged propertyName = errorsChangedEvent.Trigger(this, DataErrorsChangedEventArgs propertyName)
     let getErrorsOrEmpty propertyName = match errors.TryGetValue propertyName with | true, errors -> errors | false, _ -> []
 
     static let options = 
@@ -135,7 +148,7 @@ type Model() =
                 match invocation.Method, invocation.InvocationTarget with 
                     | PropertySetter propertyName, (:? Model as model) -> 
                         model.TriggerPropertyChanged propertyName
-                        model.ClearErrors propertyName 
+                        model.SetErrors(propertyName, []) 
                     | _ -> ()
     }
 
@@ -158,23 +171,25 @@ type Model() =
         propertyChangedEvent.Trigger(this, PropertyChangedEventArgs propertyName)
 
     interface INotifyDataErrorInfo with
-        member this.HasErrors = this.HasErrors
-        member this.GetErrors propertyName = upcast getErrorsOrEmpty propertyName
+        member this.HasErrors = 
+            errors.Values |> Seq.collect id |> Seq.exists (not << String.IsNullOrEmpty)
+        member this.GetErrors propertyName = 
+            if String.IsNullOrEmpty propertyName 
+            then upcast errors.Values 
+            else upcast getErrorsOrEmpty propertyName
         [<CLIEvent>]
-        member this.ErrorsChanged = errorsChanged.Publish
+        member this.ErrorsChanged = errorsChangedEvent.Publish
 
     member internal this.TriggerErrorsChanged propertyName = 
-        errorsChanged.Trigger(this, DataErrorsChangedEventArgs propertyName)
+        errorsChangedEvent.Trigger(this, DataErrorsChangedEventArgs propertyName)
 
-    member this.AddErrors(propertyName, [<ParamArray>] messages) = 
-        errors.[propertyName] <- getErrorsOrEmpty propertyName @ List.ofArray messages 
-        this.TriggerErrorsChanged propertyName
-    member this.AddError(propertyName, message : string) = this.AddErrors(propertyName, message)
-    member this.ClearErrors propertyName = 
-        errors.Remove propertyName |> ignore
-        this.TriggerErrorsChanged propertyName
-    member this.ClearAllErrors() = errors.Keys |> Seq.toArray |> Array.iter this.ClearErrors
-    member this.HasErrors = errors.Values |> Seq.collect id |> Seq.exists (not << String.IsNullOrEmpty)
+    member this.SetErrors(propertyName, messages) = 
+        errors.[propertyName] <- messages
+        triggerErrorsChanged propertyName
+
+    member this.AddError(propertyName, message) = 
+        errors.[propertyName] <- message :: getErrorsOrEmpty propertyName 
+        triggerErrorsChanged propertyName
 
 and AbstractProperties() =
     let data = Dictionary()
@@ -195,16 +210,16 @@ and AbstractProperties() =
 
                 | _ -> invocation.Proceed()
 
-//[<RequireQualifiedAccess>]
-//module Mvc = 
-//
-//    let inline startDialog(view, controller) = 
-//        let model = (^Model : (static member Create : unit -> ^Model ) ())
-//        if Mvc<'Events, ^Model>(model, view, controller).StartDialog() then Some model else None
-//
-//    let inline startWindow(view, controller) = 
-//        async {
-//            let model = (^Model : (static member Create : unit -> ^Model) ())
-//            let! isOk = Mvc<'Events, ^Model>(model, view, controller).StartWindow()
-//            return if isOk then Some model else None
-//        }
+[<RequireQualifiedAccess>]
+module Mvc = 
+
+    let inline startDialog(view, controller) = 
+        let model = (^Model : (static member Create : unit -> ^Model ) ())
+        if Mvc<'Events, ^Model>(model, view, controller).StartDialog() then Some model else None
+
+    let inline startWindow(view, controller) = 
+        async {
+            let model = (^Model : (static member Create : unit -> ^Model) ())
+            let! isOk = Mvc<'Events, ^Model>(model, view, controller).StartWindow()
+            return if isOk then Some model else None
+        }
