@@ -22,6 +22,7 @@ type Model(derivedProperties : (DependencyProperty * string list)[]) as this =
             binding.Bindings.Add self
             for path in dependecies do
                 binding.Bindings.Add <| Binding(path, RelativeSource = RelativeSource.Self)
+
             let p' = this.GetType().GetProperty(dp.Name)
 
             binding.Converter <- {
