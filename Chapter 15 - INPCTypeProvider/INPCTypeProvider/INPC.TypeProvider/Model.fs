@@ -11,8 +11,8 @@ type Model(derivedProperties : (DependencyProperty * string list)[]) as this =
     inherit DependencyObject()
     
     let errors = Dictionary()
-    let errorsChangedEvent = Event<_,_>()
-    let triggerErrorsChanged propertyName = errorsChangedEvent.Trigger(this, DataErrorsChangedEventArgs propertyName)
+    let errorsChanged = Event<_,_>()
+    let triggerErrorsChanged propertyName = errorsChanged.Trigger(this, DataErrorsChangedEventArgs propertyName)
     let getErrorsOrEmpty propertyName = match errors.TryGetValue propertyName with | true, errors -> errors | false, _ -> []
 
     do 
@@ -51,7 +51,7 @@ type Model(derivedProperties : (DependencyProperty * string list)[]) as this =
             then upcast errors.Values 
             else upcast getErrorsOrEmpty propertyName
         [<CLIEvent>]
-        member this.ErrorsChanged = errorsChangedEvent.Publish
+        member this.ErrorsChanged = errorsChanged.Publish
 
     member this.SetErrors(propertyName, messages) = 
         errors.[propertyName] <- messages

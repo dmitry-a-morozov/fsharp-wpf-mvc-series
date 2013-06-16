@@ -33,12 +33,8 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
     do 
         tempAssembly.AddTypes <| [ providerType ]
 
-        let parameters = [
-            ProvidedStaticParameter("prototypesAssembly", typeof<string>)
-        ]
-
         providerType.DefineStaticParameters(
-            parameters, 
+            parameters = [ ProvidedStaticParameter("prototypesAssembly", typeof<string>) ], 
             instantiationFunction = (fun typeName args ->   
                 let fileName = string args.[0]
                 let key = typeName, fileName
@@ -93,7 +89,7 @@ type public NotifyPropertyChangedTypeProvider(config : TypeProviderConfig) as th
         modelType
 
     member internal this.AddMutableProperties(prototype, modelType, processedTypes) = 
-        let pceh = ProvidedField("propertyChangedEvent", typeof<PCEH>)
+        let pceh = ProvidedField("propertyChanged", typeof<PCEH>)
         modelType.AddMember pceh
 
         let proccesedProperties = Dictionary()

@@ -4,7 +4,6 @@
 //[<Measure>] type fahrenheit
 
 type TempConveterModel = {
-
     mutable Celsius : float //<celsius> 
     mutable Fahrenheit : float //<fahrenheit>
     mutable ResponseStatus : string
