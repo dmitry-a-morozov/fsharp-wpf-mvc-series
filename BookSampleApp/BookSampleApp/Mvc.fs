@@ -7,10 +7,6 @@ type IView<'Events, 'Model> =
 
     abstract SetBindings : 'Model -> unit
 
-type EventHandler<'Model> = 
-    | Sync of ('Model -> unit)
-    | Async of ('Model -> Async<unit>)
-
 type IController<'Events, 'Model> =
     abstract InitModel : 'Model -> unit
     abstract EventHandler : ('Events -> 'Model -> unit)

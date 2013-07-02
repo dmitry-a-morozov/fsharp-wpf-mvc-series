@@ -9,6 +9,7 @@ open System.Windows.Threading
 type MainEvents = 
     | InstrumentInfo
     | LivePriceUpdates of decimal
+    | FlipPosition 
     | Start
 
 type MainView(window : Window) = 
@@ -20,19 +21,28 @@ type MainView(window : Window) =
     let instrumentName : TextBlock = window ? InstrumentName
     let price : TextBlock = window ? Price
     let livePriceUpdates : CheckBox = window ? LivePriceUpdates
+
+    let positionSize : TextBox = window ? PositionSize
+    let flipPosition : Button = window ? FlipPosition
+    let positionOpenedAt : TextBlock = window ? OpenedAt
+    let positionClosedAt : TextBlock = window ? ClosedAt
+    let positionPnL : TextBlock = window ? PnL
+    let slider : Slider = window ? Indicator
+    let positionPnLPct : TextBlock = window ? PositionPnLPct
+
+    let stopLossMargin : TextBox = window ? StopLossMargin
+    let takeProfitMargin : TextBox = window ? TakeProfitMargin
     let start : Button = window ? Start
 
     //price feed simulation
     let priceFeed = DispatcherTimer(Interval = TimeSpan.FromSeconds 0.5)
-    [<Literal>]
-    let priceFluctuationPct = 20
     let mutable nextPrice = fun() -> 0M
     do
         livePriceUpdates.Checked |> Event.add (fun _ -> 
             let lastKnownPrice = decimal price.Text
             let random = Random(Seed = int lastKnownPrice)
-            let delta = int lastKnownPrice * priceFluctuationPct / 100
-            nextPrice <- fun() -> lastKnownPrice + decimal(random.Next(- delta, delta))
+            let deviation = int(lastKnownPrice / 2M)
+            nextPrice <- fun() -> lastKnownPrice + decimal(random.Next(-deviation, deviation))
         )
 
     interface IView<MainEvents, MainModel> with
@@ -40,19 +50,43 @@ type MainView(window : Window) =
             let xs = 
                 [
                     instrumentInfo.Click |> Observable.map (fun _ -> InstrumentInfo)
-                    start.Click |> Observable.map (fun _ -> Start)
-
                     priceFeed.Tick |> Observable.map (fun _ -> LivePriceUpdates(nextPrice()))
-
+                    flipPosition.Click |> Observable.map (fun _ -> FlipPosition)
+                    start.Click |> Observable.map (fun _ -> System.Diagnostics.Debug.WriteLine("Start: {0}, End: {1}",slider.SelectionStart, slider.SelectionEnd); Start)
                 ] |> List.reduce Observable.merge 
             xs.Subscribe observer
 
         member this.SetBindings model = 
             window.DataContext <- model
 
-            symbol.CharacterCasing <- CharacterCasing.Upper
             symbol.SetBinding(TextBox.TextProperty, "Symbol") |> ignore
             instrumentName.SetBinding(TextBlock.TextProperty, Binding(path = "InstrumentName", StringFormat = "Name : {0}")) |> ignore
             price.SetBinding(TextBlock.TextProperty, "Price") |> ignore
             livePriceUpdates.SetBinding(CheckBox.IsCheckedProperty, "LivePriceUpdates") |> ignore
             livePriceUpdates.SetBinding(CheckBox.IsCheckedProperty, Binding("IsEnabled", Mode = BindingMode.OneWayToSource, Source = priceFeed)) |> ignore
+
+            flipPosition.SetBinding(Button.ContentProperty, "PositionAction") |> ignore
+            positionSize.SetBinding(TextBox.TextProperty, "PositionSize") |> ignore
+            positionOpenedAt.SetBinding(TextBlock.TextProperty, "PositionOpenedAt") |> ignore
+            positionClosedAt.SetBinding(TextBlock.TextProperty, "PositionClosedAt") |> ignore
+            positionPnL.SetBinding(TextBlock.TextProperty, "PositionPnL") |> ignore
+
+            slider.SetBinding(Slider.ValueProperty, Binding("PositionChangeRatio", FallbackValue = 0.0)) |> ignore
+            slider.SetBinding(Slider.SelectionStartProperty, Binding("StopLossMargin", FallbackValue = 0.0)) |> ignore
+            slider.SetBinding(Slider.SelectionEndProperty, Binding("TakeProfitMargin", FallbackValue = 0.0)) |> ignore
+            positionPnLPct.SetBinding(TextBlock.TextProperty, Binding("PositionChangeRatio", StringFormat = "{0:#0.00}%")) |> ignore
+
+            positionPnLPct.SetBinding(
+                TextBlock.ForegroundProperty, 
+                Binding("PositionChangeRatio", Converter = {
+                    new IValueConverter with
+                        member this.Convert(value, _, _, _) = 
+                            match value with 
+                            | :? decimal as x -> box(if x < 0M then "Red" else "Green") 
+                            | _ -> DependencyProperty.UnsetValue
+                        member this.ConvertBack(_, _, _, _) = DependencyProperty.UnsetValue
+                })
+            ) |> ignore
+
+            stopLossMargin.SetBinding(TextBox.TextProperty, "StopLossMargin") |> ignore
+            takeProfitMargin.SetBinding(TextBox.TextProperty, "TakeProfitMargin") |> ignore
