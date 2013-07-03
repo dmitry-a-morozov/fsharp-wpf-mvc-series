@@ -5,6 +5,7 @@ open Microsoft.FSharp.Linq
 open Linq.NullableOperators
 
 type PositionAction = Open = 0 | Close = 1
+type StrategyAction = Start = 0 | Stop = 1
 
 type MainModel() =
     inherit Model() 
@@ -20,10 +21,10 @@ type MainModel() =
     let mutable positionClosedAt = Nullable<decimal>()
     let mutable positionPnL = Nullable<decimal>()
     let mutable positionChangeRatio = Nullable<decimal>()
+
     let mutable stopLossMargin = Nullable<decimal>()
     let mutable takeProfitMargin = Nullable<decimal>()
-
-    let mutable exitStrategyStarted = false
+    let mutable strategyAction = StrategyAction.Start
 
     member __.Symbol with get() = symbol and set value = symbol <- value; base.NotifyPropertyChanged "Symbol"
     member __.InstrumentName with get() = instrumentName and set value = instrumentName <- value; base.NotifyPropertyChanged "InstrumentName"
@@ -36,10 +37,10 @@ type MainModel() =
     member __.PositionClosedAt with get() = positionClosedAt and set value = positionClosedAt <- value; base.NotifyPropertyChanged "PositionClosedAt"
     member __.PositionPnL with get() = positionPnL and set value = positionPnL <- value; base.NotifyPropertyChanged "PositionPnL"
     member __.PositionChangeRatio with get() = positionChangeRatio and set value = positionChangeRatio <- value; base.NotifyPropertyChanged "PositionChangeRatio"
+
     member __.StopLossMargin with get() = stopLossMargin and set value = stopLossMargin <- value; base.NotifyPropertyChanged "StopLossMargin"
     member __.TakeProfitMargin with get() = takeProfitMargin and set value = takeProfitMargin <- value; base.NotifyPropertyChanged "TakeProfitMargin"
+    member __.StrategyAction with get() = strategyAction and set value = strategyAction <- value; base.NotifyPropertyChanged "StrategyAction"
     
     member this.PositionOpenValue = Nullable.decimal this.PositionSize ?*? this.PositionOpenedAt
     member this.PositionCurrentValue = Nullable.decimal this.PositionSize ?*? this.Price
-
-    member __.ExitStrategyStarted with get() = exitStrategyStarted and set value = exitStrategyStarted <- value; base.NotifyPropertyChanged "ExitStrategyStarted"

@@ -15,11 +15,13 @@ type MainContoller(symbology : string -> Symbology.Instrument option) =
             model.TakeProfitMargin <- Nullable 50M
             model.PositionChangeRatio <- Nullable 00.00M
 
+            model.StrategyAction <- StrategyAction.Start
+
         member this.EventHandler = function 
             | InstrumentInfo -> this.GetInstrumentInfo
             | LivePriceUpdates newPrice -> this.UpdateCurrentPrice newPrice
             | FlipPosition -> this.FlipPosition
-            | Start -> this.Start
+            | StrategyCommand -> this.StrategyCommand
 
     member this.GetInstrumentInfo(model : MainModel) = 
         match symbology model.Symbol with
@@ -36,7 +38,7 @@ type MainContoller(symbology : string -> Symbology.Instrument option) =
         then 
             model.PositionPnL <- model.PositionCurrentValue ?-? model.PositionOpenValue
             model.PositionChangeRatio <- ((model.PositionCurrentValue ?-? model.PositionOpenValue) ?/? model.PositionOpenValue) ?* 100M
-            if model.ExitStrategyStarted 
+            if model.StrategyAction = StrategyAction.Stop 
                 && (model.PositionChangeRatio.Value >= model.TakeProfitMargin.Value || model.PositionChangeRatio.Value <= model.StopLossMargin.Value)
             then    
                 model.PositionClosedAt <- model.Price
@@ -51,8 +53,13 @@ type MainContoller(symbology : string -> Symbology.Instrument option) =
             assert (model.PositionAction = PositionAction.Close)
             model.PositionClosedAt <- model.Price
             model.PositionAction <- PositionAction.Open
+            model.StrategyAction <- StrategyAction.Start
 
-    member this.Start  (model : MainModel) = 
-        if model.PositionOpenedAt.HasValue && not model.PositionClosedAt.HasValue
+    member this.StrategyCommand  (model : MainModel) = 
+        if model.StrategyAction = StrategyAction.Start  
         then 
-            model.ExitStrategyStarted <- true
+            assert (model.PositionOpenedAt.HasValue && not model.PositionClosedAt.HasValue)
+            model.StrategyAction <- StrategyAction.Stop
+        else
+            assert (model.StrategyAction = StrategyAction.Stop)
+            model.StrategyAction <- StrategyAction.Start

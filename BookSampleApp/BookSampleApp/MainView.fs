@@ -10,7 +10,7 @@ type MainEvents =
     | InstrumentInfo
     | LivePriceUpdates of decimal
     | FlipPosition 
-    | Start
+    | StrategyCommand
 
 type MainView(window : Window) = 
 
@@ -32,7 +32,7 @@ type MainView(window : Window) =
 
     let stopLossMargin : TextBox = window ? StopLossMargin
     let takeProfitMargin : TextBox = window ? TakeProfitMargin
-    let start : Button = window ? Start
+    let strategyAction : Button = window ? StrategyAction
 
     //price feed simulation
     let priceFeed = DispatcherTimer(Interval = TimeSpan.FromSeconds 0.5)
@@ -52,7 +52,7 @@ type MainView(window : Window) =
                     instrumentInfo.Click |> Observable.map (fun _ -> InstrumentInfo)
                     priceFeed.Tick |> Observable.map (fun _ -> LivePriceUpdates(nextPrice()))
                     flipPosition.Click |> Observable.map (fun _ -> FlipPosition)
-                    start.Click |> Observable.map (fun _ -> System.Diagnostics.Debug.WriteLine("Start: {0}, End: {1}",slider.SelectionStart, slider.SelectionEnd); Start)
+                    strategyAction.Click |> Observable.map (fun _ -> StrategyCommand)
                 ] |> List.reduce Observable.merge 
             xs.Subscribe observer
 
@@ -90,3 +90,4 @@ type MainView(window : Window) =
 
             stopLossMargin.SetBinding(TextBox.TextProperty, "StopLossMargin") |> ignore
             takeProfitMargin.SetBinding(TextBox.TextProperty, "TakeProfitMargin") |> ignore
+            strategyAction.SetBinding(Button.ContentProperty, "StrategyAction") |> ignore
