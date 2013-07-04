@@ -40,9 +40,9 @@ type MainView(window : Window) =
     do
         livePriceUpdates.Checked |> Event.add (fun _ -> 
             let lastKnownPrice = decimal price.Text
-            let random = Random(Seed = int lastKnownPrice)
+            let random = Random()//Seed = int lastKnownPrice)
             let deviation = int(lastKnownPrice / 2M)
-            nextPrice <- fun() -> lastKnownPrice + decimal(random.Next(-deviation, deviation))
+            nextPrice <- fun() -> lastKnownPrice + decimal(random.Next(-deviation / 2, deviation))
         )
 
     interface IView<MainEvents, MainModel> with
@@ -74,7 +74,7 @@ type MainView(window : Window) =
             slider.SetBinding(Slider.ValueProperty, Binding("PositionChangeRatio", FallbackValue = 0.0)) |> ignore
             slider.SetBinding(Slider.SelectionStartProperty, Binding("StopLossMargin", FallbackValue = 0.0)) |> ignore
             slider.SetBinding(Slider.SelectionEndProperty, Binding("TakeProfitMargin", FallbackValue = 0.0)) |> ignore
-            positionPnLPct.SetBinding(TextBlock.TextProperty, Binding("PositionChangeRatio", StringFormat = "{0:#0.00}%")) |> ignore
+            positionPnLPct.SetBinding(TextBlock.TextProperty, Binding("PositionChangeRatio", StringFormat = "{0:00.00}%")) |> ignore
 
             positionPnLPct.SetBinding(
                 TextBlock.ForegroundProperty, 

@@ -3,6 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Height="530" Width="500"
         Title="Mini Trader">
+    <Window.Resources>
+        <!--<local:NumberedTickBar x:Key="Test"/>-->
+        <ResourceDictionary Source="Slider.CustomContentTemplate.xaml"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -10,9 +14,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1.2*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="1.8*"/>
+            <ColumnDefinition />
+            <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
         <GroupBox Grid.Row="0"  Margin="5" Padding="5" Header="Instrument">
@@ -87,14 +91,15 @@
                 <Button Grid.Row="2" Grid.ColumnSpan="2"  Margin="5" Height="30" Name="StrategyAction" Content="Start"/>
             </Grid>
         </GroupBox>
-        
-        <Slider Grid.Column="1" Grid.RowSpan="3" Name="Indicator" Orientation="Vertical" Margin="20, 5"
+
+        <Slider Style="{StaticResource SliderStyle1}" Name="Indicator" Grid.Column="1" Grid.RowSpan="3" Orientation="Vertical" Margin="20, 5"
                 TickPlacement="BottomRight" Minimum="-100" Maximum="100" TickFrequency="10" Value="0" IsSelectionRangeEnabled="True">
             <Slider.Resources>
                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Black" />
                 <SolidColorBrush x:Key="{x:Static SystemColors.ControlDarkDarkBrushKey}" Color="Silver" />
             </Slider.Resources>
         </Slider>
-        <TextBlock Grid.Column="2" Grid.Row="1" Name="PositionPnLPct" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="24" />
+
+        <TextBlock Grid.Column="2" Grid.Row="1" Name="PositionPnLPct" VerticalAlignment="Center" FontSize="24"/>
     </Grid>
 </Window>

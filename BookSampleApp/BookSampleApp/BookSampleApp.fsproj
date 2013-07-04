@@ -41,6 +41,8 @@
     <Compile Include="Validation.fs" />
     <Compile Include="Model.fs" />
     <Compile Include="MainModel.fs" />
+    <Compile Include="LabeledVerticalTickBar.fs" />
+    <Resource Include="Slider.CustomContentTemplate.xaml" />
     <Resource Include="MainWindow.xaml" />
     <Compile Include="MainView.fs" />
     <Compile Include="Symbology.fs" />
@@ -58,6 +60,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xaml" />
+    <Reference Include="UIAutomationTypes" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
