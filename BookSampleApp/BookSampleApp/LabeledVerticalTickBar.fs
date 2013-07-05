@@ -1,4 +1,4 @@
-﻿namespace MyNameSpace
+﻿namespace global
 
 open System.Windows.Controls.Primitives
 open System.Windows.Media

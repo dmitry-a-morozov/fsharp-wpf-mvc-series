@@ -100,6 +100,6 @@
             </Slider.Resources>
         </Slider>
 
-        <TextBlock Grid.Column="2" Grid.Row="1" Name="PositionPnLPct" VerticalAlignment="Center" FontSize="24"/>
+        <TextBlock Grid.Column="2" Grid.Row="0" Name="PositionPnLPct" VerticalAlignment="Center" FontSize="24"/>
     </Grid>
 </Window>

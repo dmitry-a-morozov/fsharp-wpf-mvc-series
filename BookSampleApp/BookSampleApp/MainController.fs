@@ -43,6 +43,7 @@ type MainContoller(symbology : string -> Symbology.Instrument option) =
             then    
                 model.PositionClosedAt <- model.Price
                 model.PositionAction <- PositionAction.Open
+                model.StrategyAction <- StrategyAction.Start
 
     member this.FlipPosition (model : MainModel) = 
         if model.PositionAction = PositionAction.Open
