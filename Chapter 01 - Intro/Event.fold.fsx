@@ -1,11 +1,12 @@
 ﻿
-type Events = 
-    | Add of int 
-    | Subtract of int
-
-type View = IEvent<Events>  
 
 type Model = { State : int }
+
+type View = IEvent<Add of int>  
+
+and Events = 
+    | Add of int 
+    | Subtract of int
 
 type Controller = Events -> Model -> Model
 
