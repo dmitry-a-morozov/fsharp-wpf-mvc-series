@@ -1,6 +1,7 @@
 ﻿namespace global
 
 open System
+open System.Windows
 open Microsoft.FSharp.Linq
 open Linq.NullableOperators
 
@@ -20,10 +21,9 @@ type MainModel() =
     let mutable positionOpenedAt = Nullable<decimal>()
     let mutable positionClosedAt = Nullable<decimal>()
     let mutable positionPnL = Nullable<decimal>()
-    let mutable positionChangeRatio = Nullable<decimal>()
 
-    let mutable stopLossMargin = Nullable<decimal>()
-    let mutable takeProfitMargin = Nullable<decimal>()
+    let mutable stopLossAt = Nullable<decimal>()
+    let mutable takeProfitAt = Nullable<decimal>()
     let mutable strategyAction = StrategyAction.Start
 
     member __.Symbol with get() = symbol and set value = symbol <- value; base.NotifyPropertyChanged "Symbol"
@@ -36,10 +36,9 @@ type MainModel() =
     member __.PositionOpenedAt with get() = positionOpenedAt and set value = positionOpenedAt <- value; base.NotifyPropertyChanged "PositionOpenedAt"
     member __.PositionClosedAt with get() = positionClosedAt and set value = positionClosedAt <- value; base.NotifyPropertyChanged "PositionClosedAt"
     member __.PositionPnL with get() = positionPnL and set value = positionPnL <- value; base.NotifyPropertyChanged "PositionPnL"
-    member __.PositionChangeRatio with get() = positionChangeRatio and set value = positionChangeRatio <- value; base.NotifyPropertyChanged "PositionChangeRatio"
 
-    member __.StopLossMargin with get() = stopLossMargin and set value = stopLossMargin <- value; base.NotifyPropertyChanged "StopLossMargin"
-    member __.TakeProfitMargin with get() = takeProfitMargin and set value = takeProfitMargin <- value; base.NotifyPropertyChanged "TakeProfitMargin"
+    member __.StopLossAt with get() = stopLossAt and set value = stopLossAt <- value; base.NotifyPropertyChanged "StopLossAt"
+    member __.TakeProfitAt with get() = takeProfitAt and set value = takeProfitAt <- value; base.NotifyPropertyChanged "TakeProfitAt"
     member __.StrategyAction with get() = strategyAction and set value = strategyAction <- value; base.NotifyPropertyChanged "StrategyAction"
     
     member this.PositionOpenValue = Nullable.decimal this.PositionSize ?*? this.PositionOpenedAt
