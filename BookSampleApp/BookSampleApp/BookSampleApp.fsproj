@@ -41,7 +41,6 @@
     <Compile Include="Validation.fs" />
     <Compile Include="Model.fs" />
     <Compile Include="MainModel.fs" />
-    <Compile Include="LabeledVerticalTickBar.fs" />
     <Resource Include="MainWindow.xaml" />
     <Compile Include="MainView.fs" />
     <Compile Include="Symbology.fs" />

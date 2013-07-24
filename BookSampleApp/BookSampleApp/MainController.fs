@@ -14,14 +14,12 @@ type MainContoller(symbology : string -> Symbology.Instrument option) =
 //            model.StopLossMargin <- Nullable -50M
 //            model.TakeProfitMargin <- Nullable 50M
 //            model.PositionChangeRatio <- Nullable 00.00M
-
-            model.StrategyAction <- StrategyAction.Start
+            ()
 
         member this.EventHandler = function 
             | InstrumentInfo -> this.GetInstrumentInfo
             | PriceUpdate newPrice -> this.UpdateCurrentPrice newPrice
-            | FlipPosition -> this.FlipPosition
-            | StrategyCommand -> this.StrategyCommand
+            | BuyOrSell -> this.MoveToNetxState
 
     member this.GetInstrumentInfo(model : MainModel) = 
         match symbology model.Symbol with
@@ -32,33 +30,24 @@ type MainContoller(symbology : string -> Symbology.Instrument option) =
         ()
 
     member this.UpdateCurrentPrice newPrice (model : MainModel) =
+        let prevPrice = model.Price
         model.Price <- Nullable newPrice
-        if model.PositionOpenedAt.HasValue && not model.PositionClosedAt.HasValue
-        then 
-            model.PositionPnL <- model.PositionCurrentValue ?-? model.PositionOpenValue
-            if model.StrategyAction = StrategyAction.Stop 
-                && (model.Price ?>=? model.TakeProfitAt || model.Price ?<=? model.StopLossAt)
-            then    
-                model.PositionClosedAt <- model.Price
-                model.PositionAction <- PositionAction.Open
-                model.StrategyAction <- StrategyAction.Start
+        match model.PositionState with
+        | PositionState.Opened -> 
+            model.PnL <- model.PositionCurrentValue ?-? model.PositionOpenValue
+            let takeProfitLimit = prevPrice ?< newPrice && newPrice >=? model.TakeProfitAt
+            let stopLossLimit = prevPrice ?> newPrice && newPrice <=? model.StopLossAt
+            if takeProfitLimit || stopLossLimit 
+            then model.ClosePosition()
+        | _ -> ()
 
-    member this.FlipPosition (model : MainModel) = 
-        if model.PositionAction = PositionAction.Open
-        then 
-            model.PositionOpenedAt <- model.Price
-            model.PositionAction <- PositionAction.Close
-        else
-            assert (model.PositionAction = PositionAction.Close)
-            model.PositionClosedAt <- model.Price
-            model.PositionAction <- PositionAction.Open
-            model.StrategyAction <- StrategyAction.Start
-
-    member this.StrategyCommand  (model : MainModel) = 
-        if model.StrategyAction = StrategyAction.Start  
-        then 
-            assert (model.PositionOpenedAt.HasValue && not model.PositionClosedAt.HasValue)
-            model.StrategyAction <- StrategyAction.Stop
-        else
-            assert (model.StrategyAction = StrategyAction.Stop)
-            model.StrategyAction <- StrategyAction.Start
+    member this.MoveToNetxState (model : MainModel) = 
+        match model.PositionState with
+        | PositionState.Zero ->
+            model.Open <- model.Price
+            model.PositionState <- PositionState.Opened
+        | PositionState.Opened ->
+            model.ClosePosition()
+        | PositionState.Closed -> 
+            ()
+    

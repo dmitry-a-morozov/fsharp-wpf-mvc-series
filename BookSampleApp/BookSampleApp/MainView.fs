@@ -9,40 +9,42 @@ open System.Windows.Forms.DataVisualization.Charting
 open System.Drawing
 open System.Net
 open Microsoft.FSharp.Linq
+open System.Windows.Documents
 
 type MainEvents = 
     | InstrumentInfo
     | PriceUpdate of decimal
-    | FlipPosition 
-    | StrategyCommand
+    | BuyOrSell 
 
 type MainView(window : Window) = 
 
+    //dynamic lookup op
     let (?) (window : Window) name = window.FindName name |> unbox
 
     let symbol : TextBox = window ? Symbol
     let instrumentInfo : Button = window ? InstrumentInfo
     let instrumentName : TextBlock = window ? InstrumentName
-    let price : TextBlock = window ? Price
-    let livePriceUpdates : CheckBox = window ? LivePriceUpdates
+    let priceFeedSimulation : CheckBox = window ? PriceFeedSimulation
 
     let positionSize : TextBox = window ? PositionSize
-    let flipPosition : Button = window ? FlipPosition
-    let positionOpenedAt : TextBlock = window ? OpenedAt
-    let positionClosedAt : TextBlock = window ? ClosedAt
-    let positionPnL : TextBlock = window ? PnL
-
     let stopLossAt : TextBox = window ? StopLossAt
     let takeProfitAt : TextBox = window ? TakeProfitAt
-    let strategyAction : Button = window ? StrategyAction
 
-    //chart control
-    [<Literal>]
-    let topNAxisX = 100
+    let action : Button = window ? Action
+    let actionText : Run = window ? ActionText
+    let price : Run = window ? Price
 
-    let series = new Series(ChartType = SeriesChartType.FastLine)
-    let stopLoss = new StripLine(IntervalOffset = 0., BackColor = Color.FromArgb(32, Color.Red))
-    let takeProfit = new StripLine(BackColor = Color.FromArgb(32, Color.Green))
+    let ``open`` : TextBlock = window ? Open
+    let close : TextBlock = window ? Close
+    let pnl : TextBlock = window ? PnL
+
+    let series = new Series(ChartType = SeriesChartType.FastLine, XValueType = ChartValueType.Int32, YValueType = ChartValueType.Double)
+    let lossStrip = new StripLine(IntervalOffset = 0., BackColor = Color.FromArgb(32, Color.Red))
+    let profitStrip = new StripLine(BackColor = Color.FromArgb(32, Color.Green))
+    let stopLoss = new CustomLabel(RowIndex = 1, LabelMark = LabelMarkStyle.LineSideMark)
+    let takeProfit = new CustomLabel(RowIndex = 1, LabelMark = LabelMarkStyle.LineSideMark)
+    
+    let area = new ChartArea() 
 
     let priceFeed = DispatcherTimer(Interval = TimeSpan.FromSeconds 0.5)
     let minPrice, maxPrice = ref Decimal.MaxValue, ref Decimal.MinValue
@@ -50,18 +52,31 @@ type MainView(window : Window) =
 
     do
         let chart : Chart = window ? Chart
-
-        let area = new ChartArea() 
         chart.ChartAreas.Add area
-        area.AxisY.StripLines.Add stopLoss
-        area.AxisY.StripLines.Add takeProfit
-        area.AxisX.MajorGrid.LineColor <- Color.LightGray
-        area.AxisY.MajorGrid.LineColor <- Color.LightGray        
+
         area.AxisX.LabelStyle.Enabled <- false
+        //area.AxisX.IsMarginVisible <- false
+        area.AxisX.MajorGrid.LineColor <- Color.LightGray    
+
+        area.AxisY.StripLines.Add lossStrip
+        area.AxisY.StripLines.Add profitStrip
+        area.AxisY.MajorGrid.LineColor <- Color.LightGray    
+        area.AxisY.LabelStyle.Format <- "F0"   
+        area.AxisY.LabelAutoFitMinFontSize <- 10
+
+        area.AxisY2.Enabled <- AxisEnabled.True
+        //area.AxisY2.LabelStyle.Enabled <- false
+        //area.AxisY2.MajorGrid.Enabled <- false
+        //area.AxisY2.MajorTickMark.Enabled <- false
+//        area.AxisY2.IsLabelAutoFit <- false
+//        area.AxisY.CustomLabels.Add stopLoss
+//        area.AxisY.CustomLabels.Add takeProfit
+
         chart.Series.Add series
 
-    //price feed simulation
-        livePriceUpdates.Checked |> Event.add (fun _ -> 
+
+        //price feed simulation
+        priceFeedSimulation.Checked |> Event.add (fun _ -> 
             use wc = new WebClient()
             let today = DateTime.Today
             let yearBefore = today.AddYears -1
@@ -83,19 +98,22 @@ type MainView(window : Window) =
             area.AxisX.Maximum <- float prices.Length
             area.AxisY.Minimum <- !minPrice |> Math.Floor |> float
             area.AxisY.Maximum <- !maxPrice |> Math.Floor |> float
-//            area.AxisY.Interval <- 
-//                if !maxPrice < 50M then 5.0
-//                elif !maxPrice < 100M then 10.0
-//                elif !maxPrice < 250M then 25.0
-//                elif !maxPrice < 500M then 50.0
-//                else 100.0
+            stopLoss.FromPosition <- area.AxisY.Minimum
+            takeProfit.ToPosition <- area.AxisY.Maximum
+            area.AxisY2.Minimum <- area.AxisY.Minimum
+            area.AxisY2.Maximum <- area.AxisY.Maximum
+            //area.AxisY2.LabelStyle.Enabled <- true
+//            let x = area.AxisY.CustomLabels.Add(area.AxisY.Minimum, area.AxisY.Minimum + 2.0, "Stop Loss", 1, LabelMarkStyle.LineSideMark) 
+//            area.AxisY.CustomLabels.Add(area.AxisY.Minimum + 2.0, area.AxisY.Maximum, "Take Profit", 1, LabelMarkStyle.LineSideMark) |> ignore
+            //area.AxisY2.CustomLabels.Add(area.AxisY2.Minimum, area.AxisY2.Minimum + 10.0, "Stop Loss") |> ignore
+            //area.AxisY2.CustomLabels.Add(area.AxisY2.Maximum - 10.0, area.AxisY2.Maximum, "Take Profit") |> ignore
 
             let index = ref 0
             nextPrice <- fun() -> 
                 if !index < prices.Length
                 then
                     incr index 
-                    Some(prices.[!index - 1])
+                    Some(!index, prices.[!index - 1])
                 else 
                     None
         )
@@ -105,15 +123,16 @@ type MainView(window : Window) =
             let xs = 
                 [
                     instrumentInfo.Click |> Observable.map (fun _ -> InstrumentInfo)
-                    priceFeed.Tick |> Observable.choose (fun _ -> 
-                        nextPrice() |> Option.map (fun value ->
-                            series.Points.AddY value |> ignore
+                    priceFeed.Tick |> Observable.choose (fun _ ->   
+                        nextPrice() |> Option.map (fun(index, value) ->
+                            let i = series.Points.AddXY(box index, value)
                             PriceUpdate value
                         )
                     )
-                    flipPosition.Click |> Observable.map (fun _ -> FlipPosition)
-                    strategyAction.Click |> Observable.map (fun _ -> StrategyCommand)
-                ] |> List.reduce Observable.merge 
+                    action.Click |> Observable.map (fun _ -> BuyOrSell)
+                ] 
+                |> List.reduce Observable.merge 
+
             xs.Subscribe observer
 
         member this.SetBindings model = 
@@ -121,23 +140,37 @@ type MainView(window : Window) =
 
             symbol.SetBinding(TextBox.TextProperty, "Symbol") |> ignore
             instrumentName.SetBinding(TextBlock.TextProperty, Binding(path = "InstrumentName", StringFormat = "Name : {0}")) |> ignore
-            price.SetBinding(TextBlock.TextProperty, "Price") |> ignore
-            livePriceUpdates.SetBinding(CheckBox.IsCheckedProperty, "LivePriceUpdates") |> ignore
-            livePriceUpdates.SetBinding(CheckBox.IsCheckedProperty, Binding("IsEnabled", Mode = BindingMode.OneWayToSource, Source = priceFeed)) |> ignore
+            priceFeedSimulation.SetBinding(CheckBox.IsCheckedProperty, "PriceFeedSimulation") |> ignore
+            priceFeedSimulation.SetBinding(CheckBox.IsCheckedProperty, Binding("IsEnabled", Mode = BindingMode.OneWayToSource, Source = priceFeed)) |> ignore
 
-            flipPosition.SetBinding(Button.ContentProperty, "PositionAction") |> ignore
+            action.SetBinding(Button.IsEnabledProperty, "NextActionEnabled") |> ignore
+            actionText.SetBinding(
+                Run.TextProperty, 
+                Binding("PositionState", StringFormat = "{0} At", Converter = {
+                    new IValueConverter with
+                        member this.Convert(value, _, _, _) = 
+                            match value with 
+                            | :? PositionState as x -> 
+                                box(
+                                    match x with 
+                                    | Zero -> "Buy" 
+                                    | Opened -> "Sell" 
+                                    | Closed -> "Current"
+                                )
+                            | _ -> DependencyProperty.UnsetValue
+                        member this.ConvertBack(_, _, _, _) = DependencyProperty.UnsetValue
+                })
+            ) |> ignore
+            price.SetBinding(Run.TextProperty, "Price") |> ignore
+
             positionSize.SetBinding(TextBox.TextProperty, "PositionSize") |> ignore
-            positionOpenedAt.SetBinding(TextBlock.TextProperty, "PositionOpenedAt") |> ignore
-            positionClosedAt.SetBinding(TextBlock.TextProperty, "PositionClosedAt") |> ignore
-            positionPnL.SetBinding(TextBlock.TextProperty, "PositionPnL") |> ignore
 
-//            slider.SetBinding(Slider.ValueProperty, Binding("PositionChangeRatio", FallbackValue = 0.0)) |> ignore
-//            slider.SetBinding(Slider.SelectionStartProperty, Binding("StopLossMargin", FallbackValue = 0.0)) |> ignore
-//            slider.SetBinding(Slider.SelectionEndProperty, Binding("TakeProfitMargin", FallbackValue = 0.0)) |> ignore
-
-            positionPnL.SetBinding(
+            ``open``.SetBinding(TextBlock.TextProperty, "Open") |> ignore
+            close.SetBinding(TextBlock.TextProperty, "Close") |> ignore
+            pnl.SetBinding(TextBlock.TextProperty, "PnL") |> ignore
+            pnl.SetBinding(
                 TextBlock.ForegroundProperty, 
-                Binding("PositionPnL", Converter = {
+                Binding("PnL", Converter = {
                     new IValueConverter with
                         member this.Convert(value, _, _, _) = 
                             match value with 
@@ -150,18 +183,34 @@ type MainView(window : Window) =
             stopLossAt.SetBinding(TextBox.TextProperty, Binding("StopLossAt", UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged)) |> ignore
             takeProfitAt.SetBinding(TextBox.TextProperty, Binding("TakeProfitAt", UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged)) |> ignore
 
-            strategyAction.SetBinding(Button.ContentProperty, "StrategyAction") |> ignore
-
             let inpc : System.ComponentModel.INotifyPropertyChanged = upcast model
             inpc.PropertyChanged.Add <| fun args ->
                 match args.PropertyName with 
-                | "StopLossAt" -> 
-                    if model.StopLossAt.HasValue 
-                    then 
-                        stopLoss.StripWidth <- float model.StopLossAt.Value 
-                | "TakeProfitAt" -> 
-                    if model.TakeProfitAt.HasValue 
-                    then 
-                        takeProfit.IntervalOffset <- float model.TakeProfitAt.Value
-                        takeProfit.StripWidth <- float(!maxPrice - model.TakeProfitAt.Value)
+                | "Open" -> 
+                    assert model.Open.HasValue
+                    lossStrip.StripWidth <- float model.Open.Value
+                    profitStrip.IntervalOffset <- float model.Open.Value
+                    profitStrip.StripWidth <- series.Points.FindMaxByValue().YValues.[0]
+
+//                | "StopLossAt" -> 
+//                    if model.StopLossAt.HasValue 
+//                    then
+//                        match area.AxisY2.CustomLabels |> Seq.tryFind (fun x -> x.Text = "Stop Loss") with
+//                        | None -> 
+//                            //let label = new CustomLabel()
+//                            let label = area.AxisY2.CustomLabels.Add(float model.StopLossAt.Value - 0.5, float model.StopLossAt.Value + 0.5, "Stop Loss") 
+//                            label.GridTicks <- GridTickTypes.All
+//                        | Some x -> 
+//                            x.FromPosition <- float model.StopLossAt.Value - 0.5
+//                            x.ToPosition <- float model.StopLossAt.Value + 0.5
+////
+////                            let removed = area.AxisY2.CustomLabels.Remove x
+////                            assert removed
+////                            let label = area.AxisY2.CustomLabels.Add(float model.StopLossAt.Value - 0.5, float model.StopLossAt.Value + 0.5, "Stop Loss") 
+////                            label.GridTicks <- GridTickTypes.All
+//
+//                | "TakeProfitAt" -> 
+//                    if model.TakeProfitAt.HasValue 
+//                    then 
+//                        takeProfit.FromPosition <- float model.TakeProfitAt.Value
                 | _ -> ()
