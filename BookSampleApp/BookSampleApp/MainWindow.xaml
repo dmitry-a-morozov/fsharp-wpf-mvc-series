@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:WinFormsChart = "clr-namespace:System.Windows.Forms.DataVisualization.Charting;assembly=System.Windows.Forms.DataVisualization"       
-        Height="430" Width="1000"
+        Height="435" Width="1000"
         Title="Mini Trader">
     <Grid>
         <Grid.RowDefinitions>

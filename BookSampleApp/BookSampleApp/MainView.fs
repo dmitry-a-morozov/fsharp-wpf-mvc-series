@@ -7,8 +7,8 @@ open System.Windows.Data
 open System.Windows.Threading
 open System.Windows.Forms.DataVisualization.Charting
 open System.Drawing
+open System.ComponentModel;
 open System.Net
-open Microsoft.FSharp.Linq
 open System.Windows.Documents
 
 type MainEvents = 
@@ -38,14 +38,11 @@ type MainView(window : Window) =
     let close : TextBlock = window ? Close
     let pnl : TextBlock = window ? PnL
 
+    let area = new ChartArea() 
     let series = new Series(ChartType = SeriesChartType.FastLine, XValueType = ChartValueType.Int32, YValueType = ChartValueType.Double)
     let lossStrip = new StripLine(IntervalOffset = 0., BackColor = Color.FromArgb(32, Color.Red))
     let profitStrip = new StripLine(BackColor = Color.FromArgb(32, Color.Green))
-    let stopLoss = new CustomLabel(RowIndex = 1, LabelMark = LabelMarkStyle.LineSideMark)
-    let takeProfit = new CustomLabel(RowIndex = 1, LabelMark = LabelMarkStyle.LineSideMark)
-    
-    let area = new ChartArea() 
-
+   
     let priceFeed = DispatcherTimer(Interval = TimeSpan.FromSeconds 0.5)
     let minPrice, maxPrice = ref Decimal.MaxValue, ref Decimal.MinValue
     let mutable nextPrice = fun() -> raise <| NotImplementedException()
@@ -55,7 +52,7 @@ type MainView(window : Window) =
         chart.ChartAreas.Add area
 
         area.AxisX.LabelStyle.Enabled <- false
-        //area.AxisX.IsMarginVisible <- false
+        area.AxisX.IsMarginVisible <- false
         area.AxisX.MajorGrid.LineColor <- Color.LightGray    
 
         area.AxisY.StripLines.Add lossStrip
@@ -64,16 +61,11 @@ type MainView(window : Window) =
         area.AxisY.LabelStyle.Format <- "F0"   
         area.AxisY.LabelAutoFitMinFontSize <- 10
 
-        area.AxisY2.Enabled <- AxisEnabled.True
-        //area.AxisY2.LabelStyle.Enabled <- false
-        //area.AxisY2.MajorGrid.Enabled <- false
-        //area.AxisY2.MajorTickMark.Enabled <- false
-//        area.AxisY2.IsLabelAutoFit <- false
-//        area.AxisY.CustomLabels.Add stopLoss
-//        area.AxisY.CustomLabels.Add takeProfit
+        area.AxisY2.CustomLabels.Add <| new CustomLabel(GridTicks = GridTickTypes.All, Text = "Take Profit", FromPosition = 0.0, ToPosition = 0.0)
+        area.AxisY2.CustomLabels.Add <| new CustomLabel(GridTicks = GridTickTypes.All, Text = "Stop Loss", FromPosition = 0.0, ToPosition = 0.0)
+        area.AxisY2.LabelAutoFitMinFontSize <- 10
 
         chart.Series.Add series
-
 
         //price feed simulation
         priceFeedSimulation.Checked |> Event.add (fun _ -> 
@@ -98,15 +90,17 @@ type MainView(window : Window) =
             area.AxisX.Maximum <- float prices.Length
             area.AxisY.Minimum <- !minPrice |> Math.Floor |> float
             area.AxisY.Maximum <- !maxPrice |> Math.Floor |> float
-            stopLoss.FromPosition <- area.AxisY.Minimum
-            takeProfit.ToPosition <- area.AxisY.Maximum
             area.AxisY2.Minimum <- area.AxisY.Minimum
             area.AxisY2.Maximum <- area.AxisY.Maximum
-            //area.AxisY2.LabelStyle.Enabled <- true
-//            let x = area.AxisY.CustomLabels.Add(area.AxisY.Minimum, area.AxisY.Minimum + 2.0, "Stop Loss", 1, LabelMarkStyle.LineSideMark) 
-//            area.AxisY.CustomLabels.Add(area.AxisY.Minimum + 2.0, area.AxisY.Maximum, "Take Profit", 1, LabelMarkStyle.LineSideMark) |> ignore
-            //area.AxisY2.CustomLabels.Add(area.AxisY2.Minimum, area.AxisY2.Minimum + 10.0, "Stop Loss") |> ignore
-            //area.AxisY2.CustomLabels.Add(area.AxisY2.Maximum - 10.0, area.AxisY2.Maximum, "Take Profit") |> ignore
+
+            area.AxisY2.Enabled <- AxisEnabled.True
+            let x = area.AxisY2.CustomLabels |> Seq.find (fun x -> x.Text = "Stop Loss")
+            x.FromPosition <- area.AxisY.Minimum - 0.5
+            x.ToPosition <- area.AxisY.Minimum + 0.5
+            let x = area.AxisY2.CustomLabels |> Seq.find (fun x -> x.Text = "Take Profit")
+            x.FromPosition <- area.AxisY.Maximum - 0.5
+            x.ToPosition <- area.AxisY.Maximum + 0.5
+
 
             let index = ref 0
             nextPrice <- fun() -> 
@@ -146,17 +140,13 @@ type MainView(window : Window) =
             action.SetBinding(Button.IsEnabledProperty, "NextActionEnabled") |> ignore
             actionText.SetBinding(
                 Run.TextProperty, 
-                Binding("PositionState", StringFormat = "{0} At", Converter = {
+                Binding("PositionState", Converter = {
                     new IValueConverter with
                         member this.Convert(value, _, _, _) = 
                             match value with 
                             | :? PositionState as x -> 
-                                box(
-                                    match x with 
-                                    | Zero -> "Buy" 
-                                    | Opened -> "Sell" 
-                                    | Closed -> "Current"
-                                )
+                                match x with  | Zero -> "Buy" | Opened -> "Sell" | Closed -> "Current"
+                                |> box
                             | _ -> DependencyProperty.UnsetValue
                         member this.ConvertBack(_, _, _, _) = DependencyProperty.UnsetValue
                 })
@@ -180,10 +170,10 @@ type MainView(window : Window) =
                 })
             ) |> ignore
 
-            stopLossAt.SetBinding(TextBox.TextProperty, Binding("StopLossAt", UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged)) |> ignore
-            takeProfitAt.SetBinding(TextBox.TextProperty, Binding("TakeProfitAt", UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged)) |> ignore
+            stopLossAt.SetBinding(TextBox.TextProperty, Binding("StopLossAt", UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, TargetNullValue = Nullable<decimal>())) |> ignore
+            takeProfitAt.SetBinding(TextBox.TextProperty, Binding("TakeProfitAt", UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, TargetNullValue = Nullable<decimal>())) |> ignore
 
-            let inpc : System.ComponentModel.INotifyPropertyChanged = upcast model
+            let inpc : INotifyPropertyChanged = upcast model
             inpc.PropertyChanged.Add <| fun args ->
                 match args.PropertyName with 
                 | "Open" -> 
@@ -191,26 +181,16 @@ type MainView(window : Window) =
                     lossStrip.StripWidth <- float model.Open.Value
                     profitStrip.IntervalOffset <- float model.Open.Value
                     profitStrip.StripWidth <- series.Points.FindMaxByValue().YValues.[0]
-
-//                | "StopLossAt" -> 
-//                    if model.StopLossAt.HasValue 
-//                    then
-//                        match area.AxisY2.CustomLabels |> Seq.tryFind (fun x -> x.Text = "Stop Loss") with
-//                        | None -> 
-//                            //let label = new CustomLabel()
-//                            let label = area.AxisY2.CustomLabels.Add(float model.StopLossAt.Value - 0.5, float model.StopLossAt.Value + 0.5, "Stop Loss") 
-//                            label.GridTicks <- GridTickTypes.All
-//                        | Some x -> 
-//                            x.FromPosition <- float model.StopLossAt.Value - 0.5
-//                            x.ToPosition <- float model.StopLossAt.Value + 0.5
-////
-////                            let removed = area.AxisY2.CustomLabels.Remove x
-////                            assert removed
-////                            let label = area.AxisY2.CustomLabels.Add(float model.StopLossAt.Value - 0.5, float model.StopLossAt.Value + 0.5, "Stop Loss") 
-////                            label.GridTicks <- GridTickTypes.All
-//
-//                | "TakeProfitAt" -> 
-//                    if model.TakeProfitAt.HasValue 
-//                    then 
-//                        takeProfit.FromPosition <- float model.TakeProfitAt.Value
+                | "StopLossAt" -> 
+                    assert model.StopLossAt.HasValue 
+                    area.AxisY2.Enabled <- AxisEnabled.True
+                    let x = area.AxisY2.CustomLabels |> Seq.find (fun x -> x.Text = "Stop Loss")
+                    x.FromPosition <- float model.StopLossAt.Value - 0.5
+                    x.ToPosition <- float model.StopLossAt.Value + 0.5
+                | "TakeProfitAt" -> 
+                    assert model.TakeProfitAt.HasValue 
+                    area.AxisY2.Enabled <- AxisEnabled.True
+                    let x = area.AxisY2.CustomLabels |> Seq.find (fun x -> x.Text = "Take Profit")
+                    x.FromPosition <- float model.TakeProfitAt.Value - 0.5
+                    x.ToPosition <- float model.TakeProfitAt.Value + 0.5
                 | _ -> ()
