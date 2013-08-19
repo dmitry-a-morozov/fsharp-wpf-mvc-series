@@ -37,8 +37,6 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
     <Compile Include="Mvc.fs" />
-    <Compile Include="Binding.fs" />
-    <Compile Include="Validation.fs" />
     <Compile Include="Model.fs" />
     <Compile Include="MainModel.fs" />
     <Resource Include="MainWindow.xaml" />

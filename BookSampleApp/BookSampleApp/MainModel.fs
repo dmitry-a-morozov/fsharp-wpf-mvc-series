@@ -17,10 +17,10 @@ type MainModel() =
 
     let mutable positionState = PositionState.Zero
     let mutable nextActionEnabled = true
-    let mutable positionSize = Nullable<int>()
+    let mutable positionSize = 0
     let mutable ``open`` = Nullable<decimal>()
     let mutable close = Nullable<decimal>()
-    let mutable pnl = Nullable<decimal>()
+    let mutable pnl = 0M
 
     let mutable stopLossAt = Nullable<decimal>()
     let mutable takeProfitAt = Nullable<decimal>()
@@ -40,8 +40,8 @@ type MainModel() =
     member __.StopLossAt with get() = stopLossAt and set value = stopLossAt <- value; base.NotifyPropertyChanged "StopLossAt"
     member __.TakeProfitAt with get() = takeProfitAt and set value = takeProfitAt <- value; base.NotifyPropertyChanged "TakeProfitAt"
     
-    member this.PositionOpenValue = Nullable.decimal this.PositionSize ?*? this.Open
-    member this.PositionCurrentValue = Nullable.decimal this.PositionSize ?*? this.Price
+    member this.PositionOpenValue = decimal this.PositionSize *? this.Open
+    member this.PositionCurrentValue = decimal this.PositionSize *? this.Price
 
     member this.ClosePosition() = 
         this.Close <- this.Price

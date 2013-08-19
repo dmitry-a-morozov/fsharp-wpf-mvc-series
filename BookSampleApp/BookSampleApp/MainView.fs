@@ -18,8 +18,8 @@ type MainEvents =
 
 type MainView(window : Window) = 
 
-    //dynamic lookup op
-    let (?) (window : Window) name = window.FindName name |> unbox
+    //dynamic control lookup
+    let (?) (window : Window) name = name |> window.FindName |> unbox
 
     let symbol : TextBox = window ? Symbol
     let instrumentInfo : Button = window ? InstrumentInfo
@@ -38,6 +38,7 @@ type MainView(window : Window) =
     let close : TextBlock = window ? Close
     let pnl : TextBlock = window ? PnL
 
+    //Chart
     let area = new ChartArea() 
     let series = new Series(ChartType = SeriesChartType.FastLine, XValueType = ChartValueType.Int32, YValueType = ChartValueType.Double)
     let lossStrip = new StripLine(IntervalOffset = 0., BackColor = Color.FromArgb(32, Color.Red))
@@ -112,7 +113,7 @@ type MainView(window : Window) =
                     None
         )
 
-    interface IView<MainEvents, MainModel> with
+    interface IView<MainEvents> with
         member this.Subscribe observer = 
             let xs = 
                 [
@@ -135,7 +136,6 @@ type MainView(window : Window) =
             symbol.SetBinding(TextBox.TextProperty, "Symbol") |> ignore
             instrumentName.SetBinding(TextBlock.TextProperty, Binding(path = "InstrumentName", StringFormat = "Name : {0}")) |> ignore
             priceFeedSimulation.SetBinding(CheckBox.IsCheckedProperty, "PriceFeedSimulation") |> ignore
-            priceFeedSimulation.SetBinding(CheckBox.IsCheckedProperty, Binding("IsEnabled", Mode = BindingMode.OneWayToSource, Source = priceFeed)) |> ignore
 
             action.SetBinding(Button.IsEnabledProperty, "NextActionEnabled") |> ignore
             actionText.SetBinding(
@@ -164,7 +164,10 @@ type MainView(window : Window) =
                     new IValueConverter with
                         member this.Convert(value, _, _, _) = 
                             match value with 
-                            | :? decimal as x -> box(if x < 0M then "Red" else "Green") 
+                            | :? decimal as x -> 
+                                if x < 0M then box "Red" 
+                                elif x > 0M then box "Green" 
+                                else DependencyProperty.UnsetValue
                             | _ -> DependencyProperty.UnsetValue
                         member this.ConvertBack(_, _, _, _) = DependencyProperty.UnsetValue
                 })
@@ -173,7 +176,10 @@ type MainView(window : Window) =
             stopLossAt.SetBinding(TextBox.TextProperty, Binding("StopLossAt", UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, TargetNullValue = Nullable<decimal>())) |> ignore
             takeProfitAt.SetBinding(TextBox.TextProperty, Binding("TakeProfitAt", UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged, TargetNullValue = Nullable<decimal>())) |> ignore
 
-            let inpc : INotifyPropertyChanged = upcast model
+            priceFeedSimulation.SetBinding(CheckBox.IsCheckedProperty, Binding("IsEnabled", Mode = BindingMode.OneWayToSource, Source = priceFeed)) |> ignore
+
+            let inpc : INotifyPropertyChanged = unbox model
+            let model : MainModel = unbox model 
             inpc.PropertyChanged.Add <| fun args ->
                 match args.PropertyName with 
                 | "Open" -> 
