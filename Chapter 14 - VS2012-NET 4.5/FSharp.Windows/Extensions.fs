@@ -5,13 +5,10 @@ open System
 [<AutoOpen>]
 module Extensions = 
 
-    open LanguagePrimitives
     open Microsoft.FSharp.Quotations
     open Microsoft.FSharp.Quotations.Patterns
 
     let inline undefined<'T> = raise<'T> <| NotImplementedException()
-
-    let inline positive x = GenericGreaterThan x GenericZero
 
     type PropertySelector<'T, 'a> = Expr<('T -> 'a)>
 

@@ -1,7 +1,6 @@
 ﻿namespace FSharp.Windows
  
 open System
-open LanguagePrimitives
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 
@@ -9,8 +8,6 @@ open Microsoft.FSharp.Quotations.Patterns
 module Extensions = 
 
     let inline undefined<'T> = raise<'T> <| NotImplementedException()
-
-    let inline positive x = GenericGreaterThan x GenericZero
 
     exception PreserveStackTraceWrapper of exn
 

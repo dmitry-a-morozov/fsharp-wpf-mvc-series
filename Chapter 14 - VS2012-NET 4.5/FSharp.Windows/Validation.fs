@@ -19,5 +19,5 @@ let inline objectRequired expr = invalidIf expr ((=) null) "Required field."
 let inline valueRequired expr = assertThat expr (fun(x : Nullable<_>) -> x.HasValue) "Required field."
 let inline textRequired expr = invalidIf expr String.IsNullOrWhiteSpace "Required field."
 
-let inline positive expr = assertThat expr positive "Must be positive number."
+let inline positive expr = assertThat expr (fun x -> x > LanguagePrimitives.GenericZero) "Must be positive number."
 
