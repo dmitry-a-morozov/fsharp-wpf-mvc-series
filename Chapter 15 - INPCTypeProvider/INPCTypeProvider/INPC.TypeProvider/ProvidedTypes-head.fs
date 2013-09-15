@@ -1982,8 +1982,8 @@ type AssemblyGenerator(assemblyFileName) =
             for evt in ptd.GetEvents(ALL) |> Seq.choose (function :? ProvidedEvent as pe -> Some pe | _ -> None) do
                 let eb = tb.DefineEvent(evt.Name, evt.Attributes, evt.EventHandlerType)
                 defineCustomAttrs eb.SetCustomAttribute (evt.GetCustomAttributesDataImpl())
-                eb.SetAddOnMethod(methMap.[evt.AddMethod :?> _])
-                eb.SetRemoveOnMethod(methMap.[evt.RemoveMethod :?> _])
+                eb.SetAddOnMethod(methMap.[evt.GetAddMethod(true) :?> _])
+                eb.SetRemoveOnMethod(methMap.[evt.GetRemoveMethod(true) :?> _])
                 // TODO: add raiser
             
             for pinfo in ptd.GetProperties(ALL) |> Seq.choose (function :? ProvidedProperty as pe -> Some pe | _ -> None) do
@@ -2131,21 +2131,40 @@ type TypeProviderForNamespaces(namespacesAndTypes : list<(string * list<Provided
         [<CLIEvent>]
         override this.Invalidate = invalidateE.Publish
         override this.GetNamespaces() = Array.copy providedNamespaces.Value
-        member __.GetInvokerExpression(methodBase, parameters) = 
-            match methodBase with
-            | :? ProvidedMethod as m when (match methodBase.DeclaringType with :? ProvidedTypeDefinition as pt -> pt.IsErased | _ -> true) ->
-                m.GetInvokeCodeInternal false parameters
-            | :? ProvidedConstructor as m when (match methodBase.DeclaringType with :? ProvidedTypeDefinition as pt -> pt.IsErased | _ -> true) -> 
-                m.GetInvokeCodeInternal false parameters
-            // Otherwise, assume this is a generative assembly and just emit a call to the constructor or method
-            | :?  ConstructorInfo as cinfo ->  
-                Quotations.Expr.NewObject(cinfo, Array.toList parameters) 
-            | :? System.Reflection.MethodInfo as minfo ->  
-                if minfo.IsStatic then 
-                    Quotations.Expr.Call(minfo, Array.toList parameters) 
-                else
-                    Quotations.Expr.Call(parameters.[0], minfo, Array.toList parameters.[1..])
-            | _ -> failwith ("TypeProviderForNamespaces.GetInvokerExpression: not a ProvidedMethod/ProvidedConstructor/ConstructorInfo/MethodInfo, name=" + methodBase.Name + " class=" + methodBase.GetType().FullName)
+        member __.GetInvokerExpression(methodBase, parameters) =
+            let rec getInvokerExpression (methodBase : MethodBase) parameters =
+                match methodBase with
+                | :? ProvidedMethod as m when (match methodBase.DeclaringType with :? ProvidedTypeDefinition as pt -> pt.IsErased | _ -> true) ->
+                    m.GetInvokeCodeInternal false parameters
+                    |> expand
+                | :? ProvidedConstructor as m when (match methodBase.DeclaringType with :? ProvidedTypeDefinition as pt -> pt.IsErased | _ -> true) -> 
+                    m.GetInvokeCodeInternal false parameters
+                    |> expand
+                // Otherwise, assume this is a generative assembly and just emit a call to the constructor or method
+                | :?  ConstructorInfo as cinfo ->  
+                    Quotations.Expr.NewObject(cinfo, Array.toList parameters) 
+                | :? System.Reflection.MethodInfo as minfo ->  
+                    if minfo.IsStatic then 
+                        Quotations.Expr.Call(minfo, Array.toList parameters) 
+                    else
+                        Quotations.Expr.Call(parameters.[0], minfo, Array.toList parameters.[1..])
+                | _ -> failwith ("TypeProviderForNamespaces.GetInvokerExpression: not a ProvidedMethod/ProvidedConstructor/ConstructorInfo/MethodInfo, name=" + methodBase.Name + " class=" + methodBase.GetType().FullName)
+            and expand expr = 
+                match expr with
+                | Quotations.Patterns.NewObject(ctor, args) -> getInvokerExpression ctor [| for arg in args -> expand arg|]
+                | Quotations.Patterns.Call(inst, mi, args) ->
+                    let args = 
+                        [|
+                            match inst with
+                            | Some inst -> yield expand inst
+                            | _ -> ()
+                            yield! List.map expand args
+                        |]
+                    getInvokerExpression mi args
+                | Quotations.ExprShape.ShapeVar v -> Quotations.Expr.Var v
+                | Quotations.ExprShape.ShapeLambda(v, body) -> Quotations.Expr.Lambda(v, expand body)
+                | Quotations.ExprShape.ShapeCombination(shape, args) -> Quotations.ExprShape.RebuildShapeCombination(shape, List.map expand args)
+            getInvokerExpression methodBase parameters
 #if FX_NO_CUSTOMATTRIBUTEDATA
 
         member __.GetMemberCustomAttributesData(methodBase) = 
