@@ -2,13 +2,10 @@
 
 type Model = { State : int }
 
-type View = IEvent<Add of int>  
+type View = IEvent<Events>  
+and Events = Incr | Decr
 
-and Events = 
-    | Add of int 
-    | Subtract of int
-
-type Controller = Events -> Model -> Model
+type Controller = Model -> Events -> Model
 
 type Mvc = Controller -> Model -> IEvent<Events> -> Model
 
