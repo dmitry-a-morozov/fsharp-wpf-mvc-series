@@ -49,7 +49,6 @@ type Model() =
         proxyFactory.CreateClassProxy interceptors    
 
     interface IDataErrorInfo with
-        //using undefined - way cleaner that widely-accepted : raise(new NotImplementedException())
         member this.Error = undefined
         member this.Item 
             with get propertyName = 

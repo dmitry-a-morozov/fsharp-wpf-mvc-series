@@ -18,7 +18,7 @@
         <TextBox Name="X" Margin="5" Height="25" x:FieldModifier="public"/>
         <DockPanel Grid.Row="1">
             <Label Content="Operation" VerticalAlignment="Center"/>
-            <ComboBox Name="Operation" Grid.Row="1" Height="25" Width="100" x:FieldModifier="public"/>
+            <ComboBox Name="Operation" Grid.Row="1" Height="25" Width="100" Margin="5" x:FieldModifier="public"/>
         </DockPanel>
         <TextBox Grid.Row="2" Name="Y" Margin="5" Height="25" x:FieldModifier="public"/>
         <DockPanel Grid.Row="3">
