@@ -109,12 +109,12 @@ type Expr with
         match this with
         | PropertySet(Target target, targetProperty, [], BindingExpression binding) ->
 
-            if mode.IsSome then binding.Mode <- mode.Value
-            if updateSourceTrigger.IsSome then binding.UpdateSourceTrigger <- updateSourceTrigger.Value
-            if fallbackValue.IsSome then binding.FallbackValue <- fallbackValue.Value
-            if targetNullValue.IsSome then binding.TargetNullValue <- targetNullValue.Value
+            mode |> Option.iter binding.set_Mode
+            updateSourceTrigger |> Option.iter binding.set_UpdateSourceTrigger
+            fallbackValue |> Option.iter binding.set_FallbackValue
+            targetNullValue |> Option.iter binding.set_TargetNullValue
+            validatesOnExceptions |> Option.iter binding.set_ValidatesOnExceptions
             binding.ValidatesOnDataErrors <- defaultArg validatesOnDataErrors true
-            binding.ValidatesOnExceptions <- defaultArg validatesOnExceptions true
 
             target.SetBinding(targetProperty.DependencyProperty, binding)
 

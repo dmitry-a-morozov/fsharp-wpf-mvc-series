@@ -16,7 +16,7 @@
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
         <Label Content="Symbol"/>
-        <TextBox Name="Symbol" Grid.Column="1" x:FieldModifier="public"/>
+        <TextBox Name="Symbol" Grid.Column="1" VerticalContentAlignment="Center" x:FieldModifier="public"/>
         <Label Grid.Row="1" Content="Company Name"/>
         <TextBlock Grid.Row="1" Name="CompanyName" Grid.Column="1" x:FieldModifier="public" Margin="5" VerticalAlignment="Center"/>
         <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal">

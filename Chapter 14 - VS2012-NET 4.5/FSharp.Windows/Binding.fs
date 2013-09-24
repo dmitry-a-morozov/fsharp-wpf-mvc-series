@@ -133,11 +133,9 @@ type Expr with
             updateSourceTrigger |> Option.iter binding.set_UpdateSourceTrigger
             fallbackValue |> Option.iter binding.set_FallbackValue
             targetNullValue |> Option.iter binding.set_TargetNullValue
+            validatesOnNotifyDataErrors |> Option.iter binding.set_ValidatesOnNotifyDataErrors
             validatesOnDataErrors |> Option.iter binding.set_ValidatesOnDataErrors
-            validatesOnDataErrors |> Option.iter binding.set_ValidatesOnNotifyDataErrors
             validatesOnExceptions |> Option.iter binding.set_ValidatesOnExceptions
-            //binding.ValidatesOnExceptions <- defaultArg validatesOnExceptions true
-            binding.ValidatesOnNotifyDataErrors <- defaultArg validatesOnExceptions true
 
             target.SetBinding(targetProperty.DependencyProperty, binding)
 
@@ -150,8 +148,8 @@ type Binding with
             | tail -> [ tail ]
 
         for e in split expr do
-            let be = e.ToBindingExpr(?mode = mode, ?updateSourceTrigger = updateSourceTrigger, ?fallbackValue = fallbackValue, 
-                                     ?targetNullValue = targetNullValue, ?validatesOnDataErrors = validatesOnDataErrors, ?validatesOnExceptions = validatesOnExceptions)
+            let be = e.ToBindingExpr(?mode = mode, ?updateSourceTrigger = updateSourceTrigger, ?fallbackValue = fallbackValue,  ?targetNullValue = targetNullValue, 
+                                     ?validatesOnNotifyDataErrors = validatesOnNotifyDataErrors, ?validatesOnDataErrors = validatesOnDataErrors, ?validatesOnExceptions = validatesOnExceptions)
             assert not be.HasError
     
     static member UpdateSourceOnChange expr = Binding.FromExpression(expr, updateSourceTrigger = UpdateSourceTrigger.PropertyChanged)
