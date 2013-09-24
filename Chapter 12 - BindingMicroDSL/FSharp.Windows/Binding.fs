@@ -93,12 +93,17 @@ module Patterns =
         | StringFormat(format, BindingExpression binding) -> 
             binding.StringFormat <- format
             binding
+
+        //??? hard to say if can be generally useful. For erased types.
+//        | Call((Some (Value (:? System.ComponentModel.ICustomTypeDescriptor as model, _))), get_Item, [ Value(:? string as propertyName, _)]) 
+//            when get_Item.Name = "get_Item" && model.GetProperties().Find(propertyName, ignoreCase = false) <> null -> Some propertyName
+
+        | Call(None, method', [ Value(:? IValueConverter as converter, _); BindingExpression binding ] ) when method'.Name = "IValueConverter.Apply" -> 
+            binding.Converter <- converter
+            binding
         | Converter(convert, BindingExpression binding) -> 
             binding.Mode <- BindingMode.OneWay
             binding.Converter <- IValueConverter.OneWay convert
-            binding
-        | Call(None, method', [ Value(:? IValueConverter as converter, _); BindingExpression binding ] ) when method'.Name = "IValueConverter.Apply" -> 
-            binding.Converter <- converter
             binding
         | expr -> invalidArg "binding property path quotation" (string expr)
 
