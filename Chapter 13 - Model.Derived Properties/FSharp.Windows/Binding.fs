@@ -27,6 +27,14 @@ type IValueConverter with
     static member OneWay convert = IValueConverter.Create(convert, fun _ -> DependencyProperty.UnsetValue)
     member this.Apply _ = undefined
 
+type PropertyInfo with
+    member this.DependencyProperty : DependencyProperty = 
+        this.DeclaringType
+            .GetField(this.Name + "Property", BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.FlattenHierarchy)
+            .GetValue(null, [||]) 
+            |> unbox
+
+
 module Patterns = 
 
     type MemberInfo with
@@ -114,13 +122,6 @@ module Patterns =
             binding.Converter <- converter
             binding
         | expr -> invalidArg "binding property path quotation" (string expr)
-
-type PropertyInfo with
-    member this.DependencyProperty : DependencyProperty = 
-        this.DeclaringType
-            .GetField(this.Name + "Property", BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.FlattenHierarchy)
-            .GetValue(null, [||]) 
-            |> unbox
 
 open Patterns
 
