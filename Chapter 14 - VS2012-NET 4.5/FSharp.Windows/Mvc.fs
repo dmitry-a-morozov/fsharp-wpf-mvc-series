@@ -29,7 +29,10 @@ type Mvc<'Events, 'Model when 'Model :> INotifyPropertyChanged>(model : 'Model, 
         |> Observer.Checked
 #endif
         |> Observer.preventReentrancy
-        |> Observer.notifyOnCurrentSynchronizationContext
+        //for some reason followinf line doesn't work on .NET 4.5. Maybe glitch in Rx.NET.
+        //|> Observer.notifyOnCurrentSynchronizationContext
+        //Temporary solution is to use dispatcher
+        |> Observer.notifyOnDispatcher
         |> view.Subscribe
 
     member this.StartDialog() =

@@ -49,7 +49,7 @@ module Observer =
 
     let notifyOnDispatcher(observer : IObserver<_>) = 
         let dispatcher = System.Windows.Application.Current.Dispatcher 
-        let invokeOnDispatcher f = if dispatcher.CheckAccess() then f() else dispatcher.BeginInvoke(Action(f), Array.empty) |> ignore 
+        let invokeOnDispatcher f = if dispatcher.CheckAccess() then f() else dispatcher.BeginInvoke(Action f) |> ignore 
         { 
             new IObserver<_> with 
                 member __.OnNext value = invokeOnDispatcher(fun() -> observer.OnNext value)

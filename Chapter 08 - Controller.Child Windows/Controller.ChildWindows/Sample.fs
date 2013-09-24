@@ -128,7 +128,6 @@ type SampleController() =
         | AddStockToPriceChart -> Async this.AddStockToPriceChart
 
     member this.Calculate model = 
-        model.ClearAllErrors()
         match model.SelectedOperation with
         | Add -> 
             model |> Validation.positive <@ fun m -> m.Y @>

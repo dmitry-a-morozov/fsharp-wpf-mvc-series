@@ -173,7 +173,6 @@ type Model() =
     member this.ClearErrors propertyName = 
         errors.Remove propertyName |> ignore
         this.TriggerErrorsChanged propertyName
-    member this.ClearAllErrors() = errors.Keys |> Seq.toArray |> Array.iter this.ClearErrors
     member this.HasErrors = errors.Values |> Seq.collect id |> Seq.exists (not << String.IsNullOrEmpty)
 
 and AbstractProperties() =

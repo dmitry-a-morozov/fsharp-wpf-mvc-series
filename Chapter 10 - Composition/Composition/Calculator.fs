@@ -80,7 +80,6 @@ type CalculatorController() =
         | YChanged text -> this.YChanged text
 
     member this.Calculate model = 
-        model.ClearAllErrors()
         match model.SelectedOperation with
         | Add -> 
             model |> Validation.positive <@ fun m -> m.Y @>
