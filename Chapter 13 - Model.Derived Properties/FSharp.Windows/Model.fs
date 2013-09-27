@@ -4,22 +4,9 @@ open System
 open System.ComponentModel
 open System.Collections.Generic
 open System.Reflection
-open System.Linq
-open System.Windows
-open System.Windows.Data
-open Microsoft.FSharp.Quotations
-open Microsoft.FSharp.Quotations.Patterns 
-open Microsoft.FSharp.Quotations.DerivedPatterns
-open Microsoft.FSharp.Quotations.ExprShape
-
 open Castle.DynamicProxy
 
-open Binding.Patterns
-
-type NotifyDependencyChangedAttribute = ReflectedDefinitionAttribute
-
-module ModelExtensions = 
-
+module MethodInfo = 
     let (|PropertySetter|_|) (m : MethodInfo) =
         match m.Name.Split('_') with
         | [| "set"; propertyName |] -> assert m.IsSpecialName; Some propertyName
@@ -32,97 +19,12 @@ module ModelExtensions =
 
     let (|Abstract|_|) (m : MethodInfo) = if m.IsAbstract then Some() else None
 
-    type Expr with
-
-        member this.ExpandLetBindings() = 
-            match this with 
-            | Let(binding, expandTo, tail) -> 
-                tail.Substitute(fun var -> if var = binding then Some expandTo else None).ExpandLetBindings() 
-            | ShapeVar var -> Expr.Var(var)
-            | ShapeLambda(var, body) -> Expr.Lambda(var, body.ExpandLetBindings())  
-            | ShapeCombination(shape, exprs) -> ExprShape.RebuildShapeCombination(shape, exprs |> List.map(fun e -> e.ExpandLetBindings()))
-
-        member this.Dependencies = 
-            seq {
-                match this with 
-                | SourceAndPropertyPath x -> yield x
-                | ShapeVar _ -> ()
-                | ShapeLambda(_, body) -> yield! body.Dependencies   
-                | ShapeCombination(_, exprs) -> for subExpr in exprs do yield! subExpr.Dependencies 
-            }
-
-    let (|DependentProperty|_|) (memberInfo : MemberInfo) = 
-        match memberInfo with
-        | :? MethodInfo as getter ->
-            match getter with
-            | PropertyGetter propertyName & MethodWithReflectedDefinition (Lambda (model, propertyBody)) -> 
-                let binding = MultiBinding()
-                let self = Binding(RelativeSource = RelativeSource.Self) 
-                binding.Bindings.Add self
-
-                propertyBody
-                    .ExpandLetBindings()
-                    .Dependencies
-                    |> Seq.choose(function 
-                        | Some source, path when source = model -> Some(Binding(path, RelativeSource = RelativeSource.Self))
-                        | _ -> None)
-                    |> Seq.distinct 
-                    |> Seq.iter binding.Bindings.Add
-
-                binding.Converter <- {
-                    new IMultiValueConverter with
-
-                        member this.Convert(values, _, _, _) = 
-                            if values.Contains DependencyProperty.UnsetValue
-                            then 
-                                DependencyProperty.UnsetValue
-                            else
-                                try 
-                                    let model = values.[0] 
-                                    getter.Invoke(model, [||])
-                                with _ ->
-                                    DependencyProperty.UnsetValue
-
-                        member this.ConvertBack(_, _, _, _) = undefined
-                }
-                Some(propertyName, getter.ReturnType, binding)
-            | _ -> None
-        | _ -> None
-
-
-open ModelExtensions
+open MethodInfo
 
 [<AbstractClass>]
 type Model() = 
-    inherit DependencyObject()
 
-    static let dependentProperties = Dictionary()
     static let proxyFactory = ProxyGenerator()
-
-    static let options = 
-        ProxyGenerationOptions(
-            Hook = { 
-                new IProxyGenerationHook with
-                    member this.NonProxyableMemberNotification(_, member') = 
-                        match member' with
-                        | DependentProperty(propertyName, propertyType, binding) ->
-                            let perTypeDependentProperties = 
-                                match dependentProperties.TryGetValue member'.DeclaringType with 
-                                | true, xs -> xs
-                                | false, _ -> 
-                                    let xs = List()
-                                    dependentProperties.Add(member'.DeclaringType, xs)
-                                    xs
-                            let dp = DependencyProperty.Register(propertyName, propertyType, member'.DeclaringType)
-                            perTypeDependentProperties.Add(dp, binding)
-                        | _ -> ()
-                    member this.ShouldInterceptMethod(_, method') = 
-                        match method' with 
-                        | PropertyGetter _ | PropertySetter _ -> method'.IsVirtual 
-                        | _ -> false
-                    member this.MethodsInspected() = ()
-            }
-        )
 
     static let notifyPropertyChanged = {
         new StandardInterceptor() with
@@ -144,14 +46,7 @@ type Model() =
 
     static member Create<'T when 'T :> Model and 'T : not struct>()  : 'T = 
         let interceptors : IInterceptor[] = [| notifyPropertyChanged; AbstractProperties() |]
-        let model = proxyFactory.CreateClassProxy(options, interceptors)
-        match dependentProperties.TryGetValue typeof<'T> with
-        | true, xs ->
-            for dp, binding in xs do 
-                let bindingExpression = BindingOperations.SetBinding(model, dp, binding)
-                assert not bindingExpression.HasError
-        | false, _ -> ()
-        model
+        proxyFactory.CreateClassProxy interceptors    
 
     interface IDataErrorInfo with
         member this.Error = undefined
