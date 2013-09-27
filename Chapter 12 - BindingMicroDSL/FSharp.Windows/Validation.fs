@@ -1,17 +1,26 @@
-﻿[<AutoOpen>]
+﻿[<RequireQualifiedAccess>]
 module FSharp.Windows.Validation
 
 open System
+open Microsoft.FSharp.Quotations
+open Microsoft.FSharp.Quotations.Patterns
 
-let inline setError( SingleStepPropertySelector(propertyName, _) : PropertySelector< ^Model, _>) message model = 
+type PropertySelector<'T, 'a> = Expr<('T -> 'a)>
+
+let (|SingleStepPropertySelector|) (expr : PropertySelector<'T, 'a>) = 
+    match expr with 
+    | Lambda(arg, PropertyGet( Some (Var selectOn), property, [])) -> 
+        assert(arg.Name = selectOn.Name)
+        property.Name, fun(this : 'T) -> property.GetValue(this, [||]) |> unbox<'a>
+    | _ -> invalidArg "Property selector quotation" (string expr)
+
+let inline setError (SingleStepPropertySelector(propertyName, _) : PropertySelector< ^Model, _>) message model = 
     (^Model : (member SetError : string * string -> unit) (model, propertyName, message))
 
 let inline clearError expr = setError expr null
 
-let inline invalidIf( SingleStepPropertySelector(propertyName, getValue : ^Model -> _)) predicate message model = 
-    if model |> getValue |> predicate 
-    then 
-        (^Model : (member SetError : string * string -> unit) (model, propertyName, message))
+let inline invalidIf (SingleStepPropertySelector(_, getValue) as property) predicate message model = 
+    if model |> getValue |> predicate then setError property message model
 
 let inline assertThat expr predicate = invalidIf expr (not << predicate)
 

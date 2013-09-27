@@ -49,6 +49,10 @@ type StockPricesChartView(control) as this =
         Binding.FromExpression
             <@
                 this.Control.CompanyName.Text <- model.SelectedStock.CompanyName
+            @>
+
+        Binding.FromExpression
+            <@
                 this.Control.AccDist.Text <- model.SelectedStock.AccDist
             @>
 

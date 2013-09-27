@@ -53,8 +53,8 @@ type CalculatorView(control) =
                  
             yield this.Control.Y.TextChanged |> Observable.map(fun _ -> YChanged(this.Control.Y.Text))
 
-            yield this.Control.X.PreviewTextInput |> Observable.map(fun x -> XotYChanging(x.Text, fun() -> x.Handled <- true))
-            yield this.Control.Y.PreviewTextInput |> Observable.map(fun y -> XotYChanging(y.Text, fun() -> y.Handled <- true))
+            yield this.Control.X.PreviewTextInput |> Observable.map(fun x -> XotYChanging(x.Text + this.Control.X.Text, fun() -> x.Handled <- true))
+            yield this.Control.Y.PreviewTextInput |> Observable.map(fun y -> XotYChanging(y.Text + this.Control.Y.Text, fun() -> y.Handled <- true))
         ] 
 
     override this.SetBindings model = 

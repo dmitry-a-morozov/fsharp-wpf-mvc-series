@@ -163,16 +163,11 @@ type Model() =
         [<CLIEvent>]
         member this.ErrorsChanged = errorsChanged.Publish
 
-    member internal this.TriggerErrorsChanged propertyName = 
+    member this.SetErrors(propertyName, messages) = 
+        errors.[propertyName] <- messages 
         errorsChanged.Trigger(this, DataErrorsChangedEventArgs propertyName)
-
-    member this.AddErrors(propertyName, [<ParamArray>] messages) = 
-        errors.[propertyName] <- getErrorsOrEmpty propertyName @ List.ofArray messages 
-        this.TriggerErrorsChanged propertyName
-    member this.AddError(propertyName, message : string) = this.AddErrors(propertyName, message)
     member this.ClearErrors propertyName = 
-        errors.Remove propertyName |> ignore
-        this.TriggerErrorsChanged propertyName
+        this.SetErrors(propertyName, [])
     member this.HasErrors = errors.Values |> Seq.collect id |> Seq.exists (not << String.IsNullOrEmpty)
 
 and AbstractProperties() =
