@@ -1,9 +1,7 @@
-﻿
+﻿type View = IEvent<Events>  
+and Events = Incr | Decr
 
 type Model = { State : int }
-
-type View = IEvent<Events>  
-and Events = Incr | Decr
 
 type Controller = Model -> Events -> Model
 

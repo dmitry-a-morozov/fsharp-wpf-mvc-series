@@ -30,8 +30,8 @@ type IValueConverter with
 module Patterns = 
 
     type MemberInfo with
-        member internal this.IsNullableMember =  
-            this.DeclaringType.IsGenericType && this.DeclaringType.GetGenericTypeDefinition() = typedefof<Nullable<_>>
+        member internal this.IsNullableValue =  
+            this.DeclaringType.IsGenericType && this.DeclaringType.GetGenericTypeDefinition() = typedefof<Nullable<_>> && this.Name = "Value"
 
     let (|Target|_|) expr = 
         let rec loop = function
@@ -53,7 +53,7 @@ module Patterns =
                     sprintf "Binding to non-virtual writeable property: %O" property
                 )
                 //if property.IsNullable then acc else loop tail (property.Name :: acc)
-                if property.IsNullableMember && property.Name = "Value" 
+                if property.IsNullableValue && property.Name = "Value" 
                 then loop tail acc
                 else loop tail (property.Name :: acc)
 
@@ -86,7 +86,7 @@ module Patterns =
         | _ -> None    
 
     let (|Nullable|_|) = function
-        | NewObject( ctorInfo, [ propertyPath ] ) when ctorInfo.IsNullableMember ->
+        | NewObject( ctorInfo, [ propertyPath ] ) when ctorInfo.IsNullableValue ->
             Some propertyPath
         | _ -> None    
 

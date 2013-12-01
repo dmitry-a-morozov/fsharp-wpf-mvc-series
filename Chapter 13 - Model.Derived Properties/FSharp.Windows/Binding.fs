@@ -100,9 +100,7 @@ module Patterns =
             getMultiBindingForDerivedProperty(path, model, propertyBody, property.GetValue) |> Some
         | _ -> None
 
-    //let (|ExtensionDerivedProperty|_|) = function
-    let (|ExtensionDerivedProperty|_|) expr = 
-        match expr with
+    let (|ExtensionDerivedProperty|_|) = function
         | Call
             ( 
                 None, 

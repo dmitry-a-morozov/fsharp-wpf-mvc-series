@@ -10,14 +10,14 @@ open Microsoft.FSharp.Quotations.DerivedPatterns
 open Microsoft.FSharp.Quotations.ExprShape
 
 type PropertyInfo with
-    member internal this.IsPropertyOnNullable =  
-        this.DeclaringType.IsGenericType && this.DeclaringType.GetGenericTypeDefinition() = typedefof<Nullable<_>> && (this.Name = "Value" || this.Name = "HasValue")
+    member internal this.IsNullableValue =  
+        this.DeclaringType.IsGenericType && this.DeclaringType.GetGenericTypeDefinition() = typedefof<Nullable<_>> && this.Name = "Value"
 
 let (|PropertyPathOfDependency|_|) self expr = 
     let rec loop e acc = 
         match e with
         | PropertyGet( Some tail, property, []) -> 
-            if property.IsPropertyOnNullable
+            if property.IsNullableValue
             then loop tail acc 
             else loop tail (property.Name :: acc)
         | Var x when x = self -> acc

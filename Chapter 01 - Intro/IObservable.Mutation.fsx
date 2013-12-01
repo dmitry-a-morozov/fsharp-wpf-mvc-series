@@ -1,5 +1,4 @@
-﻿
-open System
+﻿open System
 
 type View = IObservable<Events>  
 and Events = Incr | Decr
@@ -9,7 +8,7 @@ type Controller = Model -> Events -> unit
 type Mvc = Controller -> Model -> IObservable<Events> -> IDisposable
 
 let subject = new Event<Events>()
-let raiseEvents =  List.iter subject.Trigger
+let raiseEvents xs = xs |> List.iter subject.Trigger
 let view = subject.Publish
 
 let model : Model = { State = 6 }
