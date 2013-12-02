@@ -17,9 +17,9 @@ namespace FSharp.Windows.UIElements
     /// <summary>
     /// Interaction logic for AsyncTempConveterControl.xaml
     /// </summary>
-    public partial class TempConveterControl : UserControl
+    public partial class TempConverterControl : UserControl
     {
-        public TempConveterControl()
+        public TempConverterControl()
         {
             InitializeComponent();
         }

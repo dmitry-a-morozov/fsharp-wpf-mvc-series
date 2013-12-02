@@ -8,7 +8,7 @@
     <ProjectGuid>{fc53e577-bb90-44b9-847f-81ad097cf38e}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Mvc.Wpf</RootNamespace>
-    <AssemblyName>Mvc.Wpf</AssemblyName>
+    <AssemblyName>FSharp.Windows</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <Name>FSharp.Windows</Name>

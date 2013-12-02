@@ -2,7 +2,7 @@
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module FSharp.Windows.Sample.TempConvertSoapClient
 
-type FSharp.Windows.UIElements.Sample.TempConvertSoapClient with
+type FSharp.Windows.UIElements.TempConverter.TempConvertSoapClient with
     
     member this.AsyncCelsiusToFahrenheit(celsius : float) = 
         async {

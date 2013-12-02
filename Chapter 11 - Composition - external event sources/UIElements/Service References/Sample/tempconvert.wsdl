@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://www.w3schools.com/webservices/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://www.w3schools.com/webservices/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
-    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+    <s:schema elementFormDefault="qualified" targetNamespace="http://www.w3schools.com/webservices/">
       <s:element name="FahrenheitToCelsius">
         <s:complexType>
           <s:sequence>
@@ -80,7 +80,7 @@
   <wsdl:binding name="TempConvertSoap" type="tns:TempConvertSoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="FahrenheitToCelsius">
-      <soap:operation soapAction="http://tempuri.org/FahrenheitToCelsius" style="document" />
+      <soap:operation soapAction="http://www.w3schools.com/webservices/FahrenheitToCelsius" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -89,7 +89,7 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="CelsiusToFahrenheit">
-      <soap:operation soapAction="http://tempuri.org/CelsiusToFahrenheit" style="document" />
+      <soap:operation soapAction="http://www.w3schools.com/webservices/CelsiusToFahrenheit" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -101,7 +101,7 @@
   <wsdl:binding name="TempConvertSoap12" type="tns:TempConvertSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="FahrenheitToCelsius">
-      <soap12:operation soapAction="http://tempuri.org/FahrenheitToCelsius" style="document" />
+      <soap12:operation soapAction="http://www.w3schools.com/webservices/FahrenheitToCelsius" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -110,7 +110,7 @@
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="CelsiusToFahrenheit">
-      <soap12:operation soapAction="http://tempuri.org/CelsiusToFahrenheit" style="document" />
+      <soap12:operation soapAction="http://www.w3schools.com/webservices/CelsiusToFahrenheit" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

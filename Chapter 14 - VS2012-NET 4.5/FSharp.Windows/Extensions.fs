@@ -10,9 +10,7 @@ module Extensions =
 
     let inline undefined<'T> = raise<'T> <| NotImplementedException()
 
-    type PropertySelector<'T, 'a> = Expr<('T -> 'a)>
-
-    let (|SingleStepPropertySelector|) (expr : PropertySelector<'T, 'a>) = 
+    let (|PropertySelector|) (expr : Expr<('T -> 'a)>) = 
         match expr with 
         | Lambda(arg, PropertyGet( Some (Var selectOn), property, [])) -> 
             assert(arg.Name = selectOn.Name)

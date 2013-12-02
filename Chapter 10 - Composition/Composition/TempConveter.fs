@@ -20,7 +20,7 @@ type TempConveterEvents =
     | CancelAsync
 
 type TempConveterView(control) =
-    inherit PartialView<TempConveterEvents, TempConveterModel, TempConveterControl>(control)
+    inherit PartialView<TempConveterEvents, TempConveterModel, TempConverterControl>(control)
    
     override this.EventStreams = 
         [
@@ -42,7 +42,7 @@ type TempConveterView(control) =
 type TempConveterController() = 
     inherit Controller<TempConveterEvents, TempConveterModel>()
 
-    let service = new Sample.TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
+    let service = new TempConverter.TempConvertSoapClient(endpointConfigurationName = "TempConvertSoap")
 
     override this.InitModel model = 
         model.ResponseStatus <- "Async TempConveter"

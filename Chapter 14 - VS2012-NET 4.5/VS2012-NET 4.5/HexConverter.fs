@@ -38,7 +38,7 @@ module HexConverter =
                 member this.SetBindings model = 
                     Binding.FromExpression 
                         <@ 
-                            window.Value.Text <- model.HexValue
+                            value.Text <- model.HexValue
                         @>
         }
         result.CancelButton <- window.Cancel

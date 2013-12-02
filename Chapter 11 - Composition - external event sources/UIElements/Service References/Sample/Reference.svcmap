@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="5fb66775-3918-4d51-9f19-3eeadbbb447a" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="19cbb129-035a-4c60-af0e-32e60f9558f3" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
   <ClientOptions>
     <GenerateAsynchronousMethods>true</GenerateAsynchronousMethods>
     <EnableDataBinding>true</EnableDataBinding>
@@ -21,7 +21,7 @@
     <MetadataSource Address="http://www.w3schools.com/webservices/tempconvert.asmx?WSDL" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="tempconvert.wsdl" MetadataType="Wsdl" ID="b4050cb4-2474-45e6-88c8-3d0d9b3637ee" SourceId="1" SourceUrl="http://www.w3schools.com/webservices/tempconvert.asmx?WSDL" />
+    <MetadataFile FileName="tempconvert.wsdl" MetadataType="Wsdl" ID="2d8bb50c-c68c-402d-9401-ec37ee5acf9a" SourceId="1" SourceUrl="http://www.w3schools.com/webservices/tempconvert.asmx?WSDL" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

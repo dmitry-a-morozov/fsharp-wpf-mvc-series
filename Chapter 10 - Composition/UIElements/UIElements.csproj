@@ -8,7 +8,7 @@
     <ProjectGuid>{FA52EE33-ECBE-4354-BCF2-CAEA2B9442DF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Mvc.Wpf.UIElements</RootNamespace>
+    <RootNamespace>FSharp.Windows.UIElements</RootNamespace>
     <AssemblyName>FSharp.Windows.UIElements</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -58,13 +58,13 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Service References\Sample\Reference.cs">
+    <Compile Include="Service References\TempConverter\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="TempConveterControl.xaml.cs">
-      <DependentUpon>TempConveterControl.xaml</DependentUpon>
+    <Compile Include="TempConverterControl.xaml.cs">
+      <DependentUpon>TempConverterControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CalculatorControl.xaml.cs">
       <DependentUpon>CalculatorControl.xaml</DependentUpon>
@@ -78,7 +78,7 @@
     <Compile Include="HexConverterWindow.xaml.cs">
       <DependentUpon>HexConverterWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="TempConveterControl.xaml">
+    <Page Include="TempConverterControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -129,27 +129,28 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <None Include="Service References\Sample\tempconvert.wsdl" />
+    <None Include="Service References\TempConverter\tempconvert.wsdl" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Service References\Sample\" />
+    <WCFMetadataStorage Include="Service References\TempConverter\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\Sample\configuration91.svcinfo" />
+    <None Include="Service References\TempConverter\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\Sample\configuration.svcinfo" />
+    <None Include="Service References\TempConverter\configuration.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\Sample\Reference.svcmap">
+    <None Include="Service References\TempConverter\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>

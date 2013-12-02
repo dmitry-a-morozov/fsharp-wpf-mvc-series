@@ -89,12 +89,12 @@ type CalculatorController() =
         match model.SelectedOperation with
         | Add -> 
             model |> Validation.positive <@ fun m -> m.Y @>
-            if not model.HasErrors
+            if model.IsValid
             then 
                 model.Result <- model.X + model.Y
         | Subtract -> 
             model |> Validation.positive <@ fun m -> m.Y @>
-            if not model.HasErrors
+            if not model.IsValid
             then 
                 model.Result <- model.X - model.Y
         | Multiply -> 

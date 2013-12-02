@@ -16,7 +16,7 @@
                 <local:CalculatorControl x:Name="Calculator" x:FieldModifier="public"/>
             </TabItem>
             <TabItem Header="Async Temperature Converter">
-                <local:TempConveterControl x:Name="TempConveterControl" x:FieldModifier="public"/>
+                <local:TempConverterControl x:Name="TempConveterControl" x:FieldModifier="public"/>
             </TabItem>
             <TabItem Header="Stock Prices">
                 <local:StockPricesChartControl x:Name="StockPricesChart" x:FieldModifier="public"/>

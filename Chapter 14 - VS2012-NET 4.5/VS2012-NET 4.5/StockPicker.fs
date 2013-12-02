@@ -58,7 +58,7 @@ type StockPickerView(xaml : StockPickerWindow) as this =
             <@ 
                 companyName.Text <- model.CompanyName
                 addToChart.IsEnabled <- model.AddToChartEnabled
-                retrieve.IsEnabled <- isNotNull model.Symbol
+                retrieve.IsEnabled <- not <| String.IsNullOrEmpty model.Symbol
             @>
 
         Binding.UpdateSourceOnChange <@ symbol.Text <- model.Symbol @>
