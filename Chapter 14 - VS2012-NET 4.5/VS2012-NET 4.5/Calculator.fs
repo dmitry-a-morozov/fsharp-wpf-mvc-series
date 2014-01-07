@@ -2,6 +2,7 @@
 
 open System
 open System.Windows.Data
+open System.Windows.Media
 open Microsoft.FSharp.Reflection
 open FSharp.Windows
 open FSharp.Windows.UIElements
@@ -30,6 +31,14 @@ type CalculatorModel() =
     abstract Y : int with get, set
     abstract Result : int with get, set
 
+    [<DerivedProperty>]
+    member this.ResultColor = 
+        let color = 
+            if this.Result < 0 then "Red"
+            elif this.Result > 0 then "Green" 
+            else "Black"
+        BrushConverter().ConvertFromString color |> unbox<Brush>
+        
 type CalculatorEvents = 
     | Calculate
     | Clear 
@@ -62,9 +71,12 @@ type CalculatorView(control) =
             <@ 
                 this.Control.Operation.ItemsSource <- model.AvailableOperations 
                 this.Control.Operation.SelectedItem <- model.SelectedOperation
-                this.Control.X.Text <- string model.X
-                this.Control.Y.Text <- string model.Y 
-                this.Control.Result.Text <- string model.Result 
+                this.Control.X.Text <- coerce model.X
+                this.Control.Y.Text <- coerce model.Y 
+                this.Control.Result.Text <- coerce model.Result 
+                this.Control.Result.Foreground <- model.ResultColor
+
+                this.Control.Result.Foreground <- coerce(match model.Result with | 0 -> "Black" | x -> if x > 0 then "Green" else "Red")
             @>
 
 type CalculatorController() = 
@@ -94,7 +106,7 @@ type CalculatorController() =
                 model.Result <- model.X + model.Y
         | Subtract -> 
             model |> Validation.positive <@ fun m -> m.Y @>
-            if not model.IsValid
+            if model.IsValid
             then 
                 model.Result <- model.X - model.Y
         | Multiply -> 

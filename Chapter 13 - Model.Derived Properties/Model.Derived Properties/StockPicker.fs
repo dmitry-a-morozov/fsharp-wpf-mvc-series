@@ -23,14 +23,6 @@ type StockInfoModel() =
 
     abstract AddToChartEnabled : bool with get, set
 
-//    [<DerivedProperty>]
-//    member this.AccDist = 
-//        if this.DaysLow = 0M && this.DaysHigh = 0M then "Accumulation/Distribution: N/A"
-//        else
-//            let moneyFlowMultiplier = (this.LastPrice - this.DaysLow) - (this.DaysHigh - this.LastPrice) / (this.DaysHigh - this.DaysLow)
-//            let moneyFlowVolume  = moneyFlowMultiplier * this.Volume
-//            sprintf "Accumulation/Distribution: %M" <| Decimal.Round(moneyFlowVolume, 2)
-
 [<AutoOpen>]
 module StockInfoModelExtensions = 
     type StockInfoModel with

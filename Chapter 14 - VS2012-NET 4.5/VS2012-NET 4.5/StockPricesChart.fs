@@ -54,10 +54,10 @@ type StockPricesChartView(control) as this =
 
         Binding.UpdateSourceOnChange
             <@
-                this.Control.LastPrice.Text <- string model.SelectedStock.LastPrice
-                this.Control.DaysHigh.Text <- string model.SelectedStock.DaysHigh
-                this.Control.DaysLow.Text <- string model.SelectedStock.DaysLow
-                this.Control.Volume.Text <- string model.SelectedStock.Volume
+                this.Control.LastPrice.Text <- coerce model.SelectedStock.LastPrice
+                this.Control.DaysHigh.Text <- coerce model.SelectedStock.DaysHigh
+                this.Control.DaysLow.Text <- coerce model.SelectedStock.DaysLow
+                this.Control.Volume.Text <- coerce model.SelectedStock.Volume
             @>
 
 type StockPricesChartController() = 

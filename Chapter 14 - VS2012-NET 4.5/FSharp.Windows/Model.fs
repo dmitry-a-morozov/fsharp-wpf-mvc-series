@@ -16,8 +16,6 @@ open Castle.DynamicProxy
 
 open Binding.Patterns
 
-type NotifyDependencyChangedAttribute = ReflectedDefinitionAttribute
-
 module ModelExtensions = 
 
     let (|PropertySetter|_|) (m : MethodInfo) =

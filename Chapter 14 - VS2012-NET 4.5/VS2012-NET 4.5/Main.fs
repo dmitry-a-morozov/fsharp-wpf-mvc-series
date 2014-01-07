@@ -18,7 +18,7 @@ type MainModel() =
 
     abstract ProcessName : string with get, set
     abstract ActiveTab : TabItem with get, set
-    [<NotifyDependencyChanged>]
+    [<DerivedProperty>]
     member this.Title = sprintf "%s-%O" this.ProcessName this.ActiveTab.Header
 
     abstract RunningTime : TimeSpan with get, set

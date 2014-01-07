@@ -29,6 +29,8 @@ type IValueConverter with
 
     member this.Apply _ = undefined
 
+let coerce _ = undefined
+
 module Patterns = 
 
     type PropertyInfo with
@@ -170,7 +172,7 @@ module Patterns =
         | PropertyPath path -> 
             upcast Binding(path)
         | Coerce( BindingExpression binding, _) 
-        | SpecificCall <@ string @> (None, _, [ BindingExpression binding ]) 
+        | SpecificCall <@ coerce @> (None, _, [ BindingExpression binding ]) 
         | Nullable( BindingExpression binding) -> 
             binding
         | StringFormat(format, BindingExpression binding) -> 

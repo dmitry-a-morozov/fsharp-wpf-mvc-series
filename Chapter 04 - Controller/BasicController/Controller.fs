@@ -8,7 +8,7 @@ type IController<'Events, 'Model> =
 module Controller = 
 
     let fromEventHandler callback = {
-        new IController<'Events, 'Model> with
+        new IController<_, _> with
             member this.InitModel _ = ()
             member this.EventHandler = callback
     } 

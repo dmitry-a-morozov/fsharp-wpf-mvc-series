@@ -9,6 +9,5 @@ do
     let model = SampleModel.Create()
     let view = SampleView()
     let controller = SampleController()
-    let mvc = Mvc(model, view, controller)
-    mvc.Start() |> ignore
+    let eventLoop = Mvc.start model view controller
     Application().Run view.Window |> ignore

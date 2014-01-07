@@ -5,6 +5,7 @@ open System.Collections.Generic
 open System.Globalization
 open System.Windows.Data
 open System.Windows.Controls
+open System.Windows
 open System.Net
 open System.Linq
 open FSharp.Windows
@@ -23,7 +24,7 @@ type StockInfoModel() =
 
     abstract AddToChartEnabled : bool with get, set
 
-    [<NotifyDependencyChanged>]
+    [<DerivedProperty>]
     member this.AccDist = 
         if this.DaysLow = 0M && this.DaysHigh = 0M then "Accumulation/Distribution: N/A"
         else
@@ -59,15 +60,18 @@ type StockPickerView(xaml : StockPickerWindow) as this =
                 companyName.Text <- model.CompanyName
                 addToChart.IsEnabled <- model.AddToChartEnabled
                 retrieve.IsEnabled <- not <| String.IsNullOrEmpty model.Symbol
+
+                addToChart.Visibility <- 
+                    if String.IsNullOrEmpty model.CompanyName then Visibility.Collapsed else Visibility.Visible
             @>
 
         Binding.UpdateSourceOnChange <@ symbol.Text <- model.Symbol @>
 
-        let converter = BooleanToVisibilityConverter()
-        Binding.FromExpression 
-            <@ 
-                addToChart.Visibility <- converter.Apply model.AddToChartEnabled
-            @>
+//        let converter = BooleanToVisibilityConverter()
+//        Binding.FromExpression 
+//            <@ 
+//                addToChart.Visibility <- converter.Apply model.AddToChartEnabled
+//            @>
 
 type StockPickerController() = 
     inherit Controller<unit, StockInfoModel>()

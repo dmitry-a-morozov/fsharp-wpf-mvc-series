@@ -34,9 +34,9 @@ type TempConveterView(control) =
         Binding.FromExpression 
             <@ 
                 this.Control.ResponseStatus.Content <- model.ResponseStatus
-                this.Control.Celsius.Text <- string model.Celsius
-                this.Control.Fahrenheit.Text <- string model.Fahrenheit
-                this.Control.Delay.Text <- string model.Delay
+                this.Control.Celsius.Text <- coerce model.Celsius
+                this.Control.Fahrenheit.Text <- coerce model.Fahrenheit
+                this.Control.Delay.Text <- coerce model.Delay
             @>
 
 type TempConveterController() = 

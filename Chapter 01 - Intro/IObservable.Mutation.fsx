@@ -5,7 +5,7 @@ and Events = Incr | Decr
 
 type Model = { mutable State : int }
 type Controller = Model -> Events -> unit
-type Mvc = Controller -> Model -> IObservable<Events> -> IDisposable
+type Mvc = Controller -> Model -> View -> IDisposable
 
 let subject = new Event<Events>()
 let raiseEvents xs = xs |> List.iter subject.Trigger
