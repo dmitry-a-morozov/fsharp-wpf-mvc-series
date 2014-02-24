@@ -1,8 +1,7 @@
 ﻿open System
 
+type Events = Incr | Decr
 type View = IObservable<Events>  
-and Events = Incr | Decr
-
 type Model = { mutable State : int }
 type Controller = Model -> Events -> unit
 type Mvc = Controller -> Model -> View -> IDisposable

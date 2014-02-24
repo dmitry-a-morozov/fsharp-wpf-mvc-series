@@ -199,7 +199,7 @@ module Patterns =
         fallbackValue |> Option.iter (fun x -> (^a : (member set_FallbackValue : obj -> unit) (binding, x)))
         targetNullValue |> Option.iter (fun x -> (^a : (member set_TargetNullValue : obj -> unit) (binding, x)))
         validatesOnExceptions |> Option.iter (fun x -> (^a : (member set_ValidatesOnExceptions : bool -> unit) (binding, x)))
-        (^a : (member set_ValidatesOnDataErrors : bool -> unit) (binding, defaultArg validatesOnDataErrors true))
+        validatesOnDataErrors |> Option.iter (fun x -> (^a : (member set_ValidatesOnDataErrors : bool -> unit) (binding, x)))
 
     type Expr with
         member this.ToBindingExpr(?mode, ?updateSourceTrigger, ?fallbackValue, ?targetNullValue, ?validatesOnExceptions, ?validatesOnDataErrors) = 
