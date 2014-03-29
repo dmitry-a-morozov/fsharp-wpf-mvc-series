@@ -97,7 +97,7 @@ module Patterns =
                 []
             ) when not property.CanWrite ->
             assert(unitVar.Type = typeof<unit>)
-            getMultiBindingForDerivedProperty(path, model, propertyBody, property.GetValue) |> Some
+            getMultiBindingForDerivedProperty(path, model, propertyBody, (fun obj -> property.GetValue( obj, Array.empty))) |> Some
         | _ -> None
 
     let (|ExtensionDerivedProperty|_|) = function
