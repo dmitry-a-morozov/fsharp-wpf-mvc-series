@@ -65,7 +65,7 @@ let getPropertyDependencies(model, propertyBody) =
         |> Seq.toList
 
 let getMultiBindingForDerivedProperty(root, model : Var, body : Expr, getter : obj -> obj) = 
-    let binding = MultiBinding()
+    let binding = MultiBinding(ValidatesOnNotifyDataErrors = false)
     let self = Binding(path = root) 
     binding.Bindings.Add self
 

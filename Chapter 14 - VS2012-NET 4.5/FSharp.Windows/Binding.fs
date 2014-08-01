@@ -155,15 +155,7 @@ module Patterns =
                 |> Microsoft.FSharp.Linq.RuntimeHelpers.LeafExpressionConverter.EvaluateQuotation 
                 |> unbox
 
-            let binding = Binding(prop.Name, Mode = BindingMode.OneWay)
-            binding.Converter <- {
-                new IValueConverter with
-                    member this.Convert(value, _, _, _) = 
-                        try converter value 
-                        with _ -> DependencyProperty.UnsetValue
-                    member this.ConvertBack(_, _, _, _) = DependencyProperty.UnsetValue
-            }
-            Some binding
+            Some (Binding(prop.Name, Mode = BindingMode.OneWay, Converter = IValueConverter.OneWay converter))
         | _ -> None
 
     let rec (|BindingExpression|) = function
@@ -175,9 +167,10 @@ module Patterns =
         | SpecificCall <@ coerce @> (None, _, [ BindingExpression binding ]) 
         | Nullable( BindingExpression binding) -> 
             binding
-        | StringFormat(format, BindingExpression binding) -> 
+        | StringFormat(format, BindingExpression(:? Binding as binding)) -> 
             binding.StringFormat <- format
-            binding
+            binding.ValidatesOnNotifyDataErrors <- false
+            upcast binding
 
         //??? hard to say if can be generally useful. For erased types.
 //        | Call((Some (Value (:? System.ComponentModel.ICustomTypeDescriptor as model, _))), get_Item, [ Value(:? string as propertyName, _)]) 
@@ -188,9 +181,12 @@ module Patterns =
             upcast binding
         | Converter(convert, BindingExpression(:? Binding as binding)) -> 
             binding.Mode <- BindingMode.OneWay
+            binding.ValidatesOnNotifyDataErrors <- false
             binding.Converter <- IValueConverter.OneWay convert
             upcast binding
-        | SinglePropertyExpression binding -> upcast binding
+        | SinglePropertyExpression binding -> 
+            binding.ValidatesOnNotifyDataErrors <- false
+            upcast binding
         | expr -> invalidArg "binding property path quotation" (string expr)
 
     let inline configureBinding(binding : #BindingBase, mode, updateSourceTrigger, fallbackValue, targetNullValue, validatesOnExceptions, validatesOnDataErrors) = 
